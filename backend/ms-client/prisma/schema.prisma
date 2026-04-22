@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Client {
+  id String @id @default(uuid()) @db.Uuid
+
+  name         String @db.VarChar(255)
+  document     String @db.VarChar(50)
+  responsible  String @db.VarChar(255)
+  email        String @unique @db.VarChar(255)
+  phone        String @db.VarChar(20)
+  whatsapp     String @db.VarChar(20)
+  segmentId    String @db.Uuid
+  leadId       String @db.Uuid
+  addressId    String @db.Uuid
+  sellerId     String @db.Uuid
+  observations String @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  segment Segment @relation(fields: [segmentId], references: [id])
+  lead    Lead    @relation(fields: [leadId], references: [id])
+  address Address @relation(fields: [addressId], references: [id])
+
+  contracts Contract[]
+
+  @@index([document])
+  @@index([email])
+  @@index([sellerId])
+  @@map("clients")
+}
+
+model Segment {
+  id      String   @id @default(uuid()) @db.Uuid
+  name    String   @db.VarChar(255)
+  clients Client[]
+}
+
+model Lead {
+  id      String   @id @default(uuid()) @db.Uuid
+  source  String   @db.VarChar(255)
+  clients Client[]
+}
+
+model Address {
+  id String @id @default(uuid()) @db.Uuid
+
+  street   String @db.VarChar(255)
+  number   String @db.VarChar(20)
+  city     String @db.VarChar(255)
+  state    String @db.VarChar(255)
+  zip_code String @db.VarChar(20)
+
+  client   Client[]
+  contract Contract[]
+
+  @@index([city])
+  @@index([state])
+}
+
+model Contract {
+  id String @id @default(uuid()) @db.Uuid
+
+  clientId         String @db.Uuid
+  addressId        String @db.Uuid
+  typeId           String @db.Uuid
+  planId           String @db.Uuid
+  machines         Int
+  monthlyValue     Float
+  durationDays     Int
+  paymentDay       Int
+  initialFragrance String @db.Uuid
+  observations     String @db.Text
+
+  template_id String @db.Uuid
+  status      String @default("active") @db.VarChar(50)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  client  Client       @relation(fields: [clientId], references: [id])
+  address Address      @relation(fields: [addressId], references: [id])
+  type    ContractType @relation(fields: [typeId], references: [id])
+  plan    Plan         @relation(fields: [planId], references: [id])
+
+  @@index([clientId])
+  @@index([typeId])
+  @@index([planId])
+  @@index([template_id])
+  @@index([status])
+  @@map("contracts")
+}
+
+model ContractType {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(255)
+
+  contracts Contract[]
+}
+
+model Plan {
+  id String @id @default(uuid()) @db.Uuid
+
+  name  String @db.VarChar(255)
+  price Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  contracts Contract[]
+}
