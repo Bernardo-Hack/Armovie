@@ -1,0 +1,60 @@
+# ─── Variáveis de ambiente
+.env
+.env.local
+.env.*.local
+
+# ─── Node / TypeScript
+node_modules/
+dist/
+dist-ssr/
+build/
+*.local
+logs/
+*.log
+npm-debug.log*
+
+# ─── Prisma 
+ms-user/src/generated/prisma
+ms-client/src/generated/prisma
+ms-item/src/generated/prisma
+
+# Distribuição / empacotamento
+*.egg
+*.egg-info/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+wheels/
+*.whl
+MANIFEST
+
+# Coverage e testes
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+
+# ─── Frontend / Vite 
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── Editores e SO 
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ─── Uploads e arquivos gerados
+uploads/
+*.sqlite
+*.sqlite3
