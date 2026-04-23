@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Machine {
+  id String @id @default(uuid()) @db.Uuid
+
+  name             String @db.VarChar(50)
+  model            String @db.VarChar(50)
+  status           String @default("Available") @db.VarChar(20)
+  contractId       String @db.VarChar(20)
+  city             String @db.VarChar(100)
+  price            Float
+  consumptionLogId String @db.Uuid
+  serviceLogId     String @db.Uuid
+  fragranceId      String @db.Uuid
+
+  consumptionLogs ConsumptionLog[]
+  serviceLogs     ServiceLog[]
+  fragrance       Fragrance             @relation(fields: [fragranceId], references: [id])
+
+  lastService DateTime @updatedAt
+  created_at  DateTime @default(now())
+
+  @@index([model])
+  @@index([status])
+  @@index([contractId])
+  @@index([city])
+  @@map("machines")
+}
+
+model ConsumptionLog {
+  id String @id @default(uuid()) @db.Uuid
+
+  machineId  String   @db.Uuid
+  timeSpan   DateTime
+  mlConsumed Float
+
+  created_at DateTime @default(now())
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId])
+  @@map("consumptionLogs")
+}
+
+model ServiceLog {
+  id String @id @default(uuid()) @db.Uuid
+
+  machineId    String   @db.Uuid
+  observation  String   @db.Text
+  timeSpan     DateTime
+  serviceType  String   @db.VarChar(50)
+  date         DateTime
+  technicianId String   @db.VarChar(255)
+
+  created_at DateTime @default(now())
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([machineId])
+  @@index([technicianId])
+  @@map("serviceLogs")
+}
+
+model Item {
+  id String @id @default(uuid()) @db.Uuid
+
+  name        String @db.VarChar(125)
+  description String @db.Text
+  status      String @default("active") @db.VarChar(20)
+  price       Float // for fragrances: price per ml
+  stock       Int // for fragrances: milliliters in stock
+  minStock    Int // for fragrances: minimum stock level in milliliters
+  itemType    String @db.VarChar(50)
+  supplier    String @db.VarChar(100)
+
+  fragrance Fragrance?
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model Fragrance {
+  id String @id @default(uuid()) @db.Uuid
+
+  machines Machine[]
+
+  item Item @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

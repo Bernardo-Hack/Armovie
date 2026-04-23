@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
     "outDir": "./dist",
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"]
   },
   "extends": "../../configs/tsconfig.base.json",
   "include": ["src/**/*", "tests/**/*", "prisma.config.ts"],
