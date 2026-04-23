@@ -9,109 +9,131 @@ datasource db {
 model Client {
   id String @id @default(uuid()) @db.Uuid
 
-  name         String @db.VarChar(255)
-  document     String @db.VarChar(50)
-  responsible  String @db.VarChar(255)
-  email        String @unique @db.VarChar(255)
-  phone        String @db.VarChar(20)
-  whatsapp     String @db.VarChar(20)
-  segmentId    String @db.Uuid
-  leadId       String @db.Uuid
-  addressId    String @db.Uuid
-  sellerId     String @db.Uuid
-  observations String @db.Text
+  name         String  @db.VarChar(128)
+  document     String  @unique @db.VarChar(16)
+  responsible  String  @db.VarChar(128)
+  email        String  @unique @db.VarChar(128)
+  phone        String  @db.VarChar(32)
+  whatsapp     String  @db.VarChar(32)
+  segmentId    String  @db.Uuid
+  lead         Lead
+  sellerId     String  @db.Uuid
+  observations String? @db.Text
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  segment Segment @relation(fields: [segmentId], references: [id])
-  lead    Lead    @relation(fields: [leadId], references: [id])
-  address Address @relation(fields: [addressId], references: [id])
+  segment Segment   @relation(fields: [segmentId], references: [id])
+  address Address[]
 
   contracts Contract[]
 
   @@index([document])
   @@index([email])
+  @@index([segmentId])
+  @@index([lead])
   @@index([sellerId])
   @@map("clients")
 }
 
 model Segment {
   id      String   @id @default(uuid()) @db.Uuid
-  name    String   @db.VarChar(255)
+  name    String   @db.VarChar(64)
   clients Client[]
+
+  @@map("segments")
 }
 
-model Lead {
-  id      String   @id @default(uuid()) @db.Uuid
-  source  String   @db.VarChar(255)
-  clients Client[]
+enum Lead {
+  Instagram
+  GoogleAds
+  Referral
+  Other
 }
 
 model Address {
   id String @id @default(uuid()) @db.Uuid
 
-  street   String @db.VarChar(255)
-  number   String @db.VarChar(20)
-  city     String @db.VarChar(255)
-  state    String @db.VarChar(255)
-  zip_code String @db.VarChar(20)
+  street   String @db.VarChar(256)
+  number   String @db.VarChar(8)
+  zip_code String @db.VarChar(32)
+  city     String @db.VarChar(64)
+  state    String @db.VarChar(64)
+  clientId String @db.Uuid
 
-  client   Client[]
+  client   Client     @relation(fields: [clientId], references: [id])
   contract Contract[]
 
   @@index([city])
   @@index([state])
+  @@map("addresses")
 }
 
 model Contract {
   id String @id @default(uuid()) @db.Uuid
 
-  clientId         String @db.Uuid
-  addressId        String @db.Uuid
-  typeId           String @db.Uuid
-  planId           String @db.Uuid
-  machines         Int
-  monthlyValue     Float
-  durationDays     Int
-  paymentDay       Int
-  initialFragrance String @db.Uuid
-  observations     String @db.Text
+  clientId     String       @db.Uuid
+  addressId    String       @db.Uuid
+  type         ContractType
+  planId       String       @db.Uuid
+  machines     Int
+  monthlyValue Float
+  duration     Int // in days
+  paymentDay   Int
+  fragrance    String       @db.Uuid
+  observations String?      @db.Text
+  templateId   String       @db.Uuid
 
-  template_id String @db.Uuid
-  status      String @default("active") @db.VarChar(50)
+  status String @default("active") @db.VarChar(16)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  client  Client       @relation(fields: [clientId], references: [id])
-  address Address      @relation(fields: [addressId], references: [id])
-  type    ContractType @relation(fields: [typeId], references: [id])
-  plan    Plan         @relation(fields: [planId], references: [id])
+  client   Client    @relation(fields: [clientId], references: [id])
+  address  Address   @relation(fields: [addressId], references: [id])
+  plan     Plan      @relation(fields: [planId], references: [id])
+  template Template? @relation(fields: [templateId], references: [id])
 
   @@index([clientId])
-  @@index([typeId])
+  @@index([type])
   @@index([planId])
-  @@index([template_id])
+  @@index([templateId])
   @@index([status])
   @@map("contracts")
 }
 
-model ContractType {
-  id   String @id @default(uuid()) @db.Uuid
-  name String @db.VarChar(255)
-
-  contracts Contract[]
+enum ContractType {
+  Subscription
+  Rental
+  Sale
+  Loan
 }
 
 model Plan {
   id String @id @default(uuid()) @db.Uuid
 
-  name  String @db.VarChar(255)
+  name  String @db.VarChar(128)
   price Float
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   contracts Contract[]
+
+  @@map("plans")
+}
+
+model Template {
+  id String @id @default(uuid()) @db.Uuid
+
+  name        String  @unique @db.VarChar(128)
+  description String? @db.Text
+  content     String  @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  contracts Contract[]
+
+  @@map("templates")
 }
