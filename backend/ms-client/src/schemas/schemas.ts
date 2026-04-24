@@ -10,25 +10,15 @@ export const clientSchema = z.object({
 	phone: z.string(),
 	whatsapp: z.string(),
 
-	segmentId: z.uuid(),
-	planId: z.uuid(),
+	segment: z.enum(["Retail", "Hospitality", "Healthcare", "Gastronomy", "Other"]),
+	lead: z.enum(["Instagram", "GoogleAds", "Referral", "Other"]),
 	sellerId: z.uuid(),
-	leadId: z.uuid(),
+	observations: z.string().optional(),
 
 	status: z.enum(["active", "inactive", "suspended"]),
 
-	observations: z.string().optional(),
-
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
-});
-
-export const segmentSchema = z.object({
-	name: z.string(),
-});
-
-export const leadSchema = z.object({
-	name: z.string(),
 });
 
 export const addressSchema = z.object({
@@ -43,28 +33,27 @@ export const addressSchema = z.object({
 export const contractSchema = z.object({
 	clientId: z.uuid(),
 	addressId: z.uuid(),
-	typeId: z.uuid(),
+	templateId: z.uuid(),
 	planId: z.uuid(),
+	type: z.enum(["Subscription", "Rental", "Sale", "Loan"]),
+
 	machines: z.number(),
-	monthlyValue: z.number(),
-	duration: z.number(),
-	paymentDay: z.number(),
 	fragrance: z.uuid(),
+	duration: z.number(),
+	
+	monthlyValue: z.number(),
+	paymentDay: z.number(),
 	observations: z.string().optional(),
-	templateId: z.uuid().optional(),
+
 	status: z.enum(["active", "inactive", "suspended"]),
 
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
 });
 
-export const typeSchema = z.object({
-	name: z.string(),
-});
-
 export const planSchema = z.object({
 	name: z.string(),
-	price: z.string().optional(),
+	price: z.float32(),
 
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
@@ -87,24 +76,12 @@ export const registerSchema = z.discriminatedUnion("table", [
 		data: clientSchema,
 	}),
 	z.object({
-		table: z.literal("segment"),
-		data: segmentSchema,
-	}),
-	z.object({
-		table: z.literal("lead"),
-		data: leadSchema,
-	}),
-	z.object({
 		table: z.literal("address"),
 		data: addressSchema,
 	}),
 	z.object({
 		table: z.literal("contract"),
 		data: contractSchema,
-	}),
-	z.object({
-		table: z.literal("type"),
-		data: typeSchema,
 	}),
 	z.object({
 		table: z.literal("plan"),
@@ -126,24 +103,12 @@ export const updateSchemas = z.discriminatedUnion("table", [
 		data: clientSchema.partial(),
 	}),
 	z.object({
-		table: z.literal("segment"),
-		data: segmentSchema.partial(),
-	}),
-	z.object({
-		table: z.literal("lead"),
-		data: leadSchema.partial(),
-	}),
-	z.object({
 		table: z.literal("address"),
 		data: addressSchema.partial(),
 	}),
 	z.object({
 		table: z.literal("contract"),
 		data: contractSchema.partial(),
-	}),
-	z.object({
-		table: z.literal("type"),
-		data: typeSchema.partial(),
 	}),
 	z.object({
 		table: z.literal("plan"),

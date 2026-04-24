@@ -15,33 +15,32 @@ model Client {
   email        String  @unique @db.VarChar(128)
   phone        String  @db.VarChar(32)
   whatsapp     String  @db.VarChar(32)
-  segmentId    String  @db.Uuid
+
   lead         Lead
+  segment      Segment
   sellerId     String  @db.Uuid
   observations String? @db.Text
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  segment Segment   @relation(fields: [segmentId], references: [id])
   address Address[]
-
   contracts Contract[]
 
   @@index([document])
   @@index([email])
-  @@index([segmentId])
   @@index([lead])
+  @@index([segment])
   @@index([sellerId])
   @@map("clients")
 }
 
-model Segment {
-  id      String   @id @default(uuid()) @db.Uuid
-  name    String   @db.VarChar(64)
-  clients Client[]
-
-  @@map("segments")
+enum Segment {
+  Retail
+  Hospitality
+  Healthcare
+  Gastronomy
+  Other
 }
 
 enum Lead {
@@ -74,15 +73,17 @@ model Contract {
 
   clientId     String       @db.Uuid
   addressId    String       @db.Uuid
-  type         ContractType
-  planId       String       @db.Uuid
-  machines     Int
-  monthlyValue Float
-  duration     Int // in days
-  paymentDay   Int
-  fragrance    String       @db.Uuid
-  observations String?      @db.Text
   templateId   String       @db.Uuid
+  planId       String       @db.Uuid
+  type         ContractType
+
+  machines     Int
+  fragrance    String       @db.Uuid
+  duration     Int // in days
+
+  monthlyValue Float
+  paymentDay   Int
+  observations String?      @db.Text
 
   status String @default("active") @db.VarChar(16)
 
