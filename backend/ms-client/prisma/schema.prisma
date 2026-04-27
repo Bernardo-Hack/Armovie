@@ -27,8 +27,6 @@ model Client {
   address Address[]
   contracts Contract[]
 
-  @@index([document])
-  @@index([email])
   @@index([lead])
   @@index([segment])
   @@index([sellerId])
@@ -60,11 +58,10 @@ model Address {
   state    String @db.VarChar(64)
   clientId String @db.Uuid
 
-  client   Client     @relation(fields: [clientId], references: [id])
+  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
   contract Contract[]
 
-  @@index([city])
-  @@index([state])
+  @@index(fields: [city, state], name: "city_state_idx")
   @@map("addresses")
 }
 
@@ -90,7 +87,7 @@ model Contract {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  client   Client    @relation(fields: [clientId], references: [id])
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   address  Address   @relation(fields: [addressId], references: [id])
   plan     Plan      @relation(fields: [planId], references: [id])
   template Template? @relation(fields: [templateId], references: [id])
