@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { registerSchema } from "../schemas/schemas";
+import { registerSchemas, updateSchemas } from "../schemas/schemas";
 import { clientService } from "../services/clientService";
 import { ApiError } from "../errors/apiError";
 
@@ -9,7 +9,7 @@ export async function clientRoutes(app: FastifyInstance) {
 	// Create a new client
 	app.post("/register", async (request, reply) => {
 		try {
-			const input = registerSchema.parse(request.body);
+			const input = registerSchemas.parse(request.body);
 			const result = await service.registerClient(input);
 			return reply.status(201).send(result);
 		} catch (err: any) {
@@ -55,7 +55,7 @@ export async function clientRoutes(app: FastifyInstance) {
 	// Update an existing client
 	app.patch("/:id", async (request, reply) => {
 		try {
-			const input = registerSchema.parse(request.body);
+			const input = updateSchemas.parse(request.body);
 			const result = await service.updateClient(request.id, input);
 			return reply.status(200).send(result);
 		} catch (err: any) {

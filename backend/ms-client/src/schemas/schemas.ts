@@ -70,7 +70,7 @@ export const templateSchema = z.object({
 
 // Export the types of the schemas to be used in the services and controllers
 
-export const registerSchema = z.discriminatedUnion("table", [
+export const registerSchemas = z.discriminatedUnion("table", [
 	z.object({
 		table: z.literal("client"),
 		data: clientSchema,
@@ -93,7 +93,7 @@ export const registerSchema = z.discriminatedUnion("table", [
 	}),
 ]);
 
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type RegisterInput = z.infer<typeof registerSchemas>;
 
 // Export update schemas
 
