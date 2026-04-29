@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { registerRoleSchema } from "../schemas/schemas";
-import { UserService } from "../service/service";
+import { UserService } from "../services/service";
 import { ApiError, InvalidCredentialsError } from "../errors/apiError";
 import { authenticate } from "../hooks/auth";
 

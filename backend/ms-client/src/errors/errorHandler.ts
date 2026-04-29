@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import * as apiError from "../errors/apiError";
+import * as apiError from "./apiError";
 
 // Utility functions for the client and contract modules
 

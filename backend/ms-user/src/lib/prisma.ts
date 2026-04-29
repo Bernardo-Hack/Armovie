@@ -9,4 +9,12 @@ const pool = new Pool({
 
 const adapter = new PrismaPg(pool);
 
-export const prisma = new PrismaClient({ adapter });
+export const prisma = new PrismaClient({
+	adapter: adapter,
+	log: [
+		{ emit: "event", level: "query" },
+		{ emit: "stdout", level: "error" },
+		{ emit: "stdout", level: "info" },
+		{ emit: "stdout", level: "warn" },
+	],
+});
