@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { registerUserSchema, loginSchema, updateSchema } from "../schemas/schemas";
-import { UserService } from "../service/service";
+import { UserService } from "../services/service";
 import { ApiError } from "../errors/apiError";
 import { authenticate } from "../hooks/auth";
 import { logger } from "../utils/logger";
