@@ -6,57 +6,81 @@ datasource db {
   provider = "postgresql"
 }
 
+// Table for all info related to machines
 model Machine {
-  id String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid(7)) @db.Uuid
 
-  name             String @db.VarChar(50)
-  model            String @db.VarChar(50)
-  status           String @default("Available") @db.VarChar(20)
-  contractId       String @db.VarChar(20)
-  city             String @db.VarChar(100)
-  price            Float
-  consumptionLogId String @db.Uuid
-  serviceLogId     String @db.Uuid
-  fragranceId      String @db.Uuid
+  name         String  @db.VarChar(128)
+  model        String  @db.VarChar(64)
+  observations String? @db.Text
 
-  consumptionLogs ConsumptionLog[]
-  serviceLogs     ServiceLog[]
-  fragrance       Fragrance             @relation(fields: [fragranceId], references: [id])
+  contractId        String? @db.Uuid
+  fragranceId       String?  @db.Uuid
+  medianConsumption Float?
+
+  price  Float
+  isPaid Boolean @default(false)
+
+  status String @default("Available") @db.VarChar(20)
 
   lastService DateTime @updatedAt
   created_at  DateTime @default(now())
 
+  serviceLogs ServiceLog[]
+  timeTables  TimeTable[]
+  fragrance   Item?         @relation(fields: [fragranceId], references: [id])
+
   @@index([model])
   @@index([status])
   @@index([contractId])
-  @@index([city])
   @@map("machines")
 }
 
-model ConsumptionLog {
-  id String @id @default(uuid()) @db.Uuid
+// Table for machine operating hours and timing grades
+model TimeTable {
+  id String @id @default(uuid(7)) @db.Uuid
 
-  machineId  String   @db.Uuid
-  timeSpan   DateTime
-  mlConsumed Float
+  machineId     String  @db.Uuid
+  contractId    String? @db.Uuid
+  timingGradeId String  @db.Uuid
+
+  days      String[] @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]) @db.VarChar(32) // Array of days machine is active
+  startTime DateTime
+  endTime   DateTime
 
   created_at DateTime @default(now())
 
-  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  machine     Machine     @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  timingGrade TimingGrade @relation(fields: [timingGradeId], references: [id])
 
   @@index([machineId])
-  @@map("consumptionLogs")
+  @@map("timeTables")
 }
 
-model ServiceLog {
-  id String @id @default(uuid()) @db.Uuid
+// Defines the timing grade for machines
+model TimingGrade {
+  id String @id @default(uuid(7)) @db.Uuid
 
-  machineId    String   @db.Uuid
-  observation  String   @db.Text
-  timeSpan     DateTime
-  serviceType  String   @db.VarChar(50)
-  date         DateTime
-  technicianId String   @db.VarChar(255)
+  name        String @db.VarChar(32)
+  timeBetween Float // minutes between each splash
+
+  timeTables TimeTable[]
+
+  @@map("grades")
+}
+
+// Logs each service performed on machines
+model ServiceLog {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  machineId    String @db.Uuid
+  technicianId String @db.Uuid
+
+  observation          String @db.Text
+  daysSinceLastService Int
+
+  serviceType String @db.VarChar(50)
+  mlConsumed  Float?
 
   created_at DateTime @default(now())
 
@@ -67,31 +91,45 @@ model ServiceLog {
   @@map("serviceLogs")
 }
 
+// Table for items, including fragrances and other supplies
 model Item {
-  id String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid(7)) @db.Uuid
 
-  name        String @db.VarChar(125)
-  description String @db.Text
-  status      String @default("active") @db.VarChar(20)
-  price       Float // for fragrances: price per ml
+  name     String @db.VarChar(128)
+  category String @db.VarChar(64)
+  supplier String @db.VarChar(128)
+
   stock       Int // for fragrances: milliliters in stock
   minStock    Int // for fragrances: minimum stock level in milliliters
-  itemType    String @db.VarChar(50)
-  supplier    String @db.VarChar(100)
+  averageCost Float // for fragrances: price per ml
+  description String  @db.Text
+  notes       String? @db.Text
 
-  fragrance Fragrance?
-
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-}
-
-model Fragrance {
-  id String @id @default(uuid()) @db.Uuid
-
-  machines Machine[]
-
-  item Item @relation(fields: [id], references: [id], onDelete: Cascade)
+  status String @default("active") @db.VarChar(16)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  fragrance       Machine[]
+  consumptionLogs ConsumptionLog[]
+
+  @@index([category])
+  @@index([status])
+  @@map("items")
+}
+
+// Logs the consumption of fragrances in stock
+model ConsumptionLog {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  fragranceId String   @db.Uuid
+  month       DateTime // refers to the month where the consumption occurred
+  mlConsumed  Float
+
+  created_at DateTime @default(now())
+
+  fragrance Item @relation(fields: [fragranceId], references: [id], onDelete: Cascade)
+
+  @@index([fragranceId])
+  @@map("consumptionLogs")
 }
