@@ -1,9 +1,9 @@
-# ─── Env files
+# ─ Env files
 .env
 .env.local
 .env.*.local
 
-# ─── Node / TypeScript
+# ─ Node / TypeScript
 node_modules/
 dist/
 dist-ssr/
@@ -12,24 +12,46 @@ build/
 logs/
 *.log
 npm-debug.log*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
 
-# ─── Prisma 
+# ─ Prisma 
 ms-user/src/generated/prisma
 ms-client/src/generated/prisma
 ms-item/src/generated/prisma
 
-# ─── Frontend / Vite 
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# ─ Frontend / Expo
 
-# ─── IDEs and OS files
-.vscode/*
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+.metro-health-check*
+
+app-example
+
+/ios
+/android
+
+
+# ─ IDEs and OS files
+.vscode/
 !.vscode/extensions.json
 .idea/
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
+*.pem
+.editorconfig
