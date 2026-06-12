@@ -3,7 +3,6 @@ import "dotenv/config";
 import { userRoutes } from "./routes/userRoutes";
 import { logger } from "./utils/logger";
 import { verifyEmailConfig } from "./utils/mailer";
-import { permissionRoutes } from "./routes/permissionRoutes";
 
 const app = fastify({ logger: false });
 
@@ -22,18 +21,17 @@ app.addHook("onResponse", async (req, reply) => {
 });
 
 app.register(userRoutes);
-app.register(permissionRoutes, { prefix: "/permissions" });
 
 app.get("/verify-email-config", async () => { await verifyEmailConfig(); });
 
 app.get("/health", async () => ({
 	status: "healthy",
-	service: "ms-user",
-	db: "rouppa_auth_user",
+	service: process.env.MS_NAME,
+	db: process.env.DB_NAME,
 }));
 
 const start = async () => {
-	const port = Number(process.env.PORT) || 3001;
+	const port = Number(process.env.PORT) || 5001;
 	await app.listen({ port, host: "0.0.0.0" });
 	logger.info(`listening on port ${port}`);
 };

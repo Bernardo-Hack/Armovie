@@ -20,17 +20,17 @@ app.addHook("onResponse", async (req, reply) => {
 	else logger.info(entry);
 });
 
-app.register(itemRoutes, { prefix: "/items" });
+app.register(itemRoutes, { prefix: "" });
 app.register(machineRoutes, { prefix: "/machines" });
 
 app.get("/health", async () => ({
 	status: "healthy",
-	service: "ms-item",
+	service: process.env.MS_NAME,
 	db: process.env.DB_NAME,
 }));
 
 const start = async () => {
-	const port = Number(process.env.PORT) || 3001;
+	const port = Number(process.env.PORT) || 5002;
 	await app.listen({ port, host: "0.0.0.0" });
 	logger.info(`listening on port ${port}`);
 };

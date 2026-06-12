@@ -5,9 +5,9 @@ import { z } from 'zod';
 export const registerUserSchema = z.object({
 	name: z.string(),
 	email: z.email({ pattern: z.regexes.html5Email }),
-	passwordHash: z.hash("sha512"),
+	password: z.string(),
 	position: z.string(),
-	roleId: z.uuid(),
+	role: z.string(),
 });
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
@@ -22,7 +22,7 @@ export type UpdateInput = z.infer<typeof updateSchema>;
 
 export const loginSchema = z.object({
 	email: z.email({ pattern: z.regexes.html5Email }),
-	passwordHash: z.hash("sha512"),
+	password: z.string(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

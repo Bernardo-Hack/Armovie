@@ -1,79 +1,104 @@
 import { z } from "zod";
 
-// Define the schemas of this microservice here, and export them to be used in the services and controllers
+// Define the schemas of this microservice here, and 
+// export them to be used in the services and controllers
 
 export const clientSchema = z.object({
-	name: z.string(),
+	fullName: z.string(),
+	fantasyName: z.string().optional(),
 	document: z.string(),
-	responsible: z.string(),
-	email: z.email({ pattern: z.regexes.html5Email }),
+	municipalID: z.string().optional(),
+	stateID: z.string().optional(),
+
+	fieldOfActivity: z.string().optional(),
+	lead: z.string(),
+	segment: z.string(),
+
 	phone: z.string(),
 	whatsapp: z.string(),
 
-	segment: z.enum(["Retail", "Hospitality", "Healthcare", "Gastronomy", "Other"]),
-	lead: z.enum(["Instagram", "GoogleAds", "Referral", "Other"]),
-	sellerId: z.uuid(),
+	hasIss: z.boolean(),
+
+	financesEmail: z.string().email(),
+	alertsEmail: z.string().email().optional(),
+
+	foundingDate: z.coerce.date(),
 	observations: z.string().optional(),
 
-	status: z.enum(["active", "inactive", "suspended"]),
+	sellerId: z.string().uuid(),
+	status: z.string().optional(),
+});
 
-	createdAt: z.iso.datetime(),
-	updatedAt: z.iso.datetime(),
+export const personSchema = z.object({
+	clientId: z.string().uuid(),
+	rg: z.string(),
+	cpf: z.string(),
+
+	birthday: z.coerce.date(),
+	civilState: z.string(),
+	nationality: z.string(),
+
+	doesSign: z.boolean(),
+	isRepresentative: z.boolean(),
+	role: z.string(),
+
+	email: z.string().email(),
+	phone: z.string(),
+	observations: z.string().optional(),
 });
 
 export const addressSchema = z.object({
+	clientId: z.string().uuid().optional(),
+	personId: z.string().uuid().optional(),
+
 	street: z.string(),
-	number: z.string(),
+	number: z.number().int(),
 	zip_code: z.string(),
 	city: z.string(),
 	state: z.string(),
-	clientId: z.uuid(),
+	complement: z.string().optional(),
 });
 
 export const contractSchema = z.object({
-	clientId: z.uuid(),
-	addressId: z.uuid(),
-	templateId: z.uuid(),
-	planId: z.uuid(),
-	type: z.enum(["Subscription", "Rental", "Sale", "Loan"]),
+	name: z.string(),
+	clientId: z.string().uuid(),
+	addressId: z.string().uuid(),
+	templateId: z.string().uuid(),
+	planId: z.string().uuid(),
+	type: z.string(),
 
-	machines: z.number(),
-	fragrance: z.uuid(),
-	duration: z.number(),
+	machines: z.number().int(),
+	fragrance: z.string().uuid(),
+	duration: z.number().int(),
 	
 	monthlyValue: z.number(),
-	paymentDay: z.number(),
+	paymentDay: z.number().int(),
 	observations: z.string().optional(),
-
-	status: z.enum(["active", "inactive", "suspended"]),
-
-	createdAt: z.iso.datetime(),
-	updatedAt: z.iso.datetime(),
+	status: z.string().optional(),
 });
 
 export const planSchema = z.object({
 	name: z.string(),
-	price: z.float32(),
-
-	createdAt: z.iso.datetime(),
-	updatedAt: z.iso.datetime(),
+	price: z.number(),
 });
 
 export const templateSchema = z.object({
 	name: z.string(),
 	description: z.string().optional(),
 	content: z.string(),
-
-	createdAt: z.iso.datetime(),
-	updatedAt: z.iso.datetime(),
 });
 
-// Export the types of the schemas to be used in the services and controllers
+// Export the types of the schemas to be 
+// used in the services and controllers
 
 export const registerSchemas = z.discriminatedUnion("table", [
 	z.object({
 		table: z.literal("client"),
 		data: clientSchema,
+	}),
+	z.object({
+		table: z.literal("person"),
+		data: personSchema,
 	}),
 	z.object({
 		table: z.literal("address"),
@@ -101,6 +126,10 @@ export const updateSchemas = z.discriminatedUnion("table", [
 	z.object({
 		table: z.literal("client"),
 		data: clientSchema.partial(),
+	}),
+	z.object({
+		table: z.literal("person"),
+		data: personSchema.partial(),
 	}),
 	z.object({
 		table: z.literal("address"),

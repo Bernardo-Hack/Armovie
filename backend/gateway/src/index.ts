@@ -11,8 +11,7 @@ import * as config from "./utils/importer";
 const app = express();
 
 interface JwtPayload {
-	id: string;
-	email: string;
+	sub: string;
 	roleId: string;
 }
 
@@ -62,7 +61,7 @@ app.use(
 			logger.warn(`Blocked CORS request from origin: ${origin}`);
 			return callback(new Error("Not allowed by CORS"));
 		},
-		methods: ["GET", "POST", "PUT", "DELETE"],
+		methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 		allowedHeaders: ["Content-Type", "Authorization"],
 		credentials: true,
 		maxAge: 3600,
@@ -76,34 +75,19 @@ app.set("trust proxy", 1);
 
 // - Rate Limiting - limits repeated requests to public APIs and/or endpoints
 
-const limiter = rateLimit({
-	windowMs: 10 * 60 * 1000, // 10 minutes
-	max: 100, // limit each IP to 100 requests per windowMs
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: "Too many requests from this IP, please try again later.",
-});
+// const limiter = rateLimit({
+// 	windowMs: 10 * 60 * 1000, // 10 minutes
+// 	max: 100, // limit each IP to 100 requests per windowMs
+// 	standardHeaders: true,
+// 	legacyHeaders: false,
+// 	message: "Too many requests from this IP, please try again later.",
+// });
 
-app.use(limiter);
+// app.use(limiter);
 
 // - JWT Authentication Middleware - verifies JWT token and attaches user info to request
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-	const authHeader = req.headers.authorization;
-	if (authHeader && authHeader.startsWith("Bearer ")) {
-		const token = authHeader.split(" ")[1];
-		try {
-			const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
-			req.user = decoded;
-		} catch (err: any) {
-			logger.warn(`Invalid JWT token: ${err.message}`);
-			return res.status(401).json({ message: "Invalid token" });
-		}
-	}
-	next();
-});
-
-function authenticate(req: Request, _res: Response, next: NextFunction) {
+function authenticate(req: Request, res: Response, next: NextFunction) {
 	// Remove headers
 	delete req.headers["x-user-id"];
 	delete req.headers["x-role-id"];
@@ -115,8 +99,10 @@ function authenticate(req: Request, _res: Response, next: NextFunction) {
 				header.split(" ")[1],
 				config.jwtSecret,
 			) as JwtPayload;
-		} catch {
-			logger.warn("Invalid JWT token provided.");
+		} catch (err: any) {
+			logger.warn(`Invalid JWT token: ${err.message}`);
+			res.status(401).json({ message: "Invalid token" });
+			return;
 		}
 	}
 	next();
@@ -124,10 +110,8 @@ function authenticate(req: Request, _res: Response, next: NextFunction) {
 
 function injectHeaders(req: Request, _res: Response, next: NextFunction) {
 	if (req.user) {
-		req.headers["x-user-id"] = req.user.id;
-		if (req.user.roleId) {
-			req.headers["x-role-id"] = req.user.roleId;
-		}
+		req.headers["x-user-id"] = req.user.sub;
+		req.headers["x-role-id"] = req.user.roleId;
 	}
 	next();
 }
@@ -147,7 +131,12 @@ const userProxy = createProxyMiddleware({
 	changeOrigin: true,
 	pathRewrite: { "^/api/users": "" },
 	on: {
-		proxyReq: fixRequestBody,
+		proxyReq: (proxyReq, req, res) => {
+			if (req.headers.authorization) {
+				proxyReq.setHeader("Authorization", req.headers.authorization);
+			}
+			fixRequestBody(proxyReq, req);
+		},
 		error: (_err, _req, res) => {
 			logger.error(`Error proxying to User Service: ${_err.message}`);
 			(res as Response)
@@ -162,7 +151,12 @@ const itemProxy = createProxyMiddleware({
 	changeOrigin: true,
 	pathRewrite: { "^/api/items": "" },
 	on: {
-		proxyReq: fixRequestBody,
+		proxyReq: (proxyReq, req, res) => {
+			if (req.headers.authorization) {
+				proxyReq.setHeader("Authorization", req.headers.authorization);
+			}
+			fixRequestBody(proxyReq, req);
+		},
 		error: (_err, _req, res) => {
 			logger.error(`Error proxying to Item Service: ${_err.message}`);
 			(res as Response)
@@ -177,7 +171,12 @@ const clientProxy = createProxyMiddleware({
 	changeOrigin: true,
 	pathRewrite: { "^/api/clients": "" },
 	on: {
-		proxyReq: fixRequestBody,
+		proxyReq: (proxyReq, req, res) => {
+			if (req.headers.authorization) {
+				proxyReq.setHeader("Authorization", req.headers.authorization);
+			}
+			fixRequestBody(proxyReq, req);
+		},
 		error: (_err, _req, res) => {
 			logger.error(`Error proxying to Client Service: ${_err.message}`);
 			(res as Response)
@@ -189,9 +188,9 @@ const clientProxy = createProxyMiddleware({
 
 app.use("/api/users", authenticate, injectHeaders, userProxy);
 
-app.use("/api/items", authenticate, requireAuth, injectHeaders, itemProxy);
+app.use("/api/items", authenticate, injectHeaders, itemProxy); // Remeber to add requireAuth!!!
 
-app.use("/api/clients", authenticate, requireAuth, injectHeaders, clientProxy);
+app.use("/api/clients", authenticate, injectHeaders, clientProxy); // Remeber to add requireAuth!!!
 
 // - 404 Handler - catches unmatched routes
 

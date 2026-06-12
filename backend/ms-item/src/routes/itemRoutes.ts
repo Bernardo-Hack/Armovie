@@ -1,11 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { itemService } from "../services/itemService";
-import { ApiError } from "../errors/apiError";
+import { genericErrorHandler } from "../errors";
 import { logger } from "../utils/logger";
 
 export async function itemRoutes(app: FastifyInstance) {
 	const service = new itemService();
-
+	
 	// Create a new item
 	app.post("/", async (request, reply) => {
 		try {
@@ -14,13 +14,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			logger.info(`Item created with id: ${input.id}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create item  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create item." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -31,13 +25,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			const result = await service.getItemById(id);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get item with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get item." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -47,13 +35,12 @@ export async function itemRoutes(app: FastifyInstance) {
 			const result = await service.getAllItems();
 			return reply.send(result);
 		} catch (err: any) {
-			logger.error(`Failed to get all items  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get items." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
 	// Update an item
-	app.put("/:id", async (request, reply) => {
+	app.patch("/:id", async (request, reply) => {
 		try {
 			const { id } = request.params as any;
 			const input = request.body as any;
@@ -61,13 +48,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			logger.info(`Item updated with id: ${id}`);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to update item with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to update item." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -79,13 +60,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			logger.info(`Item deleted with id: ${id}`);
 			return reply.status(204).send();
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to delete item with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to delete item." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -98,13 +73,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			logger.info(`Consumption log created for fragranceId: ${input.fragranceId}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create consumption log for fragranceId=${(request.body as any)?.fragranceId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create consumption log." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -114,13 +83,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			const result = await service.getConsumptionLogsByFragranceId(fragranceId);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get consumption logs for fragranceId=${(request.params as any)?.fragranceId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get consumption logs." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -129,13 +92,7 @@ export async function itemRoutes(app: FastifyInstance) {
 			const result = await service.getAllConsumptionLogs();
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get all consumption logs  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get consumption logs." });
+			genericErrorHandler(err, reply);
 		}
 	});
 }

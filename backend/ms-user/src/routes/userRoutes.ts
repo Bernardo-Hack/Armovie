@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { registerUserSchema, loginSchema, updateSchema } from "../schemas/schemas";
-import { UserService } from "../services/service";
-import { ApiError } from "../errors/apiError";
+import { UserService } from "../services/userService";
+import { genericErrorHandler } from "../errors";
 import { authenticate } from "../hooks/auth";
 import { logger } from "../utils/logger";
 
@@ -16,13 +16,7 @@ export async function userRoutes(app: FastifyInstance) {
 			logger.info(`User Registered in email: ${input.email}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Registration failed | email=${(request.body as any)?.email || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Registration failed." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -34,11 +28,20 @@ export async function userRoutes(app: FastifyInstance) {
 			logger.info(`User logged in with email: ${data.email}`);
 			return reply.send(result);
 		} catch (err: any) {
-			const body = request.body as any;
-			//logger.warn(
-			//	`login failed  email=${body?.email || "?"}  reason=${err.message}`,
-			//);
-			return reply.status(401).send({ error: err.message });
+			genericErrorHandler(err, reply);
+		}
+	});
+
+	// Refresh access token
+	app.post("/refresh", async (request, reply) => {
+		try {
+			const { refresh_token } = request.body as {
+				refresh_token: string;
+			};
+			const result = await service.refreshToken(refresh_token);
+			return reply.send(result);
+		} catch (err: any) {
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -47,37 +50,37 @@ export async function userRoutes(app: FastifyInstance) {
 	app.register(async (protected_) => {
 		protected_.addHook("preHandler", authenticate);
 
-		// Get a user by ID
+		// Get a logged-in user's profile
 		protected_.get("/profile", async (request, reply) => {
 			try {
-				const result = await service.getUserById(request.id);
+				const result = await service.getUserById(request.user.id);
 				return reply.status(200).send(result);
 			} catch (err: any) {
-				if (err instanceof ApiError) {
-					return reply
-						.status(err.statusCode)
-						.send({ error: err.message });
-				}
-				return reply
-					.status(500)
-					.send({ error: "Internal server error" });
+				genericErrorHandler(err, reply);
+			}
+		});
+
+		// Get a user by ID
+		protected_.get("/:id", async (request, reply) => {
+			try {
+				const { id } = request.params as { id: string };
+				const result = await service.getUserById(id);
+				return reply.status(200).send(result);
+			} catch (err: any) {
+				genericErrorHandler(err, reply);
 			}
 		});
 
 		// List all users
 		protected_.get("/", async (request, reply) => {
 			try {
-				const result = await service.getUsers();
+				const { position } = request.query as { position?: string };
+				const result = position 
+					? await service.getUsersByPosition(position) 
+					: await service.getUsers();
 				return reply.status(200).send(result);
 			} catch (err: any) {
-				if (err instanceof ApiError) {
-					return reply
-						.status(err.statusCode)
-						.send({ error: err.message });
-				}
-				return reply
-					.status(500)
-					.send({ error: "Internal server error" });
+				genericErrorHandler(err, reply);
 			}
 		});
 
@@ -85,17 +88,10 @@ export async function userRoutes(app: FastifyInstance) {
 		protected_.patch("/profile", async (request, reply) => {
 			try {
 				const input = updateSchema.parse(request.body);
-				const result = await service.updateUser(request.id, input);
+				const result = await service.updateUser(request.user.id, input);
 				return reply.status(200).send(result);
 			} catch (err: any) {
-				if (err instanceof ApiError) {
-					return reply
-						.status(err.statusCode)
-						.send({ error: err.message });
-				}
-				return reply
-					.status(500)
-					.send({ error: "Internal server error" });
+				genericErrorHandler(err, reply);
 			}
 		});
 
@@ -113,20 +109,24 @@ export async function userRoutes(app: FastifyInstance) {
 				.send({ message: "Usuário deslogado com sucesso" });
 		});
 
-		// Delete a user by ID
+		// Delete logged-in user's account
 		protected_.delete("/profile", async (request, reply) => {
 			try {
-				const result = await service.deleteUser(request.id);
+				const result = await service.deleteUser(request.user.id);
 				return reply.status(200).send(result);
 			} catch (err: any) {
-				if (err instanceof ApiError) {
-					return reply
-						.status(err.statusCode)
-						.send({ error: err.message });
-				}
-				return reply
-					.status(500)
-					.send({ error: "Internal server error" });
+				genericErrorHandler(err, reply);
+			}
+		});
+
+		// Delete a user by ID
+		protected_.delete("/:id", async (request, reply) => {
+			try {
+				const { id } = request.params as { id: string };
+				const result = await service.deleteUser(id);
+				return reply.status(200).send(result);
+			} catch (err: any) {
+				genericErrorHandler(err, reply);
 			}
 		});
 	});

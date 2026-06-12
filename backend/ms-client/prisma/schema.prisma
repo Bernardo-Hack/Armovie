@@ -9,56 +9,84 @@ datasource db {
 model Client {
   id String @id @default(uuid()) @db.Uuid
 
-  name         String  @db.VarChar(128)
-  document     String  @unique @db.VarChar(16)
-  responsible  String  @db.VarChar(128)
-  email        String  @unique @db.VarChar(128)
-  phone        String  @db.VarChar(32)
-  whatsapp     String  @db.VarChar(32)
+  fullName    String  @db.VarChar(128) // Razão Social
+  fantasyName String? @db.VarChar(128)
 
-  lead         Lead
-  segment      Segment
-  sellerId     String  @db.Uuid
-  observations String? @db.Text
+  document    String  @unique @db.VarChar(32)
+  municipalID String? @unique @db.VarChar(128)
+  stateID     String? @unique @db.VarChar(128)
+
+  fieldOfActivity String? @db.Text
+  lead            String  @db.VarChar(16)
+  segment         String  @db.VarChar(16)
+
+  phone    String @db.VarChar(32)
+  whatsapp String @db.VarChar(32)
+
+  hasIss Boolean @db.Boolean
+
+  financesEmail String  @unique @db.VarChar(128)
+  alertsEmail   String? @db.VarChar(128)
+
+  foundingDate DateTime @db.Date
+  observations String?  @db.Text
+
+  sellerId String @db.Uuid
+
+  status String @default("Em Análise") @db.VarChar(16)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  address Address[]
+  address   Address[]
   contracts Contract[]
+  persons   Person[]
 
   @@index([lead])
   @@index([segment])
   @@index([sellerId])
+  @@index([status])
   @@map("clients")
 }
 
-enum Segment {
-  Retail
-  Hospitality
-  Healthcare
-  Gastronomy
-  Other
-}
+model Person {
+  id  String @id @default(uuid()) @db.Uuid
+  clientId String @db.Uuid
+  rg  String @unique @db.VarChar(16)
+  cpf String @unique @db.VarChar(16)
 
-enum Lead {
-  Instagram
-  GoogleAds
-  Referral
-  Other
+  birthday    DateTime @db.Date
+  civilState  String   @db.VarChar(16)
+  nationality String   @db.VarChar(32)
+
+  doesSign Boolean @db.Boolean
+  isRepresentative Boolean @db.Boolean
+  role     String  @db.VarChar(32)
+
+  email        String  @db.VarChar(128)
+  phone        String  @db.VarChar(32)
+  observations String? @db.Text
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  addresses Address[]
+  @@index([clientId])
+  @@map("persons")
 }
 
 model Address {
-  id String @id @default(uuid()) @db.Uuid
+  id       String @id @default(uuid()) @db.Uuid
+  clientId String? @db.Uuid
+  personId String? @db.Uuid
 
-  street   String @db.VarChar(256)
-  number   String @db.VarChar(8)
-  zip_code String @db.VarChar(32)
-  city     String @db.VarChar(64)
-  state    String @db.VarChar(64)
-  clientId String @db.Uuid
+  street     String  @db.VarChar(256)
+  number     Int     @db.Integer
+  zip_code   String  @db.VarChar(32)
+  city       String  @db.VarChar(64)
+  state      String  @db.VarChar(64)
+  complement String? @db.VarChar(128)
 
-  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client   Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  person   Person?    @relation(fields: [personId], references: [id], onDelete: Cascade)
   contract Contract[]
 
   @@index(fields: [city, state], name: "city_state_idx")
@@ -68,21 +96,22 @@ model Address {
 model Contract {
   id String @id @default(uuid()) @db.Uuid
 
-  clientId     String       @db.Uuid
-  addressId    String       @db.Uuid
-  templateId   String       @db.Uuid
-  planId       String       @db.Uuid
-  type         ContractType
+  name       String @db.VarChar(128)
+  clientId   String @db.Uuid
+  addressId  String @db.Uuid
+  templateId String @db.Uuid
+  planId     String @db.Uuid
+  type       String @db.VarChar(16)
 
-  machines     Int
-  fragrance    String       @db.Uuid
-  duration     Int // in days
+  machines  Int
+  fragrance String @db.Uuid
+  duration  Int // in days
 
   monthlyValue Float
   paymentDay   Int
-  observations String?      @db.Text
+  observations String? @db.Text
 
-  status String @default("active") @db.VarChar(16)
+  status String @default("Em Análise") @db.VarChar(16)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -98,13 +127,6 @@ model Contract {
   @@index([templateId])
   @@index([status])
   @@map("contracts")
-}
-
-enum ContractType {
-  Subscription
-  Rental
-  Sale
-  Loan
 }
 
 model Plan {

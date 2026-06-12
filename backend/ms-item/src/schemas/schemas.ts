@@ -61,8 +61,6 @@ export const itemSchema = z.object({
 	averageCost: z.number().positive(),
 	description: z.string(),
 	notes: z.string().optional(),
-
-	status: z.string().default("active").optional(),
 });
 
 export const consumptionLogSchema = z.object({

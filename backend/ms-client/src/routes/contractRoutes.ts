@@ -1,39 +1,30 @@
 import { FastifyInstance } from "fastify";
 import { registerSchemas, updateSchemas } from "../schemas/schemas";
 import { contractService } from "../services/contractService";
-import { ApiError } from "../errors/apiError";
+import { genericErrorHandler } from "../errors";
 
 export async function contractRoutes(app: FastifyInstance) {
 	const service = new contractService();
 
 	// Create a new contract
-	app.post("/register", async (request, reply) => {
+	app.post("/", async (request, reply) => {
 		try {
 			const input = registerSchemas.parse(request.body);
 			const result = await service.registerContract(input);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			return reply.status(500).send({ error: "Internal server error" });
+			genericErrorHandler(err, reply);
 		}
 	});
 
 	// Get a contract by ID
 	app.get("/:id", async (request, reply) => {
 		try {
-			const result = await service.getContractById(request.id);
+			const { id } = request.params as { id: string };
+			const result = await service.getContractById(id);
 			return reply.status(200).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			return reply.status(404).send({ error: err.message });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -43,43 +34,30 @@ export async function contractRoutes(app: FastifyInstance) {
 			const result = await service.getAllContracts();
 			return reply.status(200).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			return reply.status(500).send({ error: "Internal server error" });
+			genericErrorHandler(err, reply);
 		}
 	});
 
 	// Update an existing contract
 	app.patch("/:id", async (request, reply) => {
 		try {
+			const { id } = request.params as { id: string };
 			const input = updateSchemas.parse(request.body);
-			const result = await service.updateContract(request.id, input);
+			const result = await service.updateContract(id, input);
 			return reply.status(200).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			return reply.status(500).send({ error: "Internal server error" });
+			genericErrorHandler(err, reply);
 		}
 	});
 
 	// Delete a contract by ID
 	app.delete("/:id", async (request, reply) => {
 		try {
-			const result = await service.deleteContract(request.id);
+			const { id } = request.params as { id: string };
+			const result = await service.deleteContract(id);
 			return reply.status(200).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			return reply.status(500).send({ error: "Internal server error" });
+			genericErrorHandler(err, reply);
 		}
 	});
 }

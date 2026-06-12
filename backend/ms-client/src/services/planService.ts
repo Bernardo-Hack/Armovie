@@ -1,69 +1,30 @@
 import * as schemas from "../schemas/schemas";
 import { prisma } from "../lib/prisma";
-import { genericErrorHandler, apiErr } from "../errors";
-
-// Service class to handle the business logic of the plan module
+import { apiErr } from "../errors";
 
 export class planService {
-	async registerPlan(input: schemas.RegisterInput) {
-		try {
-			if (input.table !== "plan") {
-				throw new apiErr.BadRequestError("Invalid table for this service");
-			}
+	async createPlan(input: schemas.RegisterInput) {
+		const validated = schemas.registerSchemas.parse(input);
 
-			return await prisma.plan.create({
-				data: {
-					...input.data,
-				},
-				include: {
-					contracts: true,
-				},
-			});
-		} catch (err: any) {
-			genericErrorHandler(err);
+		if (validated.table !== "plan") {
+			throw new apiErr.BadRequestError("Invalid table for this service");
 		}
-	}
 
-	async getPlanById(id: string) {
-		try {
-			return await prisma.plan.findUnique({
-				where: { id },
-			});
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
+		console.log("Payload de criação de plano validado:", validated.data);
+
+		return await prisma.plan.create({
+			data: {
+				...validated.data,
+			},
+		});
 	}
 
 	async getAllPlans() {
-		try {
-			return await prisma.plan.findMany();
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
+		return await prisma.plan.findMany();
 	}
 
-	async updatePlan(planId: string, input: schemas.UpdateInput) {
-		try {
-			if (input.table !== "plan") {
-				throw new apiErr.BadRequestError("Invalid table for this service!");
-			}
-
-			return await prisma.plan.update({
-				where: { id: planId },
-				data: input.data,
-			});
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
-	}
-
-	async deletePlan(planId: string) {
-		try {
-			await prisma.plan.delete({ where: { id: planId } });
-			
-			return;
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
+	async deletePlan(id: string) {
+		await prisma.plan.delete({ where: { id } });
+		return { success: true };
 	}
 }

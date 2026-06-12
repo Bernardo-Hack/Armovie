@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { machineService } from "../services/machineService";
-import { ApiError } from "../errors/apiError";
+import { genericErrorHandler } from "../errors";
 import { logger } from "../utils/logger";
 
 export async function machineRoutes(app: FastifyInstance) {
@@ -14,13 +14,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Machine created with id: ${input.id}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create machine  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create machine." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -31,13 +25,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getMachineById(id);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get machine with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get machine." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -47,26 +35,19 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getAllMachines();
 			return reply.send(result);
 		} catch (err: any) {
-			logger.error(`Failed to get all machines  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get machines." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
 	// Update a machine
-	app.put("/:id", async (request, reply) => {
+	app.patch("/:id", async (request, reply) => {
 		try {
 			const { id } = request.params as any;
 			const input = request.body as any;
 			const result = await service.updateMachine(id, input);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to update machine with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to update machine." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -78,13 +59,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Machine deleted with id: ${id}`);
 			return reply.status(204).send();
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to delete machine with id=${(request.params as any)?.id || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to delete machine." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -100,13 +75,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Time table created for machine id: ${machineId}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create time table for machineId=${(request.params as any)?.machineId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create time table." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -117,13 +86,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getTimeTablesByMachineId(machineId);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get time tables for machineId=${(request.params as any)?.machineId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get time tables." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -133,13 +96,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getAllTimeTables();
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get all time tables  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get time tables." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -151,13 +108,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.updateTimeTable(timeTableId, input);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to update time table with id=${(request.params as any)?.timeTableId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to update time table." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -169,13 +120,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Time table deleted with id: ${timeTableId}`);
 			return reply.status(204).send();
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to delete time table with id=${(request.params as any)?.timeTableId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to delete time table." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -189,13 +134,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Time grade created with id: ${input.id}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create time grade  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create time grade." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -205,13 +144,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getAllTimingGrades();
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get all time grades  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get time grades." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -223,13 +156,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Time grade deleted with id: ${timeGradeId}`);
 			return reply.status(204).send();
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to delete time grade with id=${(request.params as any)?.timeGradeId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to delete time grade." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -245,13 +172,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Service log created for machine id: ${machineId}`);
 			return reply.status(201).send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to create service log for machineId=${(request.params as any)?.machineId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to create service log." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -262,13 +183,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getServiceLogsByMachineId(machineId);
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get service logs for machineId=${(request.params as any)?.machineId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get service logs." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -278,13 +193,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			const result = await service.getAllServiceLogs();
 			return reply.send(result);
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to get all service logs  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to get service logs." });
+			genericErrorHandler(err, reply);
 		}
 	});
 
@@ -296,13 +205,7 @@ export async function machineRoutes(app: FastifyInstance) {
 			logger.info(`Service log deleted with id: ${serviceLogId}`);
 			return reply.status(204).send();
 		} catch (err: any) {
-			if (err instanceof ApiError) {
-				return reply
-					.status(err.statusCode)
-					.send({ error: err.message });
-			}
-			logger.error(`Failed to delete service log with id=${(request.params as any)?.serviceLogId || "?"}  reason=${err.message}`);
-			return reply.status(500).send({ error: "Failed to delete service log." });
+			genericErrorHandler(err, reply);
 		}
 	});
 }

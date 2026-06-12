@@ -1,11 +1,9 @@
-const SERVICE = "ms-user";
-
 function timestamp(): string {
 	return new Date().toISOString().replace("T", " ").slice(0, 19);
 }
 
 function line(level: string, msg: string): string {
-	return `${timestamp()}  ${level.padEnd(5)}  [${SERVICE}]  ${msg}`;
+	return `${timestamp()}  ${level.padEnd(5)}  [${process.env.MS_NAME}]  ${msg}`;
 }
 
 export const logger = {

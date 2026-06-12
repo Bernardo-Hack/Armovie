@@ -1,68 +1,71 @@
 import * as schemas from "../schemas/schemas";
 import { prisma } from "../lib/prisma";
-import { genericErrorHandler, apiErr } from "../errors";
+import { apiErr } from "../errors";
 
 // Service class to handle the business logic of the client module
 
 export class clientService {
 	async registerClient(input: schemas.RegisterInput) {
-		try {
-			if (input.table !== "client") {
-				throw new apiErr.BadRequestError("Invalid table for this service");
-			}
+		const validated = schemas.registerSchemas.parse(input);
 
+		if (validated.table !== "client") {
+			throw new apiErr.BadRequestError("Invalid table for this service");
+		}
+
+		console.log("Payload de criação validado:", validated.data);
+
+		try {
 			return await prisma.client.create({
 				data: {
-					...input.data,
+					...validated.data,
 				},
 			});
-		} catch (err: any) {
-			genericErrorHandler(err);
+		} catch (error: any) {
+			if (error.code === "P2002") {
+				const targets = error.meta?.target as string[];
+				throw new apiErr.BadRequestError(`Conflito: Os dados informados (${targets?.join(", ")}) já estão em uso.`);
+			}
+			throw error;
 		}
+	}
+	
+	async getAllClients() {
+		return await prisma.client.findMany({});
 	}
 
 	async getClientById(id: string) {
-		try {
-			return await prisma.client.findUniqueOrThrow({
-				where: { id },
-			});
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
-	}
-
-	async getAllClients() {
-		try {
-			return await prisma.client.findMany({});
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
+		return await prisma.client.findUniqueOrThrow({
+			where: { id },
+		});
 	}
 
 	async updateClient(clientId: string, input: schemas.UpdateInput) {
+		const validated = schemas.updateSchemas.parse(input);
+
+		if (validated.table !== "client") {
+			throw new apiErr.BadRequestError("Invalid table for this service!");
+		}
+
+		console.log("Payload de atualização validado:", validated.data);
+
 		try {
-			if (input.table !== "client") {
-				throw new apiErr.BadRequestError("Invalid table for this service!");
-			}
-
-			const updatedClient = await prisma.client.update({
+			return await prisma.client.update({
 				where: { id: clientId },
-				data: input.data,
+				data: {
+					...validated.data,
+				}
 			});
-
-			return updatedClient;
-		} catch (err: any) {
-			genericErrorHandler(err);
+		} catch (error: any) {
+			if (error.code === "P2002") {
+				const targets = error.meta?.target as string[];
+				throw new apiErr.BadRequestError(`Conflito: Os dados informados (${targets?.join(", ")}) já estão em uso.`);
+			}
+			throw error;
 		}
 	}
 
 	async deleteClient(id: string) {
-		try {
-			await prisma.client.delete({ where: { id } });
-
-			return;
-		} catch (err: any) {
-			genericErrorHandler(err);
-		}
+		await prisma.client.delete({ where: { id } });
+		return { success: true };
 	}
 }
