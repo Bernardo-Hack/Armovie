@@ -1,0 +1,45 @@
+import { View, Text, Pressable } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
+import * as styles from "@/assets/styles/stylesheets";
+
+type SortKey<T> = keyof T | null;
+type SortDirection = "asc" | "desc";
+
+interface SortableHeaderProps<T> {
+	title: string;
+	sortKeyName: keyof T;
+	onSort: (key: keyof T | null) => void;
+	sortKey: SortKey<T>;
+	sortDirection: SortDirection;
+	style?: object;
+}
+
+export function SortableHeader<T>({
+	title,
+	sortKeyName,
+	onSort,
+	sortKey,
+	sortDirection,
+	style,
+}: SortableHeaderProps<T>) {
+	const isActive = sortKey === sortKeyName;
+	const iconName = sortDirection === "asc" ? "arrow-up" : "arrow-down";
+
+	return (
+		<Pressable
+			style={[styles.page.columns, style]}
+			onPress={() => onSort(sortKeyName)}
+		>
+			<View
+				style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
+			>
+				<Text style={styles.text.headerTextStyle}>{title.toUpperCase()}</Text>
+				{/* Shows the icon only if this is the active sort column */}
+				{isActive && (
+					<Ionicons name={iconName} size={14} color="#6b7280" />
+				)}
+			</View>
+		</Pressable>
+	);
+}
