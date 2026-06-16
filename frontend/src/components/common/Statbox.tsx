@@ -1,13 +1,14 @@
-import { View, Text, TextInput, Platform } from "react-native";
-import * as styles from "@/assets/styles/stylesheets";
+import { View, Text, TextInput, Platform, StyleSheet } from "react-native";
+import { text, colors } from "@/assets/styles/stylesheets";
 import { Picker } from "@react-native-picker/picker";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState } from "react";
 
 interface Props {
 	isEditing: boolean;
 	onChange?: (value: string | number) => void;
 	direction?: "vertical" | "horizontal";
 	type?: "text" | "select";
-	isNumeric?: boolean;
 	isMultiline?: boolean;
 	label?: string;
 	value: string | number;
@@ -15,6 +16,10 @@ interface Props {
 	valueColor?: string;
 	unit?: string;
 	prefix?: string;
+	isPassword?: boolean;
+	keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+	autoCapitalize?: "none" | "sentences" | "words" | "characters";
+	placeholder?: string;
 }
 
 export function StatBox({
@@ -22,7 +27,6 @@ export function StatBox({
 	onChange,
 	direction = "horizontal",
 	type = "text",
-	isNumeric = false,
 	isMultiline = false,
 	label,
 	value,
@@ -30,11 +34,16 @@ export function StatBox({
 	valueColor,
 	unit,
 	prefix,
+	isPassword = false,
+	keyboardType,
+	autoCapitalize,
+	placeholder,
 }: Props) {
+	const [showPassword, setShowPassword] = useState(!isPassword);
 	const containerStyle =
 		direction === "horizontal"
-			? styles.modalPage.statLine
-			: styles.modalPage.statBox;
+			? styles.statLine
+			: styles.statBox;
 
 	const selectAlign = direction === "horizontal" ? "flex-end" : "flex-start";
 
@@ -42,7 +51,7 @@ export function StatBox({
 
 	const handleTextChange = (text: string) => {
 		if (onChange) {
-			if (isNumeric) {
+			if (keyboardType === "numeric") {
 				onChange(parseFloat(text) || 0);
 			} else {
 				onChange(text);
@@ -53,7 +62,7 @@ export function StatBox({
 	return (
 		<View style={containerStyle}>
 			{label && (
-				<Text style={styles.text.statLabel}>{label.toUpperCase()}</Text>
+				<Text style={text.statLabel}>{label.toUpperCase()}</Text>
 			)}
 			{isEditing && onChange ? (
 				type === "select" && options ? (
@@ -62,11 +71,11 @@ export function StatBox({
 							selectedValue={value}
 							onValueChange={onChange}
 							style={[
-								styles.text.statValue,
+								text.statValue,
 								{
 									color:
 										valueColor ||
-										styles.text.statValue.color,
+										text.statValue.color,
 									fontWeight: "bold",
 									fontSize: 16,
 									width: "auto",
@@ -91,12 +100,21 @@ export function StatBox({
 					<View
 						style={{ flexDirection: "row", alignItems: "center" }}
 					>
+						{isPassword && (
+							<Ionicons
+								name={showPassword ? "eye-off" : "eye"}
+								size={20}
+								color={colors.textSecondary}
+								style={{ marginRight: 10 }}
+								onPress={() => setShowPassword((prev) => !prev)}
+							/>
+						)}
 						{prefix && (
-							<Text style={styles.text.statValue}>{prefix}</Text>
+							<Text style={text.statValue}>{prefix}</Text>
 						)}
 						<TextInput
 							style={[
-								styles.text.statValue,
+								text.statValue,
 								{
 									borderBottomWidth: 1,
 									borderColor: "#777",
@@ -107,17 +125,21 @@ export function StatBox({
 							]}
 							value={String(value)}
 							onChangeText={handleTextChange}
-							keyboardType={isNumeric ? "numeric" : "default"}
+							keyboardType={keyboardType}
 							multiline={isMultiline}
+							secureTextEntry={!showPassword}
+							autoCapitalize={autoCapitalize}
+							placeholder={placeholder}
+							placeholderTextColor={colors.textSecondary}
 						/>
 					</View>
 				)
 			) : (
 				<Text
 					style={[
-						styles.text.statValue,
+						text.statValue,
 						{
-							color: valueColor || styles.text.statValue.color,
+							color: valueColor || text.statValue.color,
 							textAlign:
 								direction === "horizontal" ? "right" : "left",
 						},
@@ -175,7 +197,7 @@ export function StatusBox({
 			{isEditing && onChange ? (
 				<View
 					style={[
-						styles.modalPage.tag,
+						styles.tag,
 						{
 							paddingVertical: 0,
 							paddingHorizontal: 0,
@@ -187,7 +209,7 @@ export function StatusBox({
 						selectedValue={value}
 						onValueChange={onChange}
 						style={[
-							styles.modalPage.tagText,
+							styles.tagText,
 							{
 								backgroundColor: "transparent",
 								borderWidth: 0,
@@ -211,7 +233,7 @@ export function StatusBox({
 			) : (
 				<View
 					style={[
-						styles.modalPage.tag,
+						styles.tag,
 						{
 							backgroundColor: colors.bg,
 							borderWidth: 0,
@@ -220,7 +242,7 @@ export function StatusBox({
 				>
 					<Text
 						style={[
-							styles.modalPage.tagText,
+							styles.tagText,
 							{ color: colors.text },
 						]}
 					>
@@ -231,3 +253,32 @@ export function StatusBox({
 		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	tag: {
+		backgroundColor: "#444",
+		borderRadius: 5,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+	},
+	tagText: {
+		color: "#fff",
+		fontSize: 10,
+		fontWeight: "bold",
+	},
+	statBox: {
+		width: "35%",
+		marginBottom: 15,
+		flexDirection: "column",
+		alignSelf: "center",
+	},
+	statLine: {
+		width: "100%",
+		marginBottom: 15,
+		flexDirection: "row",
+		alignSelf: "center",
+		alignItems: "center",
+		alignContent: "center",
+		justifyContent: "space-between",
+	},
+});

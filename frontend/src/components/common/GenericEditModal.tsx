@@ -1,8 +1,8 @@
-import { Text, Modal, View, ScrollView } from "react-native";
+import { Text, Modal, View, ScrollView, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import * as styles from "@/assets/styles/stylesheets";
+import { colors } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 
 interface GenericEditModalProps<T> {
@@ -50,16 +50,11 @@ export function GenericEditModal<T extends { id: any }>({
 			visible={visible}
 			onRequestClose={onClose}
 		>
-			<View style={styles.modalPage.centeredView}>
-				<View style={styles.modalPage.modalView}>
+			<View style={styles.centeredView}>
+				<View style={styles.modalView}>
 					{/* Header with Id and Close button */}
-					<View style={styles.modalPage.header}>
-						<Text
-							style={[
-								styles.modalPage.subtitle,
-								{ marginBottom: 0 },
-							]}
-						>
+					<View style={styles.header}>
+						<Text style={ styles.subtitle } >
 							{`ID: ${item.id}`}
 						</Text>
 						<View style={{ flex: 1 }} />
@@ -86,7 +81,7 @@ export function GenericEditModal<T extends { id: any }>({
 					</ScrollView>
 
 					{/* Footer with Edit/Save and Delete buttons */}
-					<View style={styles.modalPage.footer}>
+					<View style={styles.footer}>
 						<Button
 							color="#f00"
 							label="Excluir"
@@ -119,3 +114,36 @@ export function GenericEditModal<T extends { id: any }>({
 		</Modal>
 	);
 }
+
+export const styles = StyleSheet.create({
+	centeredView: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "rgba(0, 0, 0, 0.4)",
+	},
+	modalView: {
+		maxWidth: "75%",
+		backgroundColor: colors.background,
+		borderRadius: 15,
+		padding: 20,
+		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+		elevation: 5,
+	},
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
+	subtitle: {
+		color: colors.textSecondary,
+		fontSize: 14,
+		marginBottom: 0,
+	},
+	footer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 20,
+		alignItems: "flex-end",
+	},
+});

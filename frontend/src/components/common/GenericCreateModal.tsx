@@ -1,8 +1,8 @@
-import { Modal, View, ScrollView } from "react-native";
+import { Modal, View, ScrollView, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import * as styles from "@/assets/styles/stylesheets";
+import { colors } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 
 interface GenericCreateModalProps<T> {
@@ -45,9 +45,9 @@ export function GenericCreateModal<T extends { id?: any }>({
 			visible={visible}
 			onRequestClose={onClose}
 		>
-			<View style={styles.modalPage.centeredView}>
-				<View style={styles.modalPage.modalView}>
-					<View style={styles.modalPage.header}>
+			<View style={styles.centeredView}>
+				<View style={styles.modalView}>
+					<View style={styles.header}>
 						<View style={{ flex: 1 }} />
 						<Ionicons
 							name="close"
@@ -70,18 +70,46 @@ export function GenericCreateModal<T extends { id?: any }>({
 					</ScrollView>
 
 					{/* Footer with Save */}
-					<View style={styles.modalPage.footer}>
+					<View style={styles.footer}>
 						
-							<Button
-								color="#4caf50"
-								label="Salvar"
-								iconName="save-outline"
-								iconSize={20}
-								onPress={handleSave}
-							/>
+						<Button
+							color="#4caf50"
+							label="Salvar"
+							iconName="save-outline"
+							iconSize={20}
+							onPress={handleSave}
+						/>
 					</View>
 				</View>
 			</View>
 		</Modal>
 	);
 }
+
+export const styles = StyleSheet.create({
+	centeredView: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "rgba(0, 0, 0, 0.4)",
+	},
+	modalView: {
+		maxWidth: "75%",
+		backgroundColor: colors.background,
+		borderRadius: 15,
+		padding: 20,
+		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+		elevation: 5,
+	},
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
+	footer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 20,
+		alignItems: "flex-end",
+	},
+});

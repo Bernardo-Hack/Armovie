@@ -4,12 +4,13 @@ import {
 	Text,
 	FlatList,
 	ActivityIndicator,
+	StyleSheet,
 } from "react-native";
 import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { Machine } from "@/assets/types/Machine";
 import { ServiceLog } from "@/assets/types/ServiceLog";
@@ -26,7 +27,9 @@ interface Props {
 
 export function MachineServicesModal({ machine, visible, onClose }: Props) {
 	const [logs, setLogs] = useState<ServiceLog[]>([]);
-	const [technicians, setTechnicians] = useState<{id: string, name: string}[]>([]);
+	const [technicians, setTechnicians] = useState<
+		{ id: string; name: string }[]
+	>([]);
 	const [loading, setLoading] = useState(true);
 	const [newLog, setNewLog] = useState({
 		// State to hold new log data
@@ -54,7 +57,7 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 			id: "Outros",
 			name: "Outros",
 		},
-	]
+	];
 
 	const fetchLogs = async () => {
 		if (!machine) return;
@@ -88,41 +91,40 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 	};
 
 	const fetchTecnicians = async () => {
-			try {
-				let fetchTechnicians: { id: string; name: string }[] = [];
-				fetchTechnicians.push({ id: "", name: "N/A" });
-				const usersData = await userService.getAllUsers();
-	
-				for (const user of usersData) {
-					if (user.position == 'Técnico' || user.position == 'Admin') {
-						fetchTechnicians.push({
-							id: user.id,
-							name: user.name,
-						});
-					}
-				}
-				setTechnicians(fetchTechnicians);
-			} catch (error: any) {
-	
-				if (error.message == 'Not Found') {
-					Toast.show({
-						type: "info",
-						text1: "Nenhum técnico encontrado!",
+		try {
+			let fetchTechnicians: { id: string; name: string }[] = [];
+			fetchTechnicians.push({ id: "", name: "N/A" });
+			const usersData = await userService.getAllUsers();
+
+			for (const user of usersData) {
+				if (user.position == "Técnico" || user.position == "Admin") {
+					fetchTechnicians.push({
+						id: user.id,
+						name: user.name,
 					});
-					return;
 				}
-				
-				Toast.show({
-					type: "error",
-					text1: "Erro ao carregar contratos",
-					text2:
-						error.message ||
-						"Não foi possível buscar os contratos. Tente novamente.",
-				});
-			} finally {
-				setLoading(false);
 			}
+			setTechnicians(fetchTechnicians);
+		} catch (error: any) {
+			if (error.message == "Not Found") {
+				Toast.show({
+					type: "info",
+					text1: "Nenhum técnico encontrado!",
+				});
+				return;
+			}
+
+			Toast.show({
+				type: "error",
+				text1: "Erro ao carregar contratos",
+				text2:
+					error.message ||
+					"Não foi possível buscar os contratos. Tente novamente.",
+			});
+		} finally {
+			setLoading(false);
 		}
+	};
 
 	useEffect(() => {
 		if (visible) {
@@ -184,20 +186,18 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 	};
 
 	const renderLogItem = ({ item }: { item: ServiceLog }) => (
-		<View style={styles.logItem.container}>
+		<View style={styles.container}>
 			<View style={{ flex: 1 }}>
-				<Text style={styles.logItem.description}>
-					{item.observation}
-				</Text>
+				<Text style={styles.description}>{item.observation}</Text>
 				<View style={{ flexDirection: "row", gap: 15, marginTop: 8 }}>
-					<Text style={styles.logItem.meta}>
+					<Text style={styles.meta}>
 						Tipo:{" "}
 						<Text style={{ fontWeight: "bold" }}>
 							{item.serviceType}
 						</Text>
 					</Text>
 					{item.mlConsumed && (
-						<Text style={styles.logItem.meta}>
+						<Text style={styles.meta}>
 							Consumo:{" "}
 							<Text style={{ fontWeight: "bold" }}>
 								{item.mlConsumed}ml
@@ -206,11 +206,11 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 					)}
 				</View>
 			</View>
-			<View style={styles.logItem.footer}>
-				<Text style={styles.logItem.meta}>
+			<View style={styles.footer}>
+				<Text style={styles.meta}>
 					Técnico ID: {item.technicianId.substring(0, 8)}...
 				</Text>
-				<Text style={styles.logItem.meta}>
+				<Text style={styles.meta}>
 					{formatDisplayDate(item.created_at)}
 				</Text>
 			</View>
@@ -224,13 +224,11 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 			visible={visible}
 			onRequestClose={onClose}
 		>
-			<View style={styles.modalPage.centeredView}>
-				<View style={styles.modalPage.modalView}>
+			<View style={styles.centeredView}>
+				<View style={styles.modalView}>
 					{/* Header */}
-					<View style={styles.modalPage.header}>
-						<Text style={styles.modalPage.title}>
-							Logs - {machine?.name}
-						</Text>
+					<View style={styles.header}>
+						<Text style={styles.title}>Logs - {machine?.name}</Text>
 						<View style={{ flex: 1 }} />
 						<Ionicons
 							name="close"
@@ -252,7 +250,7 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 						{loading ? (
 							<ActivityIndicator
 								size="large"
-								color={styles.colors.primary}
+								color={colors.primary}
 							/>
 						) : (
 							<FlatList
@@ -276,17 +274,12 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 					{/* Formulário para Adicionar Novo Log */}
 					<View>
 						{/* Title */}
-						<Text
-							style={[
-								styles.modalPage.title,
-								{ textAlign: "center" },
-							]}
-						>
+						<Text style={[styles.title, { textAlign: "center" }]}>
 							Adicionar Novo Log
 						</Text>
 
 						{/* Form */}
-						<View style={[styles.modalPage.statsGrid]}>
+						<View style={[styles.statsGrid]}>
 							{/* Technician */}
 							<StatBox
 								type="select"
@@ -330,7 +323,7 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 								}
 								direction="vertical"
 								label="Último serviço a"
-								isNumeric
+								keyboardType="numeric"
 								value={newLog.daysSinceLastService}
 							/>
 
@@ -342,7 +335,7 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 								}
 								direction="vertical"
 								label="ML Consumidos"
-								isNumeric
+								keyboardType="numeric"
 								value={newLog.mlConsumed}
 							/>
 
@@ -373,3 +366,61 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 		</Modal>
 	);
 }
+
+const styles = StyleSheet.create({
+	centeredView: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "rgba(0, 0, 0, 0.4)",
+	},
+	modalView: {
+		maxWidth: "75%",
+		backgroundColor: colors.background,
+		borderRadius: 15,
+		padding: 20,
+		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+		elevation: 5,
+	},
+	container: {
+		padding: 15,
+		backgroundColor: colors.overlayBackground,
+		borderRadius: 8,
+		marginBottom: 10,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.textSecondary,
+		flexDirection: "column",
+		gap: 10,
+	},
+	description: {
+		...text.rowText,
+		textAlign: "left",
+		fontWeight: "normal",
+	},
+	meta: {
+		...text.subtitle,
+		fontSize: 12,
+	},
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
+	title: {
+		...text.title,
+		fontSize: 28,
+	},
+	statsGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-between",
+		marginTop: 20,
+		marginBottom: 20,
+	},
+	footer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 20,
+		alignItems: "flex-end",
+	},
+});

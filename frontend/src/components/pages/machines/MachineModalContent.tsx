@@ -1,6 +1,6 @@
-import { Text, View, TextInput, ScrollView } from "react-native";
+import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Machine } from "@/assets/types/Machine";
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
 
@@ -26,7 +26,7 @@ export function MachineModalContent({
 				<View style={{ marginBottom: 20 }}>
 					<TextInput
 						style={[
-							styles.modalPage.title,
+							styles.title,
 							{
 								borderBottomWidth: 1,
 								borderColor: "#ddd",
@@ -39,13 +39,13 @@ export function MachineModalContent({
 				</View>
 			) : (
 				<View style={{ marginBottom: 20 }}>
-					<Text style={[styles.modalPage.title, { marginBottom: 0 }]}>
+					<Text style={[styles.title, { marginBottom: 0 }]}>
 						{machine.name}
 					</Text>
 				</View>
 			)}
 
-			<View style={styles.modalPage.statsGrid}>
+			<View style={styles.statsGrid}>
 				{/* Model */}
 				<StatBox
 					isEditing={isEditing}
@@ -59,13 +59,13 @@ export function MachineModalContent({
 				<StatBox
 					isEditing={isEditing}
 					onChange={(text) => handleInputChange("price", text)}
-					isNumeric={true}
 					direction="vertical"
 					label="preço"
 					value={machine.price}
 					valueColor={"#4caf50"}
 					unit="R$"
 					prefix="R$ "
+					keyboardType="numeric"
 				/>
 
 				{/* Contract */}
@@ -162,7 +162,7 @@ export function MachineModalContent({
 
 				{/* Date Information */}
 				<View style={{ alignSelf: "center" }}>
-					<Text style={styles.modalPage.dateText}>
+					<Text style={styles.dateText}>
 						Cadastrada em: {formatDisplayDate(machine.created_at)}
 					</Text>
 				</View>
@@ -170,3 +170,29 @@ export function MachineModalContent({
 		</ScrollView>
 	);
 }
+
+const styles = StyleSheet.create({
+	title: {
+		...text.title,
+		fontSize: 28,
+	},
+	statsGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-between",
+		marginTop: 20,
+		marginBottom: 20,
+	},
+	dateInfo: {
+		marginTop: 20,
+		paddingTop: 15,
+		borderTopWidth: 1,
+		borderTopColor: "#d8dee4",
+		alignItems: "center",
+	},
+	dateText: {
+		...text.subtitle,
+		color: "#57606a",
+		fontSize: 12,
+	},
+});

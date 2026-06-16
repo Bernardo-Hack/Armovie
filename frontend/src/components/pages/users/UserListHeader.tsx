@@ -1,34 +1,22 @@
 import { View, Text } from "react-native";
-import { Contract } from "@/assets/types/Contract";
-import { SortableHeader } from "../../common/SortableHeader";
-
-import Button from "../../common/Button";
+import { User } from "@/assets/types/User";
 import { colors, page, text } from "@/assets/styles/stylesheets";
+import Button from "@/components/common/Button";
+import { SortableHeader } from "@/components/common/SortableHeader";
 
-type SortKey = keyof Contract | null;
+type SortKey = keyof User | null;
 type SortDirection = "asc" | "desc";
 
-interface ContractListHeaderProps {
-	onSort: (key: keyof Contract | null) => void;
+interface UserListHeaderProps {
+	onSort: (key: keyof User | null) => void;
 	sortKey: SortKey;
 	sortDirection: SortDirection;
 }
 
-export function ContractListHeader({
-	onSort,
-	sortKey,
-	sortDirection,
-}: ContractListHeaderProps) {
+export function UserListHeader({ onSort, sortKey, sortDirection }: UserListHeaderProps) {
 	return (
 		<View style={page.row}>
-			{/* Refresh Button */}
-			<View
-				style={{
-					width: "2%",
-					justifyContent: "center",
-					alignItems: "center",
-				}}
-			>
+			<View style={{ width: "2%", justifyContent: "center", alignItems: "center" }}>
 				{sortKey && (
 					<Button
 						labelColor={colors.textSecondary}
@@ -40,23 +28,7 @@ export function ContractListHeader({
 			</View>
 
 			<SortableHeader
-				title="cliente"
-				sortKeyName="clientId"
-				onSort={onSort}
-				sortKey={sortKey}
-				sortDirection={sortDirection}
-				style={page.columns}
-			/>
-			<SortableHeader
-				title="tipo"
-				sortKeyName="type"
-				onSort={onSort}
-				sortKey={sortKey}
-				sortDirection={sortDirection}
-				style={page.columns}
-			/>
-			<SortableHeader
-				title="plano"
+				title="NOME"
 				sortKeyName="name"
 				onSort={onSort}
 				sortKey={sortKey}
@@ -64,22 +36,29 @@ export function ContractListHeader({
 				style={page.columns}
 			/>
 			<SortableHeader
-				title="máquinas"
-				sortKeyName="machines"
+				title="EMAIL"
+				sortKeyName="email"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
 				style={page.columns}
 			/>
 			<SortableHeader
-				title="status"
-				sortKeyName="status"
+				title="CARGO"
+				sortKeyName="position"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
 				style={page.columns}
 			/>
-
+			<SortableHeader
+				title="NÍVEL"
+				sortKeyName="role"
+				onSort={onSort}
+				sortKey={sortKey}
+				sortDirection={sortDirection}
+				style={page.columns}
+			/>
 			<View style={page.columns}>
 				<Text style={text.headerText}>AÇÕES</Text>
 			</View>

@@ -1,18 +1,17 @@
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useState } from "react";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
-import { loginForm, text, colors } from "@/assets/styles/stylesheets";
+import { colors, darkTheme } from "@/assets/styles/stylesheets";
 
 import { LoginCredentials } from "@/services/authService";
 import { useAuth } from "@/services/AuthProvider";
 import Button from "../../common/Button";
+import { StatBox } from "@/components/common/Statbox";
 
 export function LoginForm() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [showPassword, setShowPassword] = useState(false);
 
 	const { login } = useAuth();
 
@@ -47,42 +46,30 @@ export function LoginForm() {
 	};
 
 	return (
-		<View style={loginForm.container}>
-
+		<View style={style.container}>
 			{/* Email */}
-			<View style={{gap : 5}}>
-				<Text style={text.body}>E-mail</Text>
-				<TextInput
-					value={email}
-					onChangeText={setEmail}
-					style={loginForm.input}
-					placeholder="Digite seu e-mail"
-					placeholderTextColor="#888"
-					keyboardType="email-address"
-					autoCapitalize="none"
-				/>
-			</View>
+			<StatBox
+				isEditing={true}
+				value={email}
+				onChange={(val) => setEmail(String(val))}
+				direction="horizontal"
+				label="E-mail"
+				placeholder="Digite seu e-mail"
+				keyboardType="email-address"
+				autoCapitalize="none"
+			/>
 
 			{/* Password */}
-			<View style={{gap : 5}}>
-				<Text style={text.body}>Senha</Text>
-				<View style={{ position: "relative" }}>
-					<TextInput
-						secureTextEntry={!showPassword}
-						value={password}
-						onChangeText={setPassword}
-						style={loginForm.input}
-						placeholder="Digite sua senha"
-						placeholderTextColor="#888"
-					/>
-					<Ionicons
-						name={showPassword ? "eye-off" : "eye"}
-						size={24}
-						color="#888"
-						style={loginForm.eyeIcon}
-						onPress={() => setShowPassword((prev) => !prev)}
-					/>
-				</View>
+			<View style={{ justifyContent: "space-between", flexDirection: "row"}}>
+				<StatBox
+					isEditing={true}
+					value={password}
+					onChange={(val) => setPassword(String(val))}
+					direction="horizontal"
+					label="Senha"
+					placeholder="Digite sua senha"
+					isPassword
+				/>
 			</View>
 
 			{/* Submit Button */}
@@ -97,3 +84,13 @@ export function LoginForm() {
 	);
 }
 
+export const style = StyleSheet.create({
+	container: {
+		backgroundColor: colors.overlayBackground,
+		padding: 20,
+		gap: 15,
+		width: "100%",
+		borderRadius: 15,
+		boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.25)",
+	},
+});

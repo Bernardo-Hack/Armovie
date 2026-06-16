@@ -1,7 +1,9 @@
-import { Text, View, TextInput, ScrollView } from "react-native";
+import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
 import { Contract } from "@/assets/types/Contract";
-import * as styles from "@/assets/styles/stylesheets";
+import { text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
+import { addressService } from "@/services/addressService";
 
 interface Option {
 	id: string;
@@ -13,7 +15,6 @@ interface Props {
 	isEditing: boolean;
 	handleInputChange: (field: keyof Contract, value: any) => void;
 	clients: Option[];
-	addresses: Option[];
 	templates: Option[];
 	plans: Option[];
 	fragrances: Option[];
@@ -24,11 +25,33 @@ export function ContractModalContent({
 	isEditing,
 	handleInputChange,
 	clients,
-	addresses,
 	templates,
 	plans,
 	fragrances,
 }: Props) {
+	const [addresses, setAddresses] = useState<Option[]>([]);
+
+	useEffect(() => {
+		const fetchAddresses = async () => {
+			if (!contract.clientId) {
+				setAddresses([]);
+				return;
+			}
+			try {
+				const fetched = await addressService.getAddressesByClientId(contract.clientId);
+				const mappedAddresses = fetched.map((a: any) => ({
+					id: a.id,
+					name: `${a.street}, ${a.number}${a.complement ? ` - ${a.complement}` : ""}`,
+				}));
+				setAddresses(mappedAddresses);
+			} catch (error) {
+				setAddresses([]);
+			}
+		};
+
+		fetchAddresses();
+	}, [contract.clientId]);
+
 	return (
 		<ScrollView contentContainerStyle={{ width: "100%" }}>
 			{/* Name */}
@@ -36,7 +59,7 @@ export function ContractModalContent({
 				<View style={{ marginBottom: 20 }}>
 					<TextInput
 						style={[
-							styles.modalPage.title,
+							styles.title,
 							{
 								borderBottomWidth: 1,
 								borderColor: "#ddd",
@@ -50,7 +73,7 @@ export function ContractModalContent({
 				</View>
 			) : (
 				<View style={{ marginBottom: 20 }}>
-					<Text style={[styles.modalPage.title, { marginBottom: 0 }]}>
+					<Text style={[styles.title, { marginBottom: 0 }]}>
 						{contract.name}
 					</Text>
 				</View>
@@ -60,18 +83,20 @@ export function ContractModalContent({
 			<StatBox
 				type="select"
 				isEditing={isEditing}
-				onChange={(value) => handleInputChange("clientId", value as string)}
+				onChange={(value) =>
+					handleInputChange("clientId", value as string)
+				}
 				direction="horizontal"
 				label="Cliente"
 				value={contract.clientId}
 				options={[
 					{ label: "Selecione um cliente...", value: "" },
-					...clients.map((c) => ({ label: c.name, value: c.id }))
+					...clients.map((c) => ({ label: c.name, value: c.id })),
 				]}
 			/>
 
 			{/* All other data */}
-			<View style={styles.modalPage.statsGrid}>
+			<View style={styles.statsGrid}>
 				<StatBox
 					type="select"
 					isEditing={isEditing}
@@ -82,7 +107,7 @@ export function ContractModalContent({
 					options={[
 						{ label: "Comodato", value: "Comodato" },
 						{ label: "Locação", value: "Locação" },
-						{ label: "Venda", value: "Venda" }
+						{ label: "Venda", value: "Venda" },
 					]}
 				/>
 				<StatBox
@@ -94,7 +119,7 @@ export function ContractModalContent({
 					value={contract.planId}
 					options={[
 						{ label: "Selecione...", value: "" },
-						...plans.map((p) => ({ label: p.name, value: p.id }))
+						...plans.map((p) => ({ label: p.name, value: p.id })),
 					]}
 				/>
 				<StatBox
@@ -106,7 +131,10 @@ export function ContractModalContent({
 					value={contract.templateId}
 					options={[
 						{ label: "Selecione...", value: "" },
-						...templates.map((t) => ({ label: t.name, value: t.id }))
+						...templates.map((t) => ({
+							label: t.name,
+							value: t.id,
+						})),
 					]}
 				/>
 				<StatBox
@@ -118,7 +146,10 @@ export function ContractModalContent({
 					value={contract.addressId}
 					options={[
 						{ label: "Selecione...", value: "" },
-						...addresses.map((a) => ({ label: a.name, value: a.id }))
+						...addresses.map((a) => ({
+							label: a.name,
+							value: a.id,
+						})),
 					]}
 				/>
 				<StatBox
@@ -130,7 +161,10 @@ export function ContractModalContent({
 					value={contract.fragrance}
 					options={[
 						{ label: "Selecione...", value: "" },
-						...fragrances.map((f) => ({ label: f.name, value: f.id }))
+						...fragrances.map((f) => ({
+							label: f.name,
+							value: f.id,
+						})),
 					]}
 				/>
 				<StatBox
@@ -138,7 +172,7 @@ export function ContractModalContent({
 					onChange={(text) => handleInputChange("machines", text)}
 					direction="vertical"
 					label="Máquinas"
-					isNumeric
+					keyboardType="numeric"
 					value={contract.machines}
 				/>
 				<StatBox
@@ -146,7 +180,7 @@ export function ContractModalContent({
 					onChange={(text) => handleInputChange("duration", text)}
 					direction="vertical"
 					label="Duração (Dias)"
-					isNumeric
+					keyboardType="numeric"
 					value={contract.duration}
 				/>
 				<StatBox
@@ -154,7 +188,7 @@ export function ContractModalContent({
 					onChange={(text) => handleInputChange("monthlyValue", text)}
 					direction="vertical"
 					label="Valor Mensal"
-					isNumeric
+					keyboardType="numeric"
 					prefix="R$ "
 					value={contract.monthlyValue}
 				/>
@@ -163,7 +197,7 @@ export function ContractModalContent({
 					onChange={(text) => handleInputChange("paymentDay", text)}
 					direction="vertical"
 					label="Dia de Pagamento"
-					isNumeric
+					keyboardType="numeric"
 					value={contract.paymentDay}
 				/>
 			</View>
@@ -189,3 +223,17 @@ export function ContractModalContent({
 		</ScrollView>
 	);
 }
+
+const styles = StyleSheet.create({
+	title: {
+		...text.title,
+		fontSize: 28,
+	},
+	statsGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-between",
+		marginTop: 20,
+		marginBottom: 20,
+	},
+});

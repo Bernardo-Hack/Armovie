@@ -1,31 +1,50 @@
 import { View, Text } from "react-native";
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, text} from "@/assets/styles/stylesheets";
 import Button from "./Button";
 
 interface Props {
 	pageName: string;
 	subtitle: string;
-	extraButtonLabel?: string;
-	extraButtonIcon?: string;
+	secondButtonLabel?: string;
+	secondButtonIcon?: string;
+	thirdButtonLabel?: string;
+	thirdButtonIcon?: string;
 	fetchItems: () => void;
 	setIsCreateModalVisible: (visible: boolean) => void;
-	setIsExtraModalVisible?: (visible: boolean) => void;
+	setIsFirstModalVisible?: (visible: boolean) => void;
+	setIsSecondModalVisible?: (visible: boolean) => void;
 }
 
 export default function Header({
 	pageName,
 	subtitle,
-	extraButtonLabel,
-	extraButtonIcon,
+	secondButtonLabel,
+	secondButtonIcon,
+	thirdButtonLabel,
+	thirdButtonIcon,
 	fetchItems,
 	setIsCreateModalVisible,
-	setIsExtraModalVisible,
+	setIsFirstModalVisible,
+	setIsSecondModalVisible,
 }: Props) {
 	return (
-		<View style={styles.page.header}>
+		<View
+			style={{
+				flexDirection: "row",
+				justifyContent: "space-between",
+				alignItems: "center",
+				paddingHorizontal: "5%",
+				paddingVertical: "2%",
+				width: "80%",
+				backgroundColor: colors.overlayBackground,
+				borderRadius: 15,
+				elevation: 1,
+				boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.25)",
+			}}
+		>
 			<View>
-				<Text style={styles.text.title}>{pageName}</Text>
-				<Text style={styles.text.subtitle}>{subtitle}</Text>
+				<Text style={text.title}>{pageName}</Text>
+				<Text style={text.subtitle}>{subtitle}</Text>
 			</View>
 
 			<View
@@ -36,25 +55,35 @@ export default function Header({
 				}}
 			>
 				<Button
-					labelColor="#6b7280"
+					labelColor={colors.textSecondary}
 					iconName="refresh"
 					iconSize={20}
 					onPress={fetchItems}
 				/>
 				<Button
-					color={styles.colors.primary}
+					color={colors.primary}
 					label={`Adicionar ${pageName || "Item"}`}
 					iconName="bag-add-outline"
 					iconSize={20}
 					onPress={() => setIsCreateModalVisible(true)}
 				/>
-				{setIsExtraModalVisible && extraButtonLabel && (
+				{setIsFirstModalVisible && secondButtonLabel &&  (
 					<Button
-						color={styles.colors.primary}
-						label={extraButtonLabel}
-						iconName={extraButtonIcon || "add"}
+						color={colors.primary}
+						label={secondButtonLabel}
+						iconName={secondButtonIcon || "add"}
 						iconSize={20}
-						onPress={() => setIsExtraModalVisible(true)}
+						onPress={() => setIsFirstModalVisible(true)}
+					/>
+				)}
+
+				{setIsSecondModalVisible && thirdButtonLabel && (
+					<Button
+						color={colors.primary}
+						label={thirdButtonLabel}
+						iconName={thirdButtonIcon || "add"}
+						iconSize={20}
+						onPress={() => setIsSecondModalVisible(true)}
 					/>
 				)}
 			</View>

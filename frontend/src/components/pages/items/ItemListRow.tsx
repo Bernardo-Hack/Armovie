@@ -1,6 +1,6 @@
 import { View, Text, Platform } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 import { Item } from "@/assets/types/Item";
 
 export function ItemListRow({
@@ -18,18 +18,18 @@ export function ItemListRow({
 
 function webList(item: Item, openItemDetail: () => void) {
 	return (
-		<View style={styles.page.row}>
+		<View style={page.row}>
 			{/* Column 1: Name */}
 			<View style={{ width: "2%" }}/>
 			
-			<View style={styles.page.columns}>
-				<Text style={styles.text.rowText}>{item.name}</Text>
+			<View style={page.columns}>
+				<Text style={text.rowText}>{item.name}</Text>
 			</View>
 
 			{/* Column 2: Category */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
 						gap: 4,
@@ -44,7 +44,7 @@ function webList(item: Item, openItemDetail: () => void) {
 				/>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							fontWeight: "bold",
 							fontSize: 14,
@@ -58,22 +58,22 @@ function webList(item: Item, openItemDetail: () => void) {
 			</View>
 
 			{/* Column 3: Supplier */}
-			<View style={styles.page.columns}>
-				<Text style={[styles.text.rowText, { textAlign: "left" }]}>
+			<View style={page.columns}>
+				<Text style={[text.rowText, { textAlign: "left" }]}>
 					{item.supplier}
 				</Text>
 			</View>
 
 			{/* Column 4: Stock */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<View style={{ alignItems: "center" }}>
-					<Text style={[styles.text.rowText]}>
+					<Text style={[text.rowText]}>
 						{/* Formats the number */}
 						{formatNumber(item.stock)}
 					</Text>
 					<Text
 						style={[
-							styles.text.rowText,
+							text.rowText,
 							{ fontSize: 12, fontWeight: "ultralight" },
 						]}
 					>
@@ -93,10 +93,10 @@ function webList(item: Item, openItemDetail: () => void) {
 			</View>
 
 			{/* Column 5: Status */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							color: chooseStatusColor(item.status),
 						},
@@ -107,11 +107,11 @@ function webList(item: Item, openItemDetail: () => void) {
 			</View>
 
 			{/* Column 6: Action */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<Ionicons
 					name="eye"
 					size={20}
-					color="#fff"
+					color={colors.textPrimary}
 					onPress={openItemDetail}
 				/>
 			</View>
@@ -121,11 +121,11 @@ function webList(item: Item, openItemDetail: () => void) {
 
 function mobileList(item: Item, openItemDetail: () => void) {
 	return (
-		<View style={[styles.page.row, { alignItems: "flex-start" }]}>
+		<View style={[page.row, { alignItems: "flex-start" }]}>
 			{/* Left Side: Name, Category and Supplier */}
 			<View style={{ flex: 1, gap: 8, alignItems: "flex-start" }}>
 				{/* Name */}
-				<Text style={styles.text.rowText}>
+				<Text style={text.rowText}>
 					{item.name}
 				</Text>
 
@@ -144,7 +144,7 @@ function mobileList(item: Item, openItemDetail: () => void) {
 					/>
 					<Text
 						style={[
-							styles.text.rowText, 
+							text.rowText, 
 							{ 
 								color: chooseCategoryColor(item.category),
 							}
@@ -165,7 +165,7 @@ function mobileList(item: Item, openItemDetail: () => void) {
 				{/* Stock */}
 				<View style={{ alignItems: "flex-end" }}>
 					
-					<Text style={[styles.text.rowText, { fontSize: 16 }]}>
+					<Text style={[text.rowText, { fontSize: 16 }]}>
 						{formatNumber(item.stock)}
 						<Text style={{ fontSize: 12 }}>
 							{item.category === "Fragrância" ? " ml" : " un"}
@@ -191,7 +191,7 @@ function mobileList(item: Item, openItemDetail: () => void) {
 				<Ionicons
 					name="eye"
 					size={24}
-					color="#fff"
+					color={colors.textPrimary}
 					onPress={openItemDetail}
 				/>
 			</View>

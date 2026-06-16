@@ -17,6 +17,9 @@ import { itemService } from "@/services/itemService";
 import { clientService } from "@/services/clientService";
 import { planService } from "@/services/planService";
 import { PlanModal } from "@/components/pages/contracts/PlanModal";
+import { Template } from "@/assets/types/Template";
+import { TemplateModal } from "@/components/pages/contracts/TemplateModal";
+import { templateService } from "@/services/templateService";
 
 type SortKey = keyof Contract | null;
 type SortDirection = "asc" | "desc";
@@ -48,19 +51,14 @@ export default function ContractsTab() {
 	>([]);
 	const [plans, setPlans] = useState<{ id: string; name: string }[]>([]);
 
-	// Mocks temporários para relacionamentos que possam ainda não ter serviços
-	const [templates, setTemplates] = useState<{ id: string; name: string }[]>([
-		{ id: "temp-1", name: "Template Padrão" },
-	]);
-	const [addresses, setAddresses] = useState<{ id: string; name: string }[]>([
-		{ id: "addr-1", name: "Endereço Principal" },
-	]);
+	const [templates, setTemplates] = useState<Template[]>([]);
 
 	const [sortKey, setSortKey] = useState<SortKey>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const [loading, setLoading] = useState(true);
 	const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 	const [isPlanModalVisible, setIsPlanModalVisible] = useState(false);
+	const [isTemplateModalVisible, setIsTemplateModalVisible] = useState(false);
 
 	const sortedContracts = useMemo(() => {
 		if (!sortKey) return contracts;
@@ -108,6 +106,23 @@ export default function ContractsTab() {
 		}
 	};
 
+	const fetchTemplates = async () => {
+		try {
+			const templatesData = await templateService.getAllTemplates();
+			setTemplates(templatesData);
+		} catch (error: any) {
+			if (error.message === "Not Found" || error.message?.includes("404")) {
+				setTemplates([]);
+			} else {
+				Toast.show({
+					type: "error",
+					text1: "Erro ao carregar templates",
+					text2: error.message || "Não foi possível buscar os templates.",
+				});
+			}
+		}
+	};
+
 	const fetchAllData = async () => {
 		setLoading(true);
 
@@ -117,11 +132,7 @@ export default function ContractsTab() {
 			setContracts(contractsData);
 		} catch (error: any) {
 			if (error.message === "Not Found" || error.message?.includes("404")) {
-				Toast.show({
-					type: "info",
-					text1: "Nenhum contrato encontrado!",
-					text2: "Cadastre um novo contrato para começar.",
-				});
+				console.log("Nenhum contrato encontrado!");
 				setContracts([]);
 			} else {
 				Toast.show({
@@ -144,7 +155,7 @@ export default function ContractsTab() {
 					type: "info",
 					text1: "Nenhum cliente encontrado!",
 				});
-				setClients([]);
+				setClients([{ id: "", name: "N/A" }]);
 			} else {
 				Toast.show({
 					type: "error",
@@ -180,6 +191,7 @@ export default function ContractsTab() {
 
 		// Busca de Planos
 		await fetchPlansData();
+		await fetchTemplates();
 		setLoading(false);
 	};
 
@@ -187,7 +199,26 @@ export default function ContractsTab() {
 		try {
 			const { id, status, created_at, updated_at, ...contractToCreate } =
 				newContractData;
-			await contractService.createContract(contractToCreate);
+
+			if (!contractToCreate.clientId || !contractToCreate.planId) {
+				Toast.show({
+					type: "error",
+					text1: "Dados incompletos",
+					text2: "Preencha ao menos o Cliente e o Plano.",
+				});
+				return;
+			}
+
+			const payload = {
+				...contractToCreate,
+				clientId: contractToCreate.clientId || undefined,
+				planId: contractToCreate.planId || undefined,
+				addressId: contractToCreate.addressId || undefined,
+				templateId: contractToCreate.templateId || undefined,
+				fragrance: contractToCreate.fragrance || undefined,
+			};
+
+			await contractService.createContract(payload as any);
 			Toast.show({
 				type: "success",
 				text1: "Contrato criado com sucesso!",
@@ -207,9 +238,19 @@ export default function ContractsTab() {
 		try {
 			const { id, created_at, updated_at, ...contractToUpdate } =
 				updatedContract;
+
+			const payload = {
+				...contractToUpdate,
+				clientId: contractToUpdate.clientId || undefined,
+				planId: contractToUpdate.planId || undefined,
+				addressId: contractToUpdate.addressId || undefined,
+				templateId: contractToUpdate.templateId || undefined,
+				fragrance: contractToUpdate.fragrance || undefined,
+			};
+
 			await contractService.updateContract(
 				updatedContract.id,
-				contractToUpdate,
+				payload as any,
 			);
 			Toast.show({
 				type: "success",
@@ -254,7 +295,6 @@ export default function ContractsTab() {
 			clients={clients}
 			plans={plans}
 			templates={templates}
-			addresses={addresses}
 			fragrances={fragrances}
 		/>
 	);
@@ -271,9 +311,12 @@ export default function ContractsTab() {
 				subtitle="Controle de Contratos"
 				fetchItems={fetchAllData}
 				setIsCreateModalVisible={setIsCreateModalVisible}
-				extraButtonLabel="Planos"
-				extraButtonIcon="list-outline"
-				setIsExtraModalVisible={setIsPlanModalVisible}
+				secondButtonLabel="Planos"
+				secondButtonIcon="list-outline"
+				setIsFirstModalVisible={setIsPlanModalVisible}
+				thirdButtonLabel="Templates"
+				thirdButtonIcon="clipboard-outline"
+				setIsSecondModalVisible={setIsTemplateModalVisible}
 			/>
 
 			<GenericList
@@ -301,6 +344,12 @@ export default function ContractsTab() {
 				visible={isPlanModalVisible}
 				onClose={() => setIsPlanModalVisible(false)}
 				onPlansUpdated={fetchPlansData}
+			/>
+
+			<TemplateModal
+				visible={isTemplateModalVisible}
+				onClose={() => setIsTemplateModalVisible(false)}
+				onTemplatesUpdated={fetchTemplates}
 			/>
 		</View>
 	);

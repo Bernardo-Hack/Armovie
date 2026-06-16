@@ -1,7 +1,7 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, StyleSheet } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { button } from "@/assets/styles/stylesheets";
+import { colors } from "@/assets/styles/stylesheets";
 
 type Props = {
 	color?: string;
@@ -21,12 +21,12 @@ export default function Button({
 	onPress,
 }: Props) {
 	const buttonColor = color || "transparent";
-	const iconColor = labelColor || button.label.color;
+	const iconColor = labelColor || styles.buttonLabel.color;
 
 	return (
 		<Pressable
 			style={[
-				button.primary,
+				styles.primary,
 				{
 					backgroundColor: buttonColor,
 					borderColor: buttonColor,
@@ -41,7 +41,7 @@ export default function Button({
 			/>
 
 			{label && (
-				<Text style={[button.label, { color: labelColor }]}>
+				<Text style={[styles.buttonLabel, { color: labelColor }]}>
 					{label}
 				</Text>
 			)}
@@ -56,3 +56,21 @@ function chooseIcon(
 		return "help";
 	else return category as React.ComponentProps<typeof Ionicons>["name"];
 }
+
+export const styles = StyleSheet.create({
+	primary: {
+		borderRadius: 10,
+		borderWidth: 12,
+		borderColor: colors.primary,
+		backgroundColor: colors.primary,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+	},
+	buttonLabel: {
+		color: colors.textPrimary,
+		fontFamily: "Futura",
+		fontSize: 16,
+	},
+});

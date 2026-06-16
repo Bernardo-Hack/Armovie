@@ -1,6 +1,6 @@
 import { View, Text, Platform } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 
 import { Machine } from "@/assets/types/Machine";
 import { itemService } from "@/services/itemService";
@@ -57,18 +57,18 @@ function webList(
 	}
 
 	return (
-		<View style={styles.page.row}>
+		<View style={page.row}>
 			<View style={{ width: "2%" }} />
 
 			{/* Name */}
-			<View style={styles.page.columns}>
-				<Text style={styles.text.rowText}>{machine.name}</Text>
+			<View style={page.columns}>
+				<Text style={text.rowText}>{machine.name}</Text>
 			</View>
 
 			{/* Model */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
 						gap: 4,
@@ -83,7 +83,7 @@ function webList(
 				/>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							fontWeight: "bold",
 							fontSize: 14,
@@ -97,10 +97,10 @@ function webList(
 			</View>
 
 			{/* Fragrance */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							fontWeight: "condensedBold",
 							fontSize: 14,
@@ -112,7 +112,7 @@ function webList(
 			</View>
 
 			{/* isPaid */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<Ionicons
 					name={machine.isPaid ? "cash" : "close"}
 					size={32}
@@ -123,7 +123,7 @@ function webList(
 			{/* Status */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
 						gap: 4,
@@ -138,7 +138,7 @@ function webList(
 				/>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							color: chooseStatusColor(machine.status),
 						},
@@ -151,24 +151,24 @@ function webList(
 			{/* Action */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
-						gap: 20,
+						gap: 15,
 						justifyContent: "center",
 					},
 				]}
 			>
 				<Ionicons
-					name="list-outline"
-					size={24}
-					color="#fff"
+					name="eye"
+					size={20}
+					color={colors.textPrimary}
 					onPress={openItemDetail}
 				/>
 				<Ionicons
 					name="albums-outline"
-					size={24}
-					color="#fff"
+					size={20}
+					color={colors.textPrimary}
 					onPress={openServiceModal}
 				/>
 			</View>

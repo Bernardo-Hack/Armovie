@@ -1,11 +1,10 @@
 import { View, Text } from "react-native";
 import { Machine } from "@/assets/types/Machine";
 
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 
 import Button from "../../common/Button";
 import { SortableHeader } from "../../common/SortableHeader";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 type SortKey = keyof Machine | null;
 type SortDirection = "asc" | "desc";
@@ -22,7 +21,7 @@ export function MachineListHeader({
 	sortDirection,
 }: MachineListHeaderProps) {
 	return (
-		<View style={styles.page.row}>
+		<View style={page.row}>
 			{/* Refresh Button */}
 			<View
 				style={{
@@ -32,10 +31,10 @@ export function MachineListHeader({
 				}}
 			>
 				{sortKey && (
-					<Ionicons
-						name="refresh"
-						size={16}
-						color={styles.colors.textSecondary}
+					<Button
+						labelColor={colors.textSecondary}
+						iconName="refresh"
+						iconSize={14}
 						onPress={() => onSort(null)}
 					/>
 				)}
@@ -82,8 +81,8 @@ export function MachineListHeader({
 				style={{ width: "15%" }}
 			/>
 
-			<View style={styles.page.columns}>
-				<Text style={styles.text.headerTextStyle}>AÇÕES</Text>
+			<View style={page.columns}>
+				<Text style={text.headerText}>AÇÕES</Text>
 			</View>
 		</View>
 	);

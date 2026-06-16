@@ -1,6 +1,6 @@
 import { View, Text, Platform } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 
 import { Client } from "@/assets/types/Client";
 import { userService } from "@/services/userService";
@@ -12,11 +12,7 @@ interface Props {
 	openExtraModal: () => void;
 }
 
-export function ClientListRow({
-	item,
-	openItemDetail,
-	openExtraModal,
-}:Props) {
+export function ClientListRow({ item, openItemDetail, openExtraModal }: Props) {
 	// if (Platform.OS === "web") {
 	// 	return webList(client, openItemDetail);
 	// }
@@ -33,25 +29,18 @@ function webList(
 	const { getUserById } = userService;
 	const [sellerName, setSellerName] = useState("");
 
-	const fetchUser = async () => {
-		setSellerName("Placeholder");
-
-		// try {
-		// 	const user = await getUserById(client.sellerId);
-		// 	setSellerName(user.name);
-		// } catch (error) {
-		// 	Toast.show({
-		// 		type: "error",
-		// 		text1: "Erro ao buscar vendedor",
-		// 		text2: "Não foi possível obter o nome do vendedor.",
-		// 	});
-		// 	setSellerName("N/A");
-		// }
+	const fetchSeller = async () => {
+		try{
+			const seller = await getUserById(client.sellerId);
+			setSellerName(seller.name);
+		} catch (error: any) {
+			setSellerName("Placeholder");
+		}
 	};
 
 	useEffect(() => {
 		if (!client) return;
-		fetchUser();
+		fetchSeller();
 	}, [client, getUserById]);
 
 	if (!client) {
@@ -59,18 +48,18 @@ function webList(
 	}
 
 	return (
-		<View style={styles.page.row}>
+		<View style={page.row}>
 			{/* Column 1: Name */}
 			<View style={{ width: "2%" }} />
 
-			<View style={styles.page.columns}>
-				<Text style={styles.text.rowText}>{client.fantasyName}</Text>
+			<View style={page.columns}>
+				<Text style={text.rowText}>{client.fantasyName}</Text>
 			</View>
 
 			{/* Column 2: Segment */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
 						gap: 4,
@@ -85,7 +74,7 @@ function webList(
 				/>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							fontWeight: "bold",
 							fontSize: 14,
@@ -101,7 +90,7 @@ function webList(
 			{/* Column 3: Lead */}
 			<View
 				style={[
-					styles.page.columns,
+					page.columns,
 					{
 						flexDirection: "row",
 						gap: 4,
@@ -112,11 +101,11 @@ function webList(
 				<Ionicons
 					name={chooseLeadIcon(client.lead)}
 					size={18}
-					color={styles.text.rowText.color}
+					color={text.rowText.color}
 				/>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							fontWeight: "bold",
 							fontSize: 14,
@@ -129,17 +118,17 @@ function webList(
 			</View>
 
 			{/* Column 4: Seller */}
-			<View style={styles.page.columns}>
-				<Text style={[styles.text.rowText, { textAlign: "left" }]}>
+			<View style={page.columns}>
+				<Text style={[text.rowText, { textAlign: "left" }]}>
 					{sellerName}
 				</Text>
 			</View>
 
 			{/* Column 5: Status */}
-			<View style={styles.page.columns}>
+			<View style={page.columns}>
 				<Text
 					style={[
-						styles.text.rowText,
+						text.rowText,
 						{
 							color: chooseStatusColor(client.status),
 						},
@@ -150,18 +139,27 @@ function webList(
 			</View>
 
 			{/* Column 6: Action */}
-			<View style={styles.page.columns}>
+			<View
+				style={[
+					page.columns,
+					{
+						flexDirection: "row",
+						justifyContent: "center",
+						gap: 15,
+					},
+				]}
+			>
 				<Ionicons
 					name="eye"
 					size={20}
-					color="#fff"
+					color={colors.textPrimary}
 					onPress={openItemDetail}
 				/>
 
 				<Ionicons
 					name="map-outline"
 					size={24}
-					color="#fff"
+					color={colors.textPrimary}
 					onPress={openExtraModal}
 				/>
 			</View>
@@ -170,80 +168,7 @@ function webList(
 }
 
 // function mobileList(client: Client, openItemDetail: () => void) {
-// 	return (
-// 		<View style={[styles.list.row, { alignItems: "flex-start" }]}>
-// 			{/* Left Side: Name, Category and Supplier */}
-// 			<View style={{ flex: 1, gap: 8, alignItems: "flex-start" }}>
-// 				{/* Name */}
-// 				<Text style={styles.list.rowText}>{client.name}</Text>
-
-// 				{/* Category */}
-// 				<View
-// 					style={{
-// 						flexDirection: "row",
-// 						alignItems: "center",
-// 						gap: 5,
-// 					}}
-// 				>
-// 					<Ionicons
-// 						name={chooseSegmentIcon(client.segment)}
-// 						size={16}
-// 						color={chooseSegmentColor(client.segment)}
-// 					/>
-// 					<Text
-// 						style={[
-// 							styles.list.rowText,
-// 							{
-// 								color: chooseSegmentColor(client.segment),
-// 							},
-// 						]}
-// 					>
-// 						{client.segment}
-// 					</Text>
-// 				</View>
-
-// 				{/* Supplier */}
-// 				<Text style={{ color: "#ccc", fontSize: 12 }}>
-// 					{client.supplier}
-// 				</Text>
-// 			</View>
-
-// 			{/* Right Side: Stock, Status and Action */}
-// 			<View style={{ alignItems: "flex-end", gap: 8 }}>
-// 				{/* Stock */}
-// 				<View style={{ alignItems: "flex-end" }}>
-// 					<Text style={[styles.list.rowText, { fontSize: 16 }]}>
-// 						{formatNumber(client.stock)}
-// 						<Text style={{ fontSize: 12 }}>
-// 							{client.category === "Fragrância" ? " ml" : " un"}
-// 						</Text>
-// 					</Text>
-
-// 					<Text style={{ color: "#9e9e9e", fontSize: 12 }}>
-// 						Mín: {formatNumber(client.minStock)}
-// 					</Text>
-// 				</View>
-
-// 				{/* Status */}
-// 				<Text
-// 					style={{
-// 						color: chooseStatusColor(client.status),
-// 						fontWeight: "bold",
-// 					}}
-// 				>
-// 					{client.status}
-// 				</Text>
-
-// 				{/* Action */}
-// 				<Ionicons
-// 					name="eye"
-// 					size={24}
-// 					color="#fff"
-// 					onPress={openItemDetail}
-// 				/>
-// 			</View>
-// 		</View>
-// 	);
+// 	return ();
 // }
 
 function chooseSegmentIcon(category: string) {
@@ -276,7 +201,7 @@ function chooseSegmentColor(segment: string) {
 		case "Other":
 			return "#d8a31e";
 		default:
-			return "#bbbbbb";
+			return colors.textSecondary;
 	}
 }
 
@@ -304,6 +229,6 @@ function chooseStatusColor(status: string) {
 		case "Inativo":
 			return "#f44336";
 		default:
-			return "#9e9e9e";
+			return colors.textSecondary;
 	}
 }

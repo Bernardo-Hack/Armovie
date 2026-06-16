@@ -1,7 +1,7 @@
 import { apiFetch } from "./api";
 import { Contract } from "@/assets/types/Contract";
 
-const BASE_URL = "/api/clients/contracts/";
+const BASE_URL = "/api/clients/contract/";
 
 export const contractService = {
 	createContract: async (contractData: Partial<Contract>): Promise<Contract> => {

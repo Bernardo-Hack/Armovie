@@ -1,7 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { View, Text } from "react-native";
 
-import * as styles from "@/assets/styles/stylesheets";
+import { colors, page, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { SortableHeader } from "@/components/common/SortableHeader";
 
@@ -22,7 +21,7 @@ export function ItemListHeader({
 	sortDirection,
 }: ItemListHeaderProps) {
 	return (
-		<View style={styles.page.row}>
+		<View style={page.row}>
 			{/* Refresh Button */}
 			<View
 				style={{
@@ -33,7 +32,7 @@ export function ItemListHeader({
 			>
 				{sortKey && (
 					<Button
-						labelColor={styles.colors.textSecondary}
+						labelColor={colors.textSecondary}
 						iconName="refresh"
 						iconSize={14}
 						onPress={() => onSort(null)}
@@ -82,8 +81,8 @@ export function ItemListHeader({
 				style={{ width: "15%" }}
 			/>
 
-			<View style={styles.page.columns}>
-				<Text style={styles.text.headerTextStyle}>AÇÕES</Text>
+			<View style={page.columns}>
+				<Text style={text.headerText}>AÇÕES</Text>
 			</View>
 		</View>
 	);

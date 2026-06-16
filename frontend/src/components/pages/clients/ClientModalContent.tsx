@@ -1,6 +1,6 @@
-import { Text, View, TextInput, ScrollView } from "react-native";
+import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Client } from "@/assets/types/Client";
-import * as styles from "@/assets/styles/stylesheets";
+import { text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
 
@@ -24,7 +24,7 @@ export function ClientDetailsContent({
 				<View style={{ marginBottom: 20 }}>
 					<TextInput
 						style={[
-							styles.modalPage.title,
+							styles.title,
 							{
 								borderBottomWidth: 1,
 								borderColor: "#ddd",
@@ -39,7 +39,7 @@ export function ClientDetailsContent({
 					/>
 					<TextInput
 						style={[
-							styles.text.body,
+							text.body,
 							{
 								borderBottomWidth: 1,
 								borderColor: "#ddd",
@@ -55,11 +55,11 @@ export function ClientDetailsContent({
 				</View>
 			) : (
 				<View style={{ marginBottom: 20 }}>
-					<Text style={[styles.modalPage.title, { marginBottom: 0 }]}>
+					<Text style={[styles.title, { marginBottom: 0 }]}>
 						{client.fullName}
 					</Text>
 					{client.fantasyName && (
-						<Text style={[styles.text.body, { color: "#666" }]}>
+						<Text style={[text.body, { color: "#666" }]}>
 							{client.fantasyName}
 						</Text>
 					)}
@@ -86,7 +86,7 @@ export function ClientDetailsContent({
 			/>
 
 			{/* Almost all data */}
-			<View style={styles.modalPage.statsGrid}>
+			<View style={styles.statsGrid}>
 				<StatBox
 					isEditing={isEditing}
 					onChange={(text) => handleInputChange("document", text)}
@@ -229,10 +229,10 @@ export function ClientDetailsContent({
 
 				{/* Date Information */}
 				<View style={{ flexDirection: "column", gap: 5 }}>
-					<Text style={styles.modalPage.dateText}>
+					<Text style={styles.dateText}>
 						Criado em: {formatDisplayDate(client.created_at)}
 					</Text>
-					<Text style={styles.modalPage.dateText}>
+					<Text style={styles.dateText}>
 						Atualizado em: {formatDisplayDate(client.updated_at)}
 					</Text>
 				</View>
@@ -240,3 +240,29 @@ export function ClientDetailsContent({
 		</ScrollView>
 	);
 }
+
+const styles = StyleSheet.create({
+	title: {
+		...text.title,
+		fontSize: 28,
+	},
+	statsGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-between",
+		marginTop: 20,
+		marginBottom: 20,
+	},
+	dateInfo: {
+		marginTop: 20,
+		paddingTop: 15,
+		borderTopWidth: 1,
+		borderTopColor: "#d8dee4",
+		alignItems: "center",
+	},
+	dateText: {
+		...text.subtitle,
+		color: "#57606a",
+		fontSize: 12,
+	},
+});

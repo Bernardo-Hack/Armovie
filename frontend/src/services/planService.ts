@@ -18,6 +18,10 @@ export const planService = {
 	getAllPlans: async (): Promise<Plan[]> => {
 		return apiFetch(BASE_URL, { method: "GET" });
 	},
+
+	getPlanById: async (planId: string): Promise<Plan> => {
+		return apiFetch(`${BASE_URL}${planId}`, { method: "GET" });
+	},
 	
 	deletePlan: async (planId: string): Promise<void> => {
 		return apiFetch(`${BASE_URL}${planId}`, { method: "DELETE" });

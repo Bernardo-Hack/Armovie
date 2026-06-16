@@ -1,28 +1,27 @@
 import { View, Text } from "react-native";
-import { Client } from "@/assets/types/Client";
+import { Person } from "@/assets/types/Person";
 
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
 import Button from "../../common/Button";
 import { SortableHeader } from "../../common/SortableHeader";
 
-type SortKey = keyof Client | null;
+type SortKey = keyof Person | null;
 type SortDirection = "asc" | "desc";
 
-interface ClientListHeaderProps {
-	onSort: (key: keyof Client | null) => void;
+interface PersonListHeaderProps {
+	onSort: (key: keyof Person | null) => void;
 	sortKey: SortKey;
 	sortDirection: SortDirection;
 }
 
-export function ClientListHeader({
+export function PersonListHeader({
 	onSort,
 	sortKey,
 	sortDirection,
-}: ClientListHeaderProps) {
+}: PersonListHeaderProps) {
 	return (
 		<View style={page.row}>
-			{/* Refresh Button */}
 			<View
 				style={{
 					width: "2%",
@@ -41,46 +40,45 @@ export function ClientListHeader({
 			</View>
 
 			<SortableHeader
-				title="CLIENTE"
+				title="nome"
 				sortKeyName="fullName"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
-				style={{ width: "20%" }}
+				style={page.columns}
 			/>
 			<SortableHeader
-				title="SEGMENTO"
-				sortKeyName="segment"
+				title="CLIENTE"
+				sortKeyName="clientId"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
-				style={{ width: "15%" }}
+				style={page.columns}
 			/>
 			<SortableHeader
-				title="LEAD"
-				sortKeyName="lead"
+				title="ASSINA?"
+				sortKeyName="doesSign"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
-				style={{ width: "15%" }}
+				style={page.columns}
 			/>
 			<SortableHeader
-				title="VENDEDOR"
-				sortKeyName="sellerId"
+				title="REPRESENTA?"
+				sortKeyName="isRepresentative"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
-				style={{ width: "20%" }}
+				style={page.columns}
 			/>
 			<SortableHeader
-				title="STATUS"
-				sortKeyName="status"
+				title="nacionalidade"
+				sortKeyName="nationality"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
-				style={{ width: "15%" }}
+				style={page.columns}
 			/>
-
 			<View style={page.columns}>
 				<Text style={text.headerText}>AÇÕES</Text>
 			</View>

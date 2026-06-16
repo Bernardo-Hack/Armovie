@@ -21,11 +21,11 @@ export default function NotFoundScreen() {
 				<Text style={styles.text.title}>Erro ao carregar a página</Text>
 				<Text style={styles.text.body}>A página que você está procurando não existe.</Text>
 				<Button
-					label="Voltar a tela de login"
+					label="Voltar"
 					color="#777"
 					iconName="help"
 					iconSize={24}
-					onPress={() => router.push("/login")}
+					onPress={() => router.push("/private")}
 				/>
 			</View>
 		</View>

@@ -152,12 +152,8 @@ export default function ItemsTab() {
 				error.message === "Not Found" ||
 				error.message?.includes("404")
 			) {
-				Toast.show({
-					type: "info",
-					text1: "Nenhum contrato encontrado!",
-					text2: "Contratos de teste carregados.",
-				});
-				setContracts(mockContracts);
+				console.log("Nenhum contrato encontrado!");
+				setContracts([{ id: "", name: "N/A" }]);
 			} else {
 				Toast.show({
 					type: "error",
@@ -166,8 +162,8 @@ export default function ItemsTab() {
 						error.message ||
 						"Não foi possível buscar os contratos. Tente novamente.",
 				});
-				setContracts([{ id: "", name: "N/A" }]);
 			}
+			setContracts([{ id: "", name: "N/A" }]);
 		}
 
 		// Busca de Fragrâncias
@@ -184,12 +180,7 @@ export default function ItemsTab() {
 				error.message === "Not Found" ||
 				error.message?.includes("404")
 			) {
-				Toast.show({
-					type: "info",
-					text1: "Nenhuma fragrância encontrada!",
-					text2: "Fragrâncias de teste carregadas.",
-				});
-				setFragrances(mockFragrances);
+				console.log("Nenhuma fragrância encontrada!");
 			} else {
 				Toast.show({
 					type: "error",
@@ -198,8 +189,8 @@ export default function ItemsTab() {
 						error.message ||
 						"Não foi possível buscar as fragrâncias. Tente novamente.",
 				});
-				setFragrances([{ id: "", name: "N/A" }]);
 			}
+			setFragrances([{ id: "", name: "N/A" }]);
 		}
 
 		// Busca de Máquinas
@@ -211,11 +202,7 @@ export default function ItemsTab() {
 				error.message === "Not Found" ||
 				error.message?.includes("404")
 			) {
-				Toast.show({
-					type: "info",
-					text1: "Nenhuma máquina encontrada!",
-					text2: "Cadastre uma nova máquina para começar.",
-				});
+				console.log("Nenhuma máquina encontrada!");
 				setMachines([]);
 			} else {
 				Toast.show({
