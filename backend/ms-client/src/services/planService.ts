@@ -23,6 +23,12 @@ export class planService {
 		return await prisma.plan.findMany();
 	}
 
+	async getPlanById(id: string) {
+		return await prisma.plan.findUniqueOrThrow({
+			where: { id },
+		});
+	}
+
 	async deletePlan(id: string) {
 		await prisma.plan.delete({ where: { id } });
 		return { success: true };

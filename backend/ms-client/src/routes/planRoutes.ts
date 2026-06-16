@@ -29,6 +29,18 @@ export async function planRoutes(app: FastifyInstance) {
 		}
 	});
 
+	// Get plan by id
+
+	app.get("/:id", async (request, reply) => {
+		try {
+			const { id } = request.params as any;
+			const result = await service.getPlanById(id);
+			return reply.send(result)
+		} catch (err: any) {
+			genericErrorHandler(err, reply);
+		}
+	});
+
 	// Delete a plan
 	app.delete("/:id", async (request, reply) => {
 		try {

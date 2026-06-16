@@ -23,6 +23,8 @@ app.register(routes[0]); // Client routes without prefix
 app.register(routes[1], { prefix: "/address" });
 app.register(routes[2], { prefix: "/contract" });
 app.register(routes[3], { prefix: "/plan" });
+app.register(routes[4], { prefix: "/person" });
+app.register(routes[5], { prefix: "/template" });
 
 app.get("/health", async () => ({
 	status: "healthy",

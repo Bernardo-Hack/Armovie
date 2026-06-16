@@ -18,7 +18,7 @@ model User {
   resetPasswordToken          String?   @db.VarChar(64)
   resetPasswordTokenExpiresAt DateTime?
 
-  status String @default("Ativo") @db.VarChar(16)
+  status String @default("Em Análise") @db.VarChar(16)
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt

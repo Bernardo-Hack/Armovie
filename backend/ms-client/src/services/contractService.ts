@@ -10,27 +10,22 @@ export class contractService {
 			throw new apiErr.BadRequestError("Invalid table for this service");
 		}
 
-		return await prisma.contract.create({
-			data: {
-				...input.data,
-			},
-			include: {
-				client: true,
-				address: true,
-				plan: true,
-			},
-		});
+		try {
+			return await prisma.contract.create({
+				data: {
+					...input.data,
+				},
+			});
+		} catch (error: any) {
+			if (error.code === "P2003") {
+				throw new apiErr.BadRequestError("Referência inválida: Um dos IDs relacionados (Cliente, Plano, Endereço ou Template) não existe no banco.");
+			}
+			throw error;
+		}
 	}
 
 	async getAllContracts() {
-		return await prisma.contract.findMany({
-			include: {
-				client: true,
-				address: true,
-				plan: true,
-				type: true,
-			},
-		});
+		return await prisma.contract.findMany();
 	}
 
 	async getContractById(id: string) {
@@ -40,7 +35,6 @@ export class contractService {
 				client: true,
 				address: true,
 				plan: true,
-				type: true,
 			},
 		});
 	}
@@ -50,16 +44,22 @@ export class contractService {
 			throw new apiErr.BadRequestError("Invalid table for this service!");
 		}
 
-		return await prisma.contract.update({
-			where: { id: contractId },
-			data: input.data,
-			include: {
-				client: true,
-				address: true,
-				plan: true,
-				type: true,
-			},
-		});
+		try {
+			return await prisma.contract.update({
+				where: { id: contractId },
+				data: input.data,
+				include: {
+					client: true,
+					address: true,
+					plan: true,
+				},
+			});
+		} catch (error: any) {
+			if (error.code === "P2003") {
+				throw new apiErr.BadRequestError("Referência inválida: Um dos IDs relacionados (Cliente, Plano, Endereço ou Template) não existe no banco.");
+			}
+			throw error;
+		}
 	}
 
 	async deleteContract(id: string) {

@@ -30,9 +30,9 @@ export const clientSchema = z.object({
 });
 
 export const personSchema = z.object({
-	clientId: z.string().uuid(),
-	rg: z.string(),
-	cpf: z.string(),
+	clientId: z.uuid(),
+	fullName: z.string(),
+	document: z.string(),
 
 	birthday: z.coerce.date(),
 	civilState: z.string(),
@@ -42,7 +42,7 @@ export const personSchema = z.object({
 	isRepresentative: z.boolean(),
 	role: z.string(),
 
-	email: z.string().email(),
+	email: z.email(),
 	phone: z.string(),
 	observations: z.string().optional(),
 });

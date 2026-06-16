@@ -6,6 +6,7 @@ import { prisma } from "../lib/prisma";
 import { apiErr } from "../errors";
 import { sendMail } from "../utils/mailer";
 import { logger } from "../utils/logger";
+import { ZodNull } from "zod/v3";
 
 // - JWT Secret config -
 
@@ -34,11 +35,13 @@ function refreshExpiresAt(): Date {
 
 export class UserService {
 	async createUser(input: schemas.RegisterUserInput) {
+		const { password, ...userData } = input;
+		
 		const hashedPassword = await bcrypt.hash(input.password, 10);
 
 		const user = await prisma.user.create({
 			data: {
-				...input,
+				...userData,
 				passwordHash: hashedPassword,
 			},
 		});
@@ -198,13 +201,8 @@ export class UserService {
 				name: true,
 				email: true,
 				position: true,
-				createdAt: true,
+				created_at: true,
 				passwordHash: false,
-				permission: {
-					select: {
-						name: true,
-					},
-				},
 			},
 		});
 	}
@@ -226,7 +224,8 @@ export class UserService {
 				name: true,
 				email: true,
 				position: true,
-				createdAt: true,
+				role: true,
+				created_at: true,
 				passwordHash: false,
 			},
 		});

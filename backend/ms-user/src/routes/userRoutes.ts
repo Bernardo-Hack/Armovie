@@ -84,6 +84,18 @@ export async function userRoutes(app: FastifyInstance) {
 			}
 		});
 
+		// Update a user by ID
+		protected_.patch("/:id", async (request, reply) => {
+			try {
+				const { id } = request.params as { id: string };
+				const input = updateSchema.parse(request.body);
+				const result = await service.updateUser(id, input);
+				return reply.status(200).send(result);
+			} catch (err: any) {
+				genericErrorHandler(err, reply);
+			}
+		});
+
 		// Update an existing user
 		protected_.patch("/profile", async (request, reply) => {
 			try {
