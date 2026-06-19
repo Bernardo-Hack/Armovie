@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Define the schemas of this microservice here, and 
+// Define the schemas of this microservice here, and
 // export them to be used in the services and controllers
 
 export const clientSchema = z.object({
@@ -11,21 +11,19 @@ export const clientSchema = z.object({
 	stateID: z.string().optional(),
 
 	fieldOfActivity: z.string().optional(),
-	lead: z.string(),
-	segment: z.string(),
 
 	phone: z.string(),
 	whatsapp: z.string(),
 
 	hasIss: z.boolean(),
 
-	financesEmail: z.string().email(),
-	alertsEmail: z.string().email().optional(),
+	financesEmail: z.email(),
+	alertsEmail: z.email().optional(),
 
 	foundingDate: z.coerce.date(),
 	observations: z.string().optional(),
 
-	sellerId: z.string().uuid(),
+	sellerId: z.uuid(),
 	status: z.string().optional(),
 });
 
@@ -39,7 +37,7 @@ export const personSchema = z.object({
 	nationality: z.string(),
 
 	doesSign: z.boolean(),
-	isRepresentative: z.boolean(),
+	doesRepresent: z.boolean(),
 	role: z.string(),
 
 	email: z.email(),
@@ -48,32 +46,36 @@ export const personSchema = z.object({
 });
 
 export const addressSchema = z.object({
-	clientId: z.string().uuid().optional(),
-	personId: z.string().uuid().optional(),
+	clientId: z.uuid().optional(),
+	personId: z.uuid().optional(),
 
+	zipCode: z.string(),
 	street: z.string(),
 	number: z.number().int(),
-	zip_code: z.string(),
+	neighborhood: z.string(),
 	city: z.string(),
 	state: z.string(),
 	complement: z.string().optional(),
+	observations: z.string().optional(),
 });
 
 export const contractSchema = z.object({
 	name: z.string(),
-	clientId: z.string().uuid(),
-	addressId: z.string().uuid(),
-	templateId: z.string().uuid(),
-	planId: z.string().uuid(),
+	clientId: z.uuid(),
+	addressId: z.uuid(),
+
 	type: z.string(),
+	planId: z.uuid(),
+	templateId: z.uuid(),
 
 	machines: z.number().int(),
-	fragrance: z.string().uuid(),
-	duration: z.number().int(),
-	
+	fragrance: z.uuid(),
+	endDate: z.date(),
+
 	monthlyValue: z.number(),
-	paymentDay: z.number().int(),
+	payDay: z.number().int(),
 	observations: z.string().optional(),
+
 	status: z.string().optional(),
 });
 
@@ -88,7 +90,7 @@ export const templateSchema = z.object({
 	content: z.string(),
 });
 
-// Export the types of the schemas to be 
+// Export the types of the schemas to be
 // used in the services and controllers
 
 export const registerSchemas = z.discriminatedUnion("table", [

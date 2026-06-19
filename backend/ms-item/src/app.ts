@@ -1,8 +1,8 @@
 import fastify from "fastify";
 import "dotenv/config";
-import { itemRoutes } from "./routes/itemRoutes";
-import { machineRoutes } from "./routes/machineRoutes";
-import { logger } from "./utils/logger";
+import { fragranceRoutes } from "./routes/fragranceRoutes.js";
+import { machineRoutes } from "./routes/machineRoutes.js";
+import { logger } from "./utils/logger.js";
 
 const app = fastify({ logger: false });
 
@@ -20,8 +20,8 @@ app.addHook("onResponse", async (req, reply) => {
 	else logger.info(entry);
 });
 
-app.register(itemRoutes, { prefix: "" });
 app.register(machineRoutes, { prefix: "/machines" });
+app.register(fragranceRoutes, { prefix: "/fragrances" });
 
 app.get("/health", async () => ({
 	status: "healthy",

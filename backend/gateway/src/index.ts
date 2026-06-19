@@ -5,8 +5,8 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import "dotenv/config";
-import { logger } from "./utils/logger";
-import * as config from "./utils/importer";
+import { logger } from "./utils/logger.js";
+import * as config from "./utils/importer.js";
 
 const app = express();
 
@@ -209,9 +209,9 @@ app.use((err: any, _req: Request, res: Response) => {
 // - Health Check Endpoint - simple endpoint to verify service health
 
 app.get("/health", (_req, res) => {
-	res.json({ 
-		status: "healthy", 
-		service: "gateway" 
+	res.json({
+		status: "healthy",
+		service: "gateway",
 	});
 });
 

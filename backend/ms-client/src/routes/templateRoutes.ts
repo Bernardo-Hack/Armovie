@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { registerSchemas, updateSchemas } from "../schemas/schemas";
-import { templateService } from "../services/templateService";
-import { genericErrorHandler } from "../errors";
+import { registerSchemas, updateSchemas } from "../schemas/schemas.js";
+import { templateService } from "../services/templateService.js";
+import { genericErrorHandler } from "../errors/index.js";
 
 export async function templateRoutes(app: FastifyInstance) {
 	const service = new templateService();

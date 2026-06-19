@@ -1,6 +1,6 @@
-import * as schemas from "../schemas/schemas";
-import { prisma } from "../lib/prisma";
-import { apiErr } from "../errors";
+import * as schemas from "../schemas/schemas.js";
+import { prisma } from "../lib/prisma.js";
+import { apiErr } from "../errors/index.js";
 
 export class planService {
 	async createPlan(input: schemas.RegisterInput) {

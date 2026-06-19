@@ -1,9 +1,9 @@
 import fastify from "fastify";
 import "dotenv/config";
-import { routes } from "./routes";
-import { logger } from "./utils/logger";
+import { routes } from "./routes/index.js";
+import { logger } from "./utils/logger.js";
 
-const app = fastify({logger: false});
+const app = fastify({ logger: false });
 
 app.addHook("onRequest", async (req) => {
 	(req as any).t0 = Date.now();

@@ -1,6 +1,6 @@
-import * as schemas from "../schemas/schemas";
-import { prisma } from "../lib/prisma";
-import { apiErr } from "../errors";
+import * as schemas from "../schemas/schemas.js";
+import { prisma } from "../lib/prisma.js";
+import { apiErr } from "../errors/index.js";
 
 // Service class to handle the business logic of the Person module
 
@@ -16,9 +16,7 @@ export class personService {
 
 		try {
 			return await prisma.person.create({
-				data: {
-					...validated.data,
-				},
+				data: validated.data as any,
 			});
 		} catch (error: any) {
 			if (error.code === "P2002") {
@@ -51,9 +49,7 @@ export class personService {
 		try {
 			return await prisma.person.update({
 				where: { id: PersonId },
-				data: {
-					...validated.data,
-				},
+				data: validated.data as any,
 			});
 		} catch (error: any) {
 			if (error.code === "P2002") {

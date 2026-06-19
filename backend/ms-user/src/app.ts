@@ -1,8 +1,8 @@
 import fastify from "fastify";
 import "dotenv/config";
-import { userRoutes } from "./routes/userRoutes";
-import { logger } from "./utils/logger";
-import { verifyEmailConfig } from "./utils/mailer";
+import { userRoutes } from "./routes/userRoutes.js";
+import { logger } from "./utils/logger.js";
+import { verifyEmailConfig } from "./utils/mailer.js";
 
 const app = fastify({ logger: false });
 

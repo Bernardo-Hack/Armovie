@@ -12,13 +12,10 @@ model Client {
   fullName    String  @db.VarChar(128) // Razão Social
   fantasyName String? @db.VarChar(128)
 
-  document    String  @unique @db.VarChar(32)
-  municipalID String? @unique @db.VarChar(128)
-  stateID     String? @unique @db.VarChar(128)
-
+  document        String  @unique @db.VarChar(32)
+  municipalID     String? @unique @db.VarChar(128)
+  stateID         String? @unique @db.VarChar(128)
   fieldOfActivity String? @db.Text
-  lead            String  @db.VarChar(16)
-  segment         String  @db.VarChar(16)
 
   phone    String @db.VarChar(32)
   whatsapp String @db.VarChar(32)
@@ -35,59 +32,59 @@ model Client {
 
   status String @default("Em Análise") @db.VarChar(16)
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   address   Address[]
   contracts Contract[]
   persons   Person[]
 
-  @@index([lead])
-  @@index([segment])
   @@index([sellerId])
   @@index([status])
   @@map("clients")
 }
 
 model Person {
-  id  String @id @default(uuid()) @db.Uuid
+  id       String @id @default(uuid()) @db.Uuid
   clientId String @db.Uuid
-
-  fullName String  @db.VarChar(128)
-  document  String @unique @db.VarChar(16)
+  fullName String @db.VarChar(128)
+  document String @unique @db.VarChar(16)
 
   birthday    DateTime @db.Date
   civilState  String   @db.VarChar(16)
   nationality String   @db.VarChar(32)
 
-  doesSign Boolean @db.Boolean
-  isRepresentative Boolean @db.Boolean
-  role     String  @db.VarChar(32)
+  doesSign      Boolean @db.Boolean
+  doesRepresent Boolean @db.Boolean
+  role          String  @db.VarChar(32)
 
   email        String  @db.VarChar(128)
   phone        String  @db.VarChar(32)
   observations String? @db.Text
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   addresses Address[]
+
   @@index([clientId])
   @@map("persons")
 }
 
 model Address {
-  id       String @id @default(uuid()) @db.Uuid
+  id       String  @id @default(uuid()) @db.Uuid
   clientId String? @db.Uuid
   personId String? @db.Uuid
 
-  street     String  @db.VarChar(256)
-  number     Int     @db.Integer
-  zip_code   String  @db.VarChar(32)
-  city       String  @db.VarChar(64)
-  state      String  @db.VarChar(64)
-  complement String? @db.VarChar(128)
+  zipCode      String  @db.VarChar(32)
+  street       String  @db.VarChar(256)
+  number       Int     @db.Integer
+  neighborhood String  @db.VarChar(256)
+  city         String  @db.VarChar(128)
+  state        String  @db.VarChar(64)
+  complement   String? @db.VarChar(128)
+  observations String? @db.Text
 
   client   Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   person   Person?    @relation(fields: [personId], references: [id], onDelete: Cascade)
@@ -100,25 +97,26 @@ model Address {
 model Contract {
   id String @id @default(uuid()) @db.Uuid
 
-  name       String @db.VarChar(128)
-  clientId   String @db.Uuid
-  addressId  String @db.Uuid
-  templateId String @db.Uuid
-  planId     String @db.Uuid
+  name      String @db.VarChar(128)
+  clientId  String @db.Uuid
+  addressId String @db.Uuid
+
   type       String @db.VarChar(16)
+  planId     String @db.Uuid
+  templateId String @db.Uuid
 
   machines  Int
-  fragrance String @db.Uuid
-  duration  Int // in days
+  fragrance String   @db.Uuid
+  endDate   DateTime @db.Date
 
   monthlyValue Float
-  paymentDay   Int
+  payDay       Int
   observations String? @db.Text
 
   status String @default("Em Análise") @db.VarChar(16)
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   address  Address   @relation(fields: [addressId], references: [id])
@@ -139,8 +137,8 @@ model Plan {
   name  String @db.VarChar(128)
   price Float
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   contracts Contract[]
 
@@ -154,8 +152,8 @@ model Template {
   description String? @db.Text
   content     String  @db.Text
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   contracts Contract[]
 

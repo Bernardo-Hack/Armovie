@@ -1,6 +1,6 @@
 import { FastifyReply } from "fastify";
 import { Prisma } from "@prisma/client";
-import * as apiError from "./apiError";
+import * as apiError from "./apiError.js";
 
 // Utility functions for the client and contract modules
 
@@ -33,10 +33,11 @@ export function genericErrorHandler(err: any, reply: FastifyReply) {
 
 	// Zod validation error
 	if (err.name === "ZodError") {
+		const issues = err.issues || err.errors || [];
 		const message =
 			"Erro de validação: " +
-			err.errors
-				.map((e: any) => `${e.path.join(".")} - ${e.message}`)
+			issues
+				.map((e: any) => `${e.path?.join(".") || "campo"} - ${e.message}`)
 				.join("; ");
 		const badRequestError = new apiError.BadRequestError(message);
 		return reply

@@ -15,20 +15,21 @@ model Machine {
   observations String? @db.Text
 
   contractId        String? @db.Uuid
-  fragranceId       String?  @db.Uuid
-  medianConsumption Float?
+  localInstalled    String? @db.VarChar(128)
+  fragranceId       String? @db.Uuid
+  medianConsumption Float?  @db.DoublePrecision
 
-  price  Float
-  isPaid Boolean @default(false)
+  price      Float @db.DoublePrecision
+  amountPaid Float @db.DoublePrecision
 
   status String @default("Disponível") @db.VarChar(20)
 
-  lastService DateTime @updatedAt
-  created_at  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  serviceLogs ServiceLog[]
-  timeTables  TimeTable[]
-  fragrance   Item?         @relation(fields: [fragranceId], references: [id])
+  serviceLogs    ServiceLog[]
+  operatingHours OperatingHours[]
+  fragrance      Fragrance?       @relation(fields: [fragranceId], references: [id])
 
   @@index([model])
   @@index([status])
@@ -37,34 +38,41 @@ model Machine {
 }
 
 // Table for machine operating hours and timing grades
-model TimeTable {
+model OperatingHours {
   id String @id @default(uuid(7)) @db.Uuid
 
   machineId     String  @db.Uuid
   contractId    String? @db.Uuid
   timingGradeId String  @db.Uuid
 
-  days      String[] @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]) @db.VarChar(32) // Array of days machine is active
-  startTime DateTime
-  endTime   DateTime
+  startTime DateTime @db.Time
+  endTime   DateTime @db.Time
 
-  created_at DateTime @default(now())
+  monday    Boolean @db.Boolean
+  tuesday   Boolean @db.Boolean
+  wednesday Boolean @db.Boolean
+  thursday  Boolean @db.Boolean
+  friday    Boolean @db.Boolean
+  saturday  Boolean @db.Boolean
+  sunday    Boolean @db.Boolean
+
+  createdAt DateTime @default(now())
 
   machine     Machine     @relation(fields: [machineId], references: [id], onDelete: Cascade)
   timingGrade TimingGrade @relation(fields: [timingGradeId], references: [id])
 
   @@index([machineId])
-  @@map("timeTables")
+  @@map("operatingHours")
 }
 
 // Defines the timing grade for machines
 model TimingGrade {
   id String @id @default(uuid(7)) @db.Uuid
 
-  name        String @db.VarChar(32)
-  timeBetween Float // minutes between each splash
+  name     String @db.VarChar(32)
+  interval Float  @db.DoublePrecision // interval in minutes between each splash
 
-  timeTables TimeTable[]
+  operatingHours OperatingHours[]
 
   @@map("grades")
 }
@@ -76,46 +84,71 @@ model ServiceLog {
   machineId    String @db.Uuid
   technicianId String @db.Uuid
 
-  observation          String @db.Text
-  daysSinceLastService Int
+  serviceId      String @db.Uuid
+  description    String @db.Text
+  machinePayment Int    @db.Integer
 
-  serviceType String @db.VarChar(50)
-  mlConsumed  Float?
+  mlBefore    Int?    @db.Integer
+  mlAfter     Int?    @db.Integer
+  fragranceId String? @db.Uuid
 
-  created_at DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Date
 
-  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  machine     Machine     @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  serviceType ServiceType @relation(fields: [serviceId], references: [id])
+  fragrance   Fragrance?  @relation(fields: [fragranceId], references: [id])
 
   @@index([machineId])
   @@index([technicianId])
   @@map("serviceLogs")
 }
 
-// Table for items, including fragrances and other supplies
-model Item {
+// Types of services performed on machines
+model ServiceType {
   id String @id @default(uuid(7)) @db.Uuid
 
-  name     String @db.VarChar(128)
-  category String @db.VarChar(64)
+  name        String @db.VarChar(32)
+  description String @db.Text
+
+  serviceLogs ServiceLog[]
+
+  @@map("serviceTypes")
+}
+
+// Milliliter steps for each service performed on machines
+model MlSteps {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  quantity Int @db.Integer
+
+  @@map("mlSteps")
+}
+
+// Table for fragrances
+model Fragrance {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  name        String @db.VarChar(128)
+  family      String @db.VarChar(64)
+  description String @db.Text
+
+  stock    Int    @db.Integer // milliliters in stock
+  unitCost Float  @db.DoublePrecision // price per 100ml
   supplier String @db.VarChar(128)
 
-  stock       Int // for fragrances: milliliters in stock
-  minStock    Int // for fragrances: minimum stock level in milliliters
-  averageCost Float // for fragrances: price per ml
-  description String  @db.Text
-  notes       String? @db.Text
+  isActive Boolean @db.Boolean
 
-  status String @default("Em Estoque") @db.VarChar(16)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  fragrance       Machine[]
+  machines        Machine[]
+  serviceLogs     ServiceLog[]
   consumptionLogs ConsumptionLog[]
 
-  @@index([category])
-  @@index([status])
-  @@map("items")
+  @@index([family])
+  @@index([supplier])
+  @@index([isActive])
+  @@map("fragrances")
 }
 
 // Logs the consumption of fragrances in stock
@@ -123,12 +156,12 @@ model ConsumptionLog {
   id String @id @default(uuid(7)) @db.Uuid
 
   fragranceId String   @db.Uuid
-  month       DateTime // refers to the month where the consumption occurred
-  mlConsumed  Float
+  month       DateTime @db.Date
+  mlConsumed  Int      @db.Integer
 
-  created_at DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  fragrance Item @relation(fields: [fragranceId], references: [id], onDelete: Cascade)
+  fragrance Fragrance @relation(fields: [fragranceId], references: [id], onDelete: Cascade)
 
   @@index([fragranceId])
   @@map("consumptionLogs")

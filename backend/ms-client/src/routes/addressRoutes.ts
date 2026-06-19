@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { registerSchemas, updateSchemas } from "../schemas/schemas";
-import { addressService } from "../services/addressService";
-import { genericErrorHandler } from "../errors";
+import { registerSchemas, updateSchemas } from "../schemas/schemas.js";
+import { addressService } from "../services/addressService.js";
+import { genericErrorHandler } from "../errors/index.js";
 
 export async function addressRoutes(app: FastifyInstance) {
 	const service = new addressService();
@@ -31,20 +31,23 @@ export async function addressRoutes(app: FastifyInstance) {
 	// Get all addresses or filter by clientId / personId
 	app.get("/", async (request, reply) => {
 		try {
-			const { clientId, personId } = request.query as { clientId?: string, personId?: string };
-			
-			const result = clientId 
+			const { clientId, personId } = request.query as {
+				clientId?: string;
+				personId?: string;
+			};
+
+			const result = clientId
 				? await service.getAddressesByClientId(clientId)
-				: personId 
+				: personId
 					? await service.getAddressesByPersonId(personId)
 					: await service.getAllAddresses();
-					
+
 			return reply.status(200).send(result);
 		} catch (err: any) {
 			genericErrorHandler(err, reply);
 		}
 	});
-	
+
 	// Update an existing address
 	app.patch("/:id", async (request, reply) => {
 		try {

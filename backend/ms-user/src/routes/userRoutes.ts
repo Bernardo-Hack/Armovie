@@ -1,9 +1,13 @@
 import { FastifyInstance } from "fastify";
-import { registerUserSchema, loginSchema, updateSchema } from "../schemas/schemas";
-import { UserService } from "../services/userService";
-import { genericErrorHandler } from "../errors";
-import { authenticate } from "../hooks/auth";
-import { logger } from "../utils/logger";
+import {
+	registerUserSchema,
+	loginSchema,
+	updateSchema,
+} from "../schemas/schemas.js";
+import { UserService } from "../services/userService.js";
+import { genericErrorHandler } from "../errors/index.js";
+import { authenticate } from "../hooks/auth.js";
+import { logger } from "../utils/logger.js";
 
 export async function userRoutes(app: FastifyInstance) {
 	const service = new UserService();
@@ -74,9 +78,9 @@ export async function userRoutes(app: FastifyInstance) {
 		// List all users
 		protected_.get("/", async (request, reply) => {
 			try {
-				const { position } = request.query as { position?: string };
-				const result = position 
-					? await service.getUsersByPosition(position) 
+				const { role } = request.query as { role?: string };
+				const result = role
+					? await service.getUsersByRole(role)
 					: await service.getUsers();
 				return reply.status(200).send(result);
 			} catch (err: any) {

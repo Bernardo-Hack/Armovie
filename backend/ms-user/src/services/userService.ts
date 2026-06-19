@@ -1,12 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import * as schemas from "../schemas/schemas";
-import { prisma } from "../lib/prisma";
-import { apiErr } from "../errors";
-import { sendMail } from "../utils/mailer";
-import { logger } from "../utils/logger";
-import { ZodNull } from "zod/v3";
+import * as schemas from "../schemas/schemas.js";
+import { prisma } from "../lib/prisma.js";
+import { apiErr } from "../errors/index.js";
+import { sendMail } from "../utils/mailer.js";
+import { logger } from "../utils/logger.js";
 
 // - JWT Secret config -
 
@@ -36,7 +35,7 @@ function refreshExpiresAt(): Date {
 export class UserService {
 	async createUser(input: schemas.RegisterUserInput) {
 		const { password, ...userData } = input;
-		
+
 		const hashedPassword = await bcrypt.hash(input.password, 10);
 
 		const user = await prisma.user.create({
@@ -207,9 +206,9 @@ export class UserService {
 		});
 	}
 
-	async getUsersByPosition(position: string) {
+	async getUsersByRole(role: string) {
 		return await prisma.user.findMany({
-			where: { position },
+			where: { role },
 			select: {
 				id: true,
 				name: true,

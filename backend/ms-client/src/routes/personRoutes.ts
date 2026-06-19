@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { registerSchemas, updateSchemas } from "../schemas/schemas";
-import { personService } from "../services/personService";
-import { genericErrorHandler } from "../errors";
+import { registerSchemas, updateSchemas } from "../schemas/schemas.js";
+import { personService } from "../services/personService.js";
+import { genericErrorHandler } from "../errors/index.js";
 
 export async function personRoutes(app: FastifyInstance) {
 	const service = new personService();

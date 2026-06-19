@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
-import { registerSchemas } from "../schemas/schemas";
-import { planService } from "../services/planService";
-import { genericErrorHandler } from "../errors";
-import { logger } from "../utils/logger";
+import { registerSchemas } from "../schemas/schemas.js";
+import { planService } from "../services/planService.js";
+import { genericErrorHandler } from "../errors/index.js";
+import { logger } from "../utils/logger.js";
 
 export async function planRoutes(app: FastifyInstance) {
 	const service = new planService();
