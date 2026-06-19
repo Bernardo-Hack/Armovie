@@ -10,29 +10,21 @@ import { GenericCreateModal } from "@/components/common/GenericCreateModal";
 import { MachineListRow } from "@/components/pages/machines/MachineListRow";
 import { MachineListHeader } from "@/components/pages/machines/MachineListHeader";
 import { MachineModalContent } from "@/components/pages/machines/MachineModalContent";
+import { MachineDetailModal } from "@/components/pages/machines/MachineDetailModal";
 
-import { Machine } from "@/assets/types/Machine";
+import {
+	Machine,
+	initialMachineState,
+	ServiceLog,
+} from "@/assets/types/ms-item/Machine";
+import { Contract } from "@/assets/types/ms-client/Contract";
 import { machineService } from "@/services/machineService";
-import { itemService } from "@/services/itemService";
+import { fragranceService } from "@/services/fragranceService";
 import { contractService } from "@/services/contractService";
 import { MachineServicesModal } from "@/components/pages/machines/MachineServicesModal";
 
 type SortKey = keyof Machine | null;
 type SortDirection = "asc" | "desc";
-
-const initialState: Machine = {
-	id: "",
-	name: "",
-	model: "",
-	observations: "",
-	contractId: "",
-	fragranceId: "",
-	medianConsumption: 0,
-	price: 0,
-	isPaid: false,
-	status: "Disponível",
-	created_at: new Date().toString(),
-};
 
 export default function ItemsTab() {
 	const [machines, setMachines] = useState<Machine[]>([]);
@@ -50,6 +42,13 @@ export default function ItemsTab() {
 		null,
 	);
 	const [isServiceModalVisible, setIsServiceModalVisible] = useState(false);
+
+	const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+	const [detailMachine, setDetailMachine] = useState<Machine | null>(null);
+	const [detailContract, setDetailContract] = useState<Contract | null>(null);
+	const [detailServiceLogs, setDetailServiceLogs] = useState<ServiceLog[]>(
+		[],
+	);
 
 	const mockContracts: { id: string; name: string }[] = [
 		{
@@ -139,79 +138,62 @@ export default function ItemsTab() {
 
 	const fetchAllData = async () => {
 		setLoading(true);
-
-		// Busca de Contratos
 		try {
-			const contractsData = await contractService.getAllContracts();
-			setContracts([
-				{ id: "", name: "N/A" },
-				...contractsData.map((c) => ({ id: c.id, name: c.clientId })),
-			]);
-		} catch (error: any) {
-			if (
-				error.message === "Not Found" ||
-				error.message?.includes("404")
-			) {
-				console.log("Nenhum contrato encontrado!");
+			// Busca de Contratos
+			try {
+				const contractsData = await contractService.getAllContracts();
+				setContracts([
+					{ id: "", name: "N/A" },
+					...contractsData.map((c) => ({
+						id: c.id,
+						name: c.clientId,
+					})),
+				]);
+			} catch (error: any) {
+				if (
+					error.message === "Not Found" ||
+					error.message?.includes("404")
+				) {
+					console.log("Nenhum contrato encontrado!");
+				}
 				setContracts([{ id: "", name: "N/A" }]);
-			} else {
-				Toast.show({
-					type: "error",
-					text1: "Erro ao carregar contratos",
-					text2:
-						error.message ||
-						"Não foi possível buscar os contratos. Tente novamente.",
-				});
 			}
-			setContracts([{ id: "", name: "N/A" }]);
-		}
 
-		// Busca de Fragrâncias
-		try {
-			const itemsData = await itemService.getAllItems();
-			setFragrances([
-				{ id: "", name: "N/A" },
-				...itemsData
-					.filter((item) => item.category === "Fragrância")
-					.map((item) => ({ id: item.id, name: item.name })),
-			]);
-		} catch (error: any) {
-			if (
-				error.message === "Not Found" ||
-				error.message?.includes("404")
-			) {
-				console.log("Nenhuma fragrância encontrada!");
-			} else {
-				Toast.show({
-					type: "error",
-					text1: "Erro ao carregar fragrâncias",
-					text2:
-						error.message ||
-						"Não foi possível buscar as fragrâncias. Tente novamente.",
-				});
+			// Busca de Fragrâncias
+			try {
+				const fragrancesData =
+					await fragranceService.getAllFragrances();
+				setFragrances([
+					{ id: "", name: "N/A" },
+					...fragrancesData.map((fragrance) => ({
+						id: fragrance.id,
+						name: fragrance.name,
+					})),
+				]);
+			} catch {
+				setFragrances([{ id: "", name: "N/A" }]);
 			}
-			setFragrances([{ id: "", name: "N/A" }]);
-		}
 
-		// Busca de Máquinas
-		try {
-			const machinesData = await machineService.getAllMachines();
-			setMachines(machinesData);
-		} catch (error: any) {
-			if (
-				error.message === "Not Found" ||
-				error.message?.includes("404")
-			) {
-				console.log("Nenhuma máquina encontrada!");
-				setMachines([]);
-			} else {
-				Toast.show({
-					type: "error",
-					text1: "Erro ao carregar máquinas",
-					text2:
-						error.message ||
-						"Não foi possível buscar as máquinas. Tente novamente.",
-				});
+			// Busca de Máquinas
+			try {
+				const machinesData = await machineService.getAllMachines();
+				setMachines(machinesData);
+			} catch (error: any) {
+				if (
+					error.message === "Not Found" ||
+					error.message?.includes("404")
+				) {
+					setMachines([]);
+				} else {
+					Toast.show({
+						type: "error",
+						text1: "Erro ao carregar máquinas",
+						text2:
+							error.message ||
+							"Não foi possível buscar as máquinas. Tente novamente.",
+					});
+					setMachines([]);
+				}
 			}
 		} finally {
 			setLoading(false);
@@ -220,13 +202,14 @@ export default function ItemsTab() {
 
 	const handleCreateMachine = async (newMachineData: Machine) => {
 		try {
-			const { id, status, created_at, ...rawMachineData } =
+			const { id, status, createdAt, ...rawMachineData } =
 				newMachineData as Machine;
 
 			const machineToCreate = {
 				...rawMachineData,
 				contractId: rawMachineData.contractId || null,
 				fragranceId: rawMachineData.fragranceId || null,
+				isPaid: false,
 			};
 
 			await machineService.createMachine(machineToCreate);
@@ -254,6 +237,7 @@ export default function ItemsTab() {
 				...updatedMachine,
 				contractId: updatedMachine.contractId || null,
 				fragranceId: updatedMachine.fragranceId || null,
+				isPaid: false,
 			};
 
 			await machineService.updateMachine(
@@ -296,6 +280,29 @@ export default function ItemsTab() {
 		setIsServiceModalVisible(true);
 	};
 
+	const handleOpenDetailModal = async (machine: Machine) => {
+		setDetailMachine(machine);
+		setIsDetailModalVisible(true);
+
+		try {
+			// Fetch contract
+			if (machine.contractId) {
+				const contract = await contractService.getContractById(
+					machine.contractId,
+				);
+				setDetailContract(contract);
+			} else {
+				setDetailContract(null);
+			}
+
+			// Fetch service logs
+			const logs = await machineService.getServiceLogs(machine.id);
+			setDetailServiceLogs(logs);
+		} catch (error) {
+			console.log("Error fetching detail data", error);
+		}
+	};
+
 	const renderContent = (
 		machine: Machine | Partial<Machine>,
 		isEditing: boolean,
@@ -328,6 +335,7 @@ export default function ItemsTab() {
 			<GenericList
 				loading={loading}
 				items={sortedItems}
+				itemTypeName="máquina"
 				onSort={handleSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
@@ -337,6 +345,7 @@ export default function ItemsTab() {
 				RowComponent={(props: any) => (
 					<MachineListRow
 						{...props}
+						openItemDetail={() => handleOpenDetailModal(props.item)}
 						openExtraModal={() =>
 							handleOpenServiceModal(props.item)
 						}
@@ -346,7 +355,7 @@ export default function ItemsTab() {
 			/>
 
 			<GenericCreateModal
-				initialState={initialState}
+				initialState={initialMachineState}
 				visible={isCreateModalVisible}
 				onClose={() => setIsCreateModalVisible(false)}
 				onSave={handleCreateMachine}
@@ -361,6 +370,29 @@ export default function ItemsTab() {
 					setSelectedMachine(null);
 				}}
 			/>
+
+			{detailMachine && (
+				<MachineDetailModal
+					machine={detailMachine}
+					visible={isDetailModalVisible}
+					onClose={() => {
+						setIsDetailModalVisible(false);
+						setDetailMachine(null);
+						setDetailContract(null);
+						setDetailServiceLogs([]);
+					}}
+					onSave={handleUpdateItem}
+					onDelete={() => {
+						handleDeleteItem(detailMachine.id);
+						setIsDetailModalVisible(false);
+						setDetailMachine(null);
+					}}
+					contract={detailContract}
+					fragrances={fragrances}
+					contractsList={contracts}
+					serviceLogs={detailServiceLogs}
+				/>
+			)}
 		</View>
 	);
 }

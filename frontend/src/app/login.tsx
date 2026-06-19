@@ -17,53 +17,14 @@ export function mobileLogin() {
 export function desktopLogin() {
 	return (
 		<View style={style.background}>
-			{/* Left Panel */}
-			<View
-				style={[
-					style.panel,
-					{ 
-						maxWidth: "60%", 
-						height: "100%", 
-						padding: 100,
-						justifyContent: "center",
-						alignItems: "center",
-						gap: 20,
-						borderRadius: 0
-					},
-				]}
-			>
-				{/* Logo */}
-				<View
-					style={{
-						backgroundColor: darkTheme.background,
-						padding: 20,
-						borderRadius: 15,
-						width: "100%",
-						justifyContent: "center",
-						alignItems: "center",
-					}}
-				>
-					<Image
-						source={require("@/assets/images/logo.png")}
-						style={style.logo}
-					/>
-				</View>
-
-				{/* Description */}
-				<Text style={[text.subtitle]}>
-					Uma Loja que através do Ar e da Pele, proporciona
-					equilíbrio, harmonia e movimento a vida de cada cliente
-					nosso. Armovie é Bem Estar.
-				</Text>
+			<View style={style.panel}>
+				<Image
+					source={require("@/assets/images/logo-light.png")}
+					style={style.logo}
+				/>
 			</View>
 
-			{/* Right Panel */}
-			<View style={{ 
-				width: "40%", 
-				padding: 100
-			}}>
-				<LoginForm />
-			</View>
+			<LoginForm />
 		</View>
 	);
 }
@@ -71,7 +32,7 @@ export function desktopLogin() {
 export const style = StyleSheet.create({
 	background: {
 		flex: 1,
-		flexDirection: "row",
+		flexDirection: "column",
 		backgroundColor: colors.background,
 		alignItems: "center",
 		justifyContent: "space-evenly",
@@ -80,7 +41,8 @@ export const style = StyleSheet.create({
 	panel: {
 		backgroundColor: colors.overlayBackground,
 		gap: 15,
-		maxWidth: "40%",
+		width: "40%",
+		height: '30%',
 		justifyContent: "center",
 		alignItems: "center",
 		borderRadius: 15,

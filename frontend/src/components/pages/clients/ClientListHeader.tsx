@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { Client } from "@/assets/types/Client";
+import { Client } from "@/assets/types/ms-client/Client";
 
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
@@ -49,16 +49,16 @@ export function ClientListHeader({
 				style={{ width: "20%" }}
 			/>
 			<SortableHeader
-				title="SEGMENTO"
-				sortKeyName="segment"
+				title="RAMO"
+				sortKeyName="fieldOfActivity"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}
 				style={{ width: "15%" }}
 			/>
 			<SortableHeader
-				title="LEAD"
-				sortKeyName="lead"
+				title="TELEFONE"
+				sortKeyName="phone"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}

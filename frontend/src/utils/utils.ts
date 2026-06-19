@@ -1,8 +1,16 @@
-export function formatDisplayDate(dateString: string) {
-	if (!dateString) return "Data inválida";
-	// Replace space with 'T' to make it a valid ISO 8601 string
-	const compliantDateString = dateString.replace(" ", "T");
-	const date = new Date(compliantDateString);
+export function formatDisplayDate(dateInput: string | Date | null | undefined) {
+	if (!dateInput) return "Data inválida";
+
+	let date: Date;
+
+	if (dateInput instanceof Date) {
+		date = dateInput;
+	} else if (typeof dateInput === "string") {
+		const compliantDateString = dateInput.replace(" ", "T");
+		date = new Date(compliantDateString);
+	} else {
+		return "Data inválida";
+	}
 
 	if (!isNaN(date.getTime())) {
 		return date.toLocaleDateString("pt-BR", {

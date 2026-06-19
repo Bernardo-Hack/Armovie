@@ -28,11 +28,11 @@ export function SortableHeader<T>({
 
 	return (
 		<Pressable
-			style={[page.columns, style]}
+			style={[page.columns, style, { minHeight: 24 }]}
 			onPress={() => onSort(sortKeyName)}
 		>
 			<View
-				style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
+				style={{ flexDirection: "row", alignItems: "center", gap: 5, minHeight: 20 }}
 			>
 				<Text style={text.headerText}>{title.toUpperCase()}</Text>
 				{/* Shows the icon only if this is the active sort column */}

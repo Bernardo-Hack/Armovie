@@ -13,8 +13,8 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
-import { Plan } from "@/assets/types/Plan";
-import { planService } from "@/services/planService";
+import { Plan } from "@/assets/types/ms-clients/Plan";
+import { contractService } from "@/services/contractService";
 import { StatBox } from "@/components/common/Statbox";
 
 interface Props {
@@ -34,12 +34,12 @@ export function PlanModal({ visible, onClose, onPlansUpdated }: Props) {
 	const fetchPlans = async () => {
 		setLoading(true);
 		try {
-			const fetchedPlans = await planService.getAllPlans();
+			const fetchedPlans = await contractService.getAllPlans();
 			setPlans(
 				fetchedPlans.sort(
 					(a, b) =>
-						new Date(b.created_at).getTime() -
-						new Date(a.created_at).getTime(),
+						new Date(b.createdAt).getTime() -
+						new Date(a.createdAt).getTime(),
 				),
 			);
 		} catch (error: any) {
@@ -82,7 +82,7 @@ export function PlanModal({ visible, onClose, onPlansUpdated }: Props) {
 				price: Number(newPlan.price),
 			};
 
-			await planService.createPlan(planToCreate);
+			await contractService.createPlan(planToCreate);
 			Toast.show({ type: "success", text1: "Plano salvo com sucesso!" });
 
 			setNewPlan({ name: "", price: "" });
@@ -99,7 +99,7 @@ export function PlanModal({ visible, onClose, onPlansUpdated }: Props) {
 
 	const handleDeletePlan = async (id: string) => {
 		try {
-			await planService.deletePlan(id);
+			await contractService.deletePlan(id);
 			Toast.show({ type: "success", text1: "Plano excluído!" });
 			fetchPlans();
 			if (onPlansUpdated) onPlansUpdated();

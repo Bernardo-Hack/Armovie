@@ -1,9 +1,10 @@
 import { NativeTabs, Label, Icon } from "expo-router/unstable-native-tabs";
-import { Link } from "expo-router";
-import { Text, View, StyleSheet, Image } from "react-native";
-import { text } from "@/assets/styles/stylesheets";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter } from "expo-router";
+import { View, StyleSheet, Image } from "react-native";
+import { useState } from "react";
 import { useAuth } from "@/services/AuthProvider";
+import Button from "@/components/common/Button";
+import { SettingsModal } from "@/components/pages/settings/SettingsModal";
 
 export function MobileNavbar() {
 	const { user } = useAuth();
@@ -68,6 +69,8 @@ export function MobileNavbar() {
 				</NativeTabs.Trigger>
 			)}
 
+
+
 			<NativeTabs.Trigger name="about">
 				<Label>About</Label>
 				<Icon
@@ -87,15 +90,15 @@ export function MobileNavbar() {
 
 export function DesktopNavbar() {
 	const { user, logout } = useAuth();
+	const router = useRouter();
+	const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
 	if (!user) {
 		return null;
 	}
 
 	return (
-		<View
-			style={styles.navBar}>
-
+		<View style={styles.navBar}>
 			<View
 				style={{
 					padding: 20,
@@ -106,130 +109,110 @@ export function DesktopNavbar() {
 				}}
 			>
 				<Image
-					source={require("@/assets/images/logo.png")}
+					source={require("@/assets/images/logo-dark.png")}
 					style={styles.logo}
 				/>
 			</View>
 
-			<Text
-				style={[
-					styles.navText,
-					{ marginBottom: 40, fontSize: 18, fontWeight: "bold" },
-				]}
+			<View
+				style={{
+					flexDirection: "column",
+					gap: 10,
+					width: "100%",
+					alignItems: "flex-start",
+				}}
 			>
-				Welcome, {user.name}!
-			</Text>
-
-			<View style={{ flexDirection: "column", gap: 20, width: "100%" }}>
-				<Link
-					href="/private"
-					style={[
-						styles.navLink,
-						{ justifyContent: "flex-start", width: "100%" },
-					]}
-				>
-					<Ionicons name="home" size={18} color="#fff" />
-					<Text style={styles.navText}> Home</Text>
-				</Link>
+				<Button
+					label="Home"
+					iconName="home"
+					iconSize={18}
+					labelColor="#fff"
+					onPress={() => router.push("/private")}
+				/>
 
 				{["Admin", "Seller", "Financeiro"].includes(user.role) && (
-					<Link
-						href="/private/clients"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="person" size={18} color="#fff" />
-						<Text style={styles.navText}> Clientes</Text>
-					</Link>
+					<Button
+						label="Clientes"
+						iconName="person"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/clients")}
+					/>
 				)}
 
 				{["Admin", "Seller", "Financeiro"].includes(user.role) && (
-					<Link
-						href="/private/persons"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="people" size={18} color="#fff" />
-						<Text style={styles.navText}> Pessoas</Text>
-					</Link>
-				)}
-
-				{["Admin", "Seller", "Financeiro"].includes(user.role) && (
-					<Link
-						href="/private/contracts"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="document" size={18} color="#fff" />
-						<Text style={styles.navText}> Contratos</Text>
-					</Link>
-				)}
-
-				{["Admin", "Technician", "Financeiro"].includes(user.role) && (
-					<Link
-						href="/private/items"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="folder" size={18} color="#fff" />
-						<Text style={styles.navText}> Itens</Text>
-					</Link>
+					<Button
+						label="Contratos"
+						iconName="document"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/contracts")}
+					/>
 				)}
 
 				{["Admin", "Technician"].includes(user.role) && (
-					<Link
-						href="/private/machines"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="folder" size={18} color="#fff" />
-						<Text style={styles.navText}> Máquinas</Text>
-					</Link>
+					<Button
+						label="Máquinas"
+						iconName="hammer"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/machines")}
+					/>
+				)}
+
+				{["Admin", "Technician"].includes(user.role) && (
+					<Button
+						label="Fragrâncias"
+						iconName="flask"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/fragrances")}
+					/>
 				)}
 
 				{user.role === "Admin" && (
-					<Link
-						href="/private/users"
-						style={[
-							styles.navLink,
-							{ justifyContent: "flex-start", width: "100%" },
-						]}
-					>
-						<Ionicons name="key" size={18} color="#fff" />
-						<Text style={styles.navText}> Users</Text>
-					</Link>
+					<Button
+						label="Users"
+						iconName="key"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/users")}
+					/>
 				)}
 
-				<Link
-					href="/private/about"
-					style={[
-						styles.navLink,
-						{ justifyContent: "flex-start", width: "100%" },
-					]}
-				>
-					<Ionicons name="information" size={18} color="#fff" />
-					<Text style={styles.navText}> About</Text>
-				</Link>
+				{user.role === "Admin" && (
+					<Button
+						label="Configurações"
+						iconName="settings"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => setIsSettingsModalVisible(true)}
+					/>
+				)}
+
+				<Button
+					label="About"
+					iconName="information"
+					iconSize={18}
+					labelColor="#fff"
+					onPress={() => router.push("/private/about")}
+				/>
 			</View>
 			{/* Empurra o botão de Logout para o final da tela */}
 			<View style={{ flex: 1 }} />
 
-			<Text
-				style={[styles.navText, { color: "#ffcccc" }]}
+			<Button
+				label="Logout"
+				iconName="log-out"
+				iconSize={18}
+				labelColor="#ffcccc"
 				onPress={logout}
-			>
-				<Ionicons name="log-out" size={18} color="#ffcccc" /> Logout
-			</Text>
+			/>
+
+			<SettingsModal 
+				visible={isSettingsModalVisible} 
+				onClose={() => setIsSettingsModalVisible(false)} 
+			/>
 		</View>
 	);
 }

@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
-import { Person } from "@/assets/types/Person";
+import { Person } from "@/assets/types/ms-client/Person";
 import { clientService } from "@/services/clientService";
 import { useEffect, useState } from "react";
 
@@ -101,9 +101,9 @@ function webList(
 				]}
 			>
 				<Ionicons
-					name={person.isRepresentative ? "star" : "star-outline"}
+					name={person.doesRepresent ? "star" : "star-outline"}
 					size={18}
-					color={getRepColor(person.isRepresentative)}
+					color={getRepColor(person.doesRepresent)}
 				/>
 				<Text
 					style={[
@@ -111,11 +111,11 @@ function webList(
 						{
 							fontWeight: "bold",
 							fontSize: 14,
-							color: getRepColor(person.isRepresentative),
+							color: getRepColor(person.doesRepresent),
 						},
 					]}
 				>
-					{person.isRepresentative ? "Sim" : "Não"}
+					{person.doesRepresent ? "Sim" : "Não"}
 				</Text>
 			</View>
 
@@ -150,13 +150,17 @@ function webList(
 
 function chooseStatusColor(status: string) {
 	switch (status) {
-		case "Ativo": return "#4caf50";
-		case "Em Análise": return "#ff9800";
-		case "Inativo": return "#f44336";
-		default: return colors.textSecondary;
+		case "Ativo":
+			return "#4caf50";
+		case "Em Análise":
+			return "#ff9800";
+		case "Inativo":
+			return "#f44336";
+		default:
+			return colors.textSecondary;
 	}
 }
 
-function getRepColor(isRepresentative: boolean) {
-	return isRepresentative ? "#ffce3b" : colors.textSecondary;
+function getRepColor(doesRepresent: boolean) {
+	return doesRepresent ? "#ffce3b" : colors.textSecondary;
 }

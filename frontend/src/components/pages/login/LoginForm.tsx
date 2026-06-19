@@ -89,7 +89,7 @@ export const style = StyleSheet.create({
 		backgroundColor: colors.overlayBackground,
 		padding: 20,
 		gap: 15,
-		width: "100%",
+		width: "40%",
 		borderRadius: 15,
 		boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.25)",
 	},

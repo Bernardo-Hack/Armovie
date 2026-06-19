@@ -1,5 +1,5 @@
 import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
-import { Person } from "@/assets/types/Person";
+import { Person } from "@/assets/types/ms-client/Person";
 import { text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
@@ -122,12 +122,12 @@ export function PersonModalContent({
 				<StatBox
 					isEditing={isEditing}
 					onChange={(value) =>
-						handleInputChange("isRepresentative", value === "true")
+						handleInputChange("doesRepresent", value === "true")
 					}
 					direction="vertical"
 					type="select"
 					label="É o representante?"
-					value={person.isRepresentative ? "true" : "false"}
+					value={person.doesRepresent ? "true" : "false"}
 					options={[
 						{ label: "Sim", value: "true" },
 						{ label: "Não", value: "false" },
@@ -163,10 +163,10 @@ export function PersonModalContent({
 				{/* Date Information */}
 				<View style={{ flexDirection: "column", gap: 5 }}>
 					<Text style={styles.dateText}>
-						Criado em: {formatDisplayDate(person.created_at)}
+						Criado em: {formatDisplayDate(person.createdAt)}
 					</Text>
 					<Text style={styles.dateText}>
-						Atualizado em: {formatDisplayDate(person.updated_at)}
+						Atualizado em: {formatDisplayDate(person.updatedAt)}
 					</Text>
 				</View>
 			</View>

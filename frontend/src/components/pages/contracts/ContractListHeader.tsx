@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { Contract } from "@/assets/types/Contract";
+import { Contract } from "@/assets/types/ms-client/Contract";
 import { SortableHeader } from "../../common/SortableHeader";
 
 import Button from "../../common/Button";

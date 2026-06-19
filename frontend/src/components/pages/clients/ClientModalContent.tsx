@@ -1,5 +1,5 @@
 import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
-import { Client } from "@/assets/types/Client";
+import { Client } from "@/assets/types/ms-client/Client";
 import { text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
@@ -81,7 +81,7 @@ export function ClientDetailsContent({
 					...sellers.map((s) => ({
 						label: s.name,
 						value: s.id,
-					}))
+					})),
 				]}
 			/>
 
@@ -116,20 +116,6 @@ export function ClientDetailsContent({
 					direction="vertical"
 					label="Ramo de Atividade"
 					value={client.fieldOfActivity || ""}
-				/>
-				<StatBox
-					isEditing={isEditing}
-					onChange={(text) => handleInputChange("segment", text)}
-					direction="vertical"
-					label="Segmento"
-					value={client.segment}
-				/>
-				<StatBox
-					isEditing={isEditing}
-					onChange={(text) => handleInputChange("lead", text)}
-					direction="vertical"
-					label="Origem (Lead)"
-					value={client.lead}
 				/>
 				<StatBox
 					isEditing={isEditing}
@@ -230,10 +216,10 @@ export function ClientDetailsContent({
 				{/* Date Information */}
 				<View style={{ flexDirection: "column", gap: 5 }}>
 					<Text style={styles.dateText}>
-						Criado em: {formatDisplayDate(client.created_at)}
+						Criado em: {formatDisplayDate(client.createdAt)}
 					</Text>
 					<Text style={styles.dateText}>
-						Atualizado em: {formatDisplayDate(client.updated_at)}
+						Atualizado em: {formatDisplayDate(client.updatedAt)}
 					</Text>
 				</View>
 			</View>

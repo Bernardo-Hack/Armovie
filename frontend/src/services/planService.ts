@@ -1,10 +1,12 @@
 import { apiFetch } from "./api";
-import { Plan } from "@/assets/types/Plan";
+import { Plan } from "@/assets/types/ms-client/Contract";
 
-const BASE_URL = "/api/clients/plan/";
+export type PlanData = Omit<Plan, "id" | "createdAt" | "updatedAt">;
+
+const BASE_URL = "/api/clients/plans/";
 
 export const planService = {
-	createPlan: async (planData: Partial<Plan>): Promise<Plan> => {
+	createPlan: async (planData: PlanData): Promise<Plan> => {
 		const payload = {
 			data: planData,
 			table: "plan",
@@ -16,14 +18,35 @@ export const planService = {
 	},
 
 	getAllPlans: async (): Promise<Plan[]> => {
-		return apiFetch(BASE_URL, { method: "GET" });
+		return apiFetch(BASE_URL, {
+			method: "GET",
+		});
 	},
 
 	getPlanById: async (planId: string): Promise<Plan> => {
-		return apiFetch(`${BASE_URL}${planId}`, { method: "GET" });
+		return apiFetch(`${BASE_URL}${planId}`, {
+			method: "GET",
+		});
 	},
-	
+
+	updatePlan: async (
+		planId: string,
+		planData: Partial<PlanData>,
+	): Promise<Plan> => {
+		const payload = {
+			data: planData,
+			table: "plan",
+		};
+
+		return apiFetch(`${BASE_URL}${planId}`, {
+			method: "PATCH",
+			body: JSON.stringify(payload),
+		});
+	},
+
 	deletePlan: async (planId: string): Promise<void> => {
-		return apiFetch(`${BASE_URL}${planId}`, { method: "DELETE" });
+		await apiFetch(`${BASE_URL}${planId}`, {
+			method: "DELETE",
+		});
 	},
 };

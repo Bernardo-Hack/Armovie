@@ -10,15 +10,13 @@ export interface Person {
 	nationality: string;
 
 	doesSign: boolean;
-	isRepresentative: boolean;
+	doesRepresent: boolean;
 	role: string;
 
 	email: string;
 	phone: string;
-	observations?: string;
+	observations?: string | null;
 
-	status: string;
-
-	created_at: string;
-	updated_at: string;
+	createdAt: string;
+	updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { Person } from "@/assets/types/Person";
+import { Person } from "@/assets/types/ms-client/Person";
 
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
@@ -65,7 +65,7 @@ export function PersonListHeader({
 			/>
 			<SortableHeader
 				title="REPRESENTA?"
-				sortKeyName="isRepresentative"
+				sortKeyName="doesRepresent"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}

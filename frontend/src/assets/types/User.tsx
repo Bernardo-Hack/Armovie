@@ -1,13 +1,18 @@
 export interface User {
-	id: string,
-	name: string,
-	email: string,
-	password: string,
-	position: string,
-	role: string,
-	resetPasswordToken?: string,
-	resetPasswordTokenExpiresAt?: string,
-	status?: string,
-	created_at: string,
-	updated_at: string,
+	id: string;
+	name: string;
+	email: string;
+	role: string;
+	position?: string;
+	password?: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export const initialUserState: Omit<User, "id" | "createdAt" | "updatedAt"> & { password?: string } = {
+	name: "",
+	email: "",
+	password: "",
+	role: "User",
+	position: "",
 };

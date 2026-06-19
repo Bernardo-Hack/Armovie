@@ -12,7 +12,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
-import { Machine } from "@/assets/types/Machine";
+import { Machine } from "@/assets/types/ms-item/Machine";
 import { ServiceLog } from "@/assets/types/ServiceLog";
 import { machineService } from "@/services/machineService";
 import { userService } from "@/services/userService";
@@ -67,8 +67,8 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 			setLogs(
 				fetchedLogs.sort(
 					(a, b) =>
-						new Date(b.created_at).getTime() -
-						new Date(a.created_at).getTime(),
+						new Date(b.createdAt).getTime() -
+						new Date(a.createdAt).getTime(),
 				),
 			);
 		} catch (error: any) {
@@ -211,7 +211,7 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 					Técnico ID: {item.technicianId.substring(0, 8)}...
 				</Text>
 				<Text style={styles.meta}>
-					{formatDisplayDate(item.created_at)}
+					{formatDisplayDate(item.createdAt)}
 				</Text>
 			</View>
 		</View>

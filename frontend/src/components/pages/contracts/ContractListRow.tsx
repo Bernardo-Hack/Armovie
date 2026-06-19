@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { colors, page, text } from "@/assets/styles/stylesheets";
-import { Contract } from "@/assets/types/Contract";
+import { Contract } from "@/assets/types/ms-client/Contract";
 import { clientService } from "@/services/clientService";
-import { planService } from "@/services/planService";
+import { contractService } from "@/services/contractService";
 import { useEffect, useState } from "react";
 
 export function ContractListRow({
@@ -31,8 +31,8 @@ function webList(contract: Contract, openItemDetail: () => void) {
 
 	const fetchPlan = async () => {
 		try {
-			const p = await planService.getPlanById(contract.planId);
-			setPlanName(p.name)
+			const p = await contractService.getPlanById(contract.planId);
+			setPlanName(p.name);
 		} catch (error) {
 			setPlanName("N/A");
 		}
@@ -54,9 +54,7 @@ function webList(contract: Contract, openItemDetail: () => void) {
 
 			{/* Column 2: Client Name */}
 			<View style={page.columns}>
-				<Text style={text.rowText}>
-					{clientName}
-				</Text>
+				<Text style={text.rowText}>{clientName}</Text>
 			</View>
 
 			{/* Column 3: Type */}

@@ -14,7 +14,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { StatBox } from "@/components/common/Statbox";
-import { templateService } from "@/services/templateService";
+import { contractService } from "@/services/contractService";
 
 // Tipagem baseada no schema.prisma
 export interface Template {
@@ -22,8 +22,8 @@ export interface Template {
 	name: string;
 	description?: string;
 	content: string;
-	created_at: string;
-	updated_at: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 interface Props {
@@ -44,12 +44,12 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 	const fetchTemplates = async () => {
 		setLoading(true);
 		try {
-			const fetchedTemplates = await templateService.getAllTemplates();
+			const fetchedTemplates = await contractService.getAllTemplates();
 			setTemplates(
 				fetchedTemplates.sort(
 					(a: Template, b: Template) =>
-						new Date(b.created_at).getTime() -
-						new Date(a.created_at).getTime(),
+						new Date(b.createdAt).getTime() -
+						new Date(a.createdAt).getTime(),
 				),
 			);
 		} catch (error: any) {
@@ -90,7 +90,7 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 				content: newTemplate.content,
 			};
 
-			await templateService.createTemplate(templateToCreate);
+			await contractService.createTemplate(templateToCreate);
 			Toast.show({ type: "success", text1: "Template salvo com sucesso!" });
 
 			setNewTemplate({ name: "", description: "", content: "" });
@@ -107,7 +107,7 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 
 	const handleDeleteTemplate = async (id: string) => {
 		try {
-			await templateService.deleteTemplate(id);
+			await contractService.deleteTemplate(id);
 			Toast.show({ type: "success", text1: "Template excluído!" });
 			fetchTemplates();
 			if (onTemplatesUpdated) onTemplatesUpdated();

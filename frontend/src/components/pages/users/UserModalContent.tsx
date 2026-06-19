@@ -78,10 +78,10 @@ export function UserModalContent({ user, isEditing, isCreating = false, handleIn
 			{!isCreating && (
 				<View style={{ flexDirection: "column", gap: 5, marginTop: 20, alignItems: "center" }}>
 					<Text style={styles.dateText}>
-						Criado em: {formatDisplayDate(user.created_at)}
+						Criado em: {formatDisplayDate(user.createdAt)}
 					</Text>
 					<Text style={styles.dateText}>
-						Atualizado em: {formatDisplayDate(user.updated_at)}
+						Atualizado em: {formatDisplayDate(user.updatedAt)}
 					</Text>
 				</View>
 			)}

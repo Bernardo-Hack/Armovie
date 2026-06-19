@@ -1,6 +1,6 @@
 import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
-import { Contract } from "@/assets/types/Contract";
+import { Contract } from "@/assets/types/ms-client/Contract";
 import { text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { addressService } from "@/services/addressService";
@@ -38,7 +38,9 @@ export function ContractModalContent({
 				return;
 			}
 			try {
-				const fetched = await addressService.getAddressesByClientId(contract.clientId);
+				const fetched = await addressService.getAddressesByClientId(
+					contract.clientId,
+				);
 				const mappedAddresses = fetched.map((a: any) => ({
 					id: a.id,
 					name: `${a.street}, ${a.number}${a.complement ? ` - ${a.complement}` : ""}`,
@@ -177,11 +179,10 @@ export function ContractModalContent({
 				/>
 				<StatBox
 					isEditing={isEditing}
-					onChange={(text) => handleInputChange("duration", text)}
+					onChange={(text) => handleInputChange("endDate", text)}
 					direction="vertical"
-					label="Duração (Dias)"
-					keyboardType="numeric"
-					value={contract.duration}
+					label="Data de Término"
+					value={contract.endDate}
 				/>
 				<StatBox
 					isEditing={isEditing}
@@ -194,11 +195,11 @@ export function ContractModalContent({
 				/>
 				<StatBox
 					isEditing={isEditing}
-					onChange={(text) => handleInputChange("paymentDay", text)}
+					onChange={(text) => handleInputChange("payDay", text)}
 					direction="vertical"
 					label="Dia de Pagamento"
 					keyboardType="numeric"
-					value={contract.paymentDay}
+					value={contract.payDay}
 				/>
 			</View>
 

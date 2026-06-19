@@ -1,21 +1,15 @@
 import { apiFetch } from "./api";
 
-export interface Address {
-	id: string;
-	clientId?: string;
-	personId?: string;
-	street: string;
-	number: number;
-	zip_code: string;
-	city: string;
-	state: string;
-	complement?: string;
-}
+import { Address } from "@/assets/types/ms-client/Address";
+
+export type AddressData = Omit<Address, "id">;
 
 const BASE_URL = "/api/clients/address/";
 
 export const addressService = {
-	createAddress: async (addressData: Partial<Address>): Promise<Address> => {
+	createAddress: async (
+		addressData: Partial<AddressData>,
+	): Promise<Address> => {
 		const payload = {
 			data: addressData,
 			table: "address",

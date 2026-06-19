@@ -1,0 +1,120 @@
+services:
+
+  # ── Banco de dados ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: armovie-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_MULTIPLE_DATABASES: armovie_users,armovie_clients,armovie_items
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./configs/pg-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── ms-user ─────────────────────────────────────────────────────────────────
+  ms-user:
+    build:
+      context: .
+      dockerfile: backend/ms-user/Dockerfile
+    container_name: armovie-ms-user
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MS_NAME: ms-user
+      DB_NAME: armovie_users
+      PORT: 5001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/armovie_users
+      JWT_SECRET: ${JWT_SECRET}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-gmail}
+      EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+    ports:
+      - "5001:5001"
+
+  # ── ms-item ─────────────────────────────────────────────────────────────────
+  ms-item:
+    build:
+      context: .
+      dockerfile: backend/ms-item/Dockerfile
+    container_name: armovie-ms-item
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MS_NAME: ms_item
+      DB_NAME: armovie_items
+      PORT: 5002
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/armovie_items
+    ports:
+      - "5002:5002"
+
+  # ── ms-client ───────────────────────────────────────────────────────────────
+  ms-client:
+    build:
+      context: .
+      dockerfile: backend/ms-client/Dockerfile
+    container_name: armovie-ms-client
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MS_NAME: ms_client
+      DB_NAME: armovie_clients
+      PORT: 5003
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/armovie_clients
+    ports:
+      - "5003:5003"
+
+  # ── gateway ─────────────────────────────────────────────────────────────────
+  gateway:
+    build:
+      context: .
+      dockerfile: backend/gateway/Dockerfile
+    container_name: armovie-gateway
+    restart: unless-stopped
+    depends_on:
+      - ms-user
+      - ms-item
+      - ms-client
+    environment:
+      MS_NAME: gateway
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8081}
+      USER_URL: http://ms-user:5001
+      ITEM_URL: http://ms-item:5002
+      PRODUCT_URL: http://ms-client:5003
+    ports:
+      - "3000:3000"
+
+  # ── frontend ────────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Pass the gateway URL to the frontend build
+        EXPO_PUBLIC_GATEWAY_URL: http://localhost:3000
+    container_name: armovie-frontend
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    ports:
+      # Map the frontend to 8081 as expected by the gateway's CORS setup
+      - "8081:80"
+
+volumes:
+  postgres_data:

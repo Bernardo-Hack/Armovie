@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { colors, text} from "@/assets/styles/stylesheets";
 import Button from "./Button";
 
@@ -29,18 +29,7 @@ export default function Header({
 }: Props) {
 	return (
 		<View
-			style={{
-				flexDirection: "row",
-				justifyContent: "space-between",
-				alignItems: "center",
-				paddingHorizontal: "5%",
-				paddingVertical: "2%",
-				width: "80%",
-				backgroundColor: colors.overlayBackground,
-				borderRadius: 15,
-				elevation: 1,
-				boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.25)",
-			}}
+			style={styles.header}
 		>
 			<View>
 				<Text style={text.title}>{pageName}</Text>
@@ -90,3 +79,18 @@ export default function Header({
 		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingHorizontal: "5%",
+		paddingVertical: "2%",
+		width: "90%",
+		backgroundColor: colors.overlayBackground,
+		borderRadius: 10,
+		elevation: 1,
+		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+	}
+});

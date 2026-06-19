@@ -16,7 +16,7 @@ interface GenericCreateModalProps<T> {
 	) => React.ReactNode;
 }
 
-export function GenericCreateModal<T extends { id?: any }>({
+export function GenericCreateModal<T>({
 	initialState,
 	visible,
 	onClose,

@@ -2,8 +2,8 @@ import { View, Text, Platform } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
-import { Machine } from "@/assets/types/Machine";
-import { itemService } from "@/services/itemService";
+import { Machine } from "@/assets/types/ms-item/Machine";
+import { fragranceService } from "@/services/fragranceService";
 import { useEffect, useState } from "react";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 
@@ -26,7 +26,7 @@ function webList(
 	openItemDetail: () => void,
 	openServiceModal: () => void,
 ) {
-	const { getItemById } = itemService;
+	const { getFragranceById } = fragranceService;
 	const [fragrance, setFragrance] = useState("");
 
 	const fetchFagrance = async () => {
@@ -36,7 +36,7 @@ function webList(
 		}
 
 		try {
-			const item = await getItemById(machine.fragranceId);
+			const item = await getFragranceById(machine.fragranceId);
 			setFragrance(item.name);
 		} catch (error) {
 			Toast.show({
@@ -50,7 +50,7 @@ function webList(
 
 	useEffect(() => {
 		fetchFagrance();
-	}, [machine, getItemById]);
+	}, [machine, getFragranceById]);
 
 	if (!machine) {
 		return null;
@@ -66,57 +66,38 @@ function webList(
 			</View>
 
 			{/* Model */}
-			<View
-				style={[
-					page.columns,
-					{
-						flexDirection: "row",
-						gap: 4,
-						justifyContent: "center",
-					},
-				]}
-			>
-				<Ionicons
-					name={chooseModelIcon(machine.model)}
-					size={18}
-					color={chooseModelColor(machine.model)}
-				/>
-				<Text
-					style={[
-						text.rowText,
-						{
-							fontWeight: "bold",
-							fontSize: 14,
-							textAlign: "left",
-							color: chooseModelColor(machine.model),
-						},
-					]}
-				>
-					{machine.model}
-				</Text>
+			<View style={[page.columns]}>
+				<Text style={text.rowText}>{machine.model}</Text>
 			</View>
 
 			{/* Fragrance */}
 			<View style={page.columns}>
-				<Text
-					style={[
-						text.rowText,
-						{
-							fontWeight: "condensedBold",
-							fontSize: 14,
-						},
-					]}
-				>
-					{fragrance}
+				<Text style={[text.rowText]}>{fragrance}</Text>
+			</View>
+
+			{/* Median Consumption */}
+			<View style={page.columns}>
+				<Text style={[text.rowText]}>
+					{machine.medianConsumption?.toLocaleString("pt-BR", {
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 2,
+					})}
+					{"ml/mês"}
 				</Text>
 			</View>
 
 			{/* isPaid */}
 			<View style={page.columns}>
 				<Ionicons
-					name={machine.isPaid ? "cash" : "close"}
-					size={32}
-					color={machine.isPaid ? "#4caf50" : "#f44336"}
+					name={
+						machine.amountPaid >= machine.price ? "cash" : "close"
+					}
+					size={24}
+					color={
+						machine.amountPaid >= machine.price
+							? "#4caf50"
+							: "#f44336"
+					}
 				/>
 			</View>
 
@@ -132,15 +113,15 @@ function webList(
 				]}
 			>
 				<Ionicons
-					name={chooseStatusIcon(machine.status)}
+					name={chooseStatusIcon(machine.status || "")}
 					size={20}
-					color={chooseStatusColor(machine.status)}
+					color={chooseStatusColor(machine.status || "")}
 				/>
 				<Text
 					style={[
 						text.rowText,
 						{
-							color: chooseStatusColor(machine.status),
+							color: chooseStatusColor(machine.status || ""),
 						},
 					]}
 				>
@@ -149,36 +130,19 @@ function webList(
 			</View>
 
 			{/* Action */}
-			<View
-				style={[
-					page.columns,
-					{
-						flexDirection: "row",
-						gap: 15,
-						justifyContent: "center",
-					},
-				]}
-			>
+			<View style={page.columns}>
 				<Ionicons
 					name="eye"
-					size={20}
+					size={24}
 					color={colors.textPrimary}
 					onPress={openItemDetail}
-				/>
-				<Ionicons
-					name="albums-outline"
-					size={20}
-					color={colors.textPrimary}
-					onPress={openServiceModal}
 				/>
 			</View>
 		</View>
 	);
 }
 
-function mobileList(Machine: Machine, openItemDetail: () => void) {
-	
-}
+function mobileList(Machine: Machine, openItemDetail: () => void) {}
 
 function chooseModelIcon(model: string): keyof typeof Ionicons.glyphMap {
 	// This can be expanded with more specific models
@@ -190,9 +154,7 @@ function chooseModelColor(model: string) {
 	return "#a0a0a0";
 }
 
-function chooseStatusIcon(
-	status: string,
-): keyof typeof Ionicons.glyphMap {
+function chooseStatusIcon(status: string): keyof typeof Ionicons.glyphMap {
 	switch (status) {
 		case "Disponível":
 			return "checkmark";

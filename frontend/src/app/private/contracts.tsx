@@ -11,37 +11,19 @@ import { ContractListHeader } from "@/components/pages/contracts/ContractListHea
 import { ContractListRow } from "@/components/pages/contracts/ContractListRow";
 import { ContractModalContent } from "@/components/pages/contracts/ContractModalContent";
 
-import { Contract } from "@/assets/types/Contract";
+import {
+	Contract,
+	initialContractState,
+} from "@/assets/types/ms-client/Contract";
 import { contractService } from "@/services/contractService";
-import { itemService } from "@/services/itemService";
 import { clientService } from "@/services/clientService";
-import { planService } from "@/services/planService";
 import { PlanModal } from "@/components/pages/contracts/PlanModal";
-import { Template } from "@/assets/types/Template";
+import { Template } from "@/assets/types/ms-client/Contract";
 import { TemplateModal } from "@/components/pages/contracts/TemplateModal";
-import { templateService } from "@/services/templateService";
+import { fragranceService } from "@/services/fragranceService";
 
 type SortKey = keyof Contract | null;
 type SortDirection = "asc" | "desc";
-
-const initialContractState: Contract = {
-	id: "",
-	name: "",
-	clientId: "",
-	addressId: "",
-	templateId: "",
-	planId: "",
-	type: "Comodato",
-	machines: 1,
-	fragrance: "",
-	duration: 12,
-	monthlyValue: 0,
-	paymentDay: 10,
-	observations: "",
-	status: "Em Análise",
-	created_at: new Date().toISOString(),
-	updated_at: new Date().toISOString(),
-};
 
 export default function ContractsTab() {
 	const [contracts, setContracts] = useState<Contract[]>([]);
@@ -91,16 +73,20 @@ export default function ContractsTab() {
 
 	const fetchPlansData = async () => {
 		try {
-			const plansData = await planService.getAllPlans();
+			const plansData = await contractService.getAllPlans();
 			setPlans(plansData.map((p) => ({ id: p.id, name: p.name })));
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				setPlans([]);
 			} else {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar planos",
-					text2: error.message || "Não foi possível buscar os planos.",
+					text2:
+						error.message || "Não foi possível buscar os planos.",
 				});
 			}
 		}
@@ -108,16 +94,21 @@ export default function ContractsTab() {
 
 	const fetchTemplates = async () => {
 		try {
-			const templatesData = await templateService.getAllTemplates();
+			const templatesData = await contractService.getAllTemplates();
 			setTemplates(templatesData);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				setTemplates([]);
 			} else {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar templates",
-					text2: error.message || "Não foi possível buscar os templates.",
+					text2:
+						error.message ||
+						"Não foi possível buscar os templates.",
 				});
 			}
 		}
@@ -131,14 +122,19 @@ export default function ContractsTab() {
 			const contractsData = await contractService.getAllContracts();
 			setContracts(contractsData);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				console.log("Nenhum contrato encontrado!");
 				setContracts([]);
 			} else {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar contratos",
-					text2: error.message || "Não foi possível buscar os contratos. Tente novamente.",
+					text2:
+						error.message ||
+						"Não foi possível buscar os contratos. Tente novamente.",
 				});
 			}
 		}
@@ -150,7 +146,10 @@ export default function ContractsTab() {
 				clientsData.map((c) => ({ id: c.id, name: c.fullName })),
 			);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				Toast.show({
 					type: "info",
 					text1: "Nenhum cliente encontrado!",
@@ -160,21 +159,22 @@ export default function ContractsTab() {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar clientes",
-					text2: error.message || "Não foi possível buscar os clientes. Tente novamente.",
+					text2:
+						error.message ||
+						"Não foi possível buscar os clientes. Tente novamente.",
 				});
 			}
 		}
 
 		// Busca de Fragrâncias
 		try {
-			const itemsData = await itemService.getAllItems();
-			setFragrances(
-				itemsData
-					.filter((i) => i.category === "Fragrância")
-					.map((i) => ({ id: i.id, name: i.name })),
-			);
+			const itemsData = await fragranceService.getAllFragrances();
+			setFragrances(itemsData);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				Toast.show({
 					type: "info",
 					text1: "Nenhuma fragrância encontrada!",
@@ -184,7 +184,9 @@ export default function ContractsTab() {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar fragrâncias",
-					text2: error.message || "Não foi possível buscar as fragrâncias. Tente novamente.",
+					text2:
+						error.message ||
+						"Não foi possível buscar as fragrâncias. Tente novamente.",
 				});
 			}
 		}
@@ -197,7 +199,7 @@ export default function ContractsTab() {
 
 	const handleCreateContract = async (newContractData: Contract) => {
 		try {
-			const { id, status, created_at, updated_at, ...contractToCreate } =
+			const { id, status, createdAt, updatedAt, ...contractToCreate } =
 				newContractData;
 
 			if (!contractToCreate.clientId || !contractToCreate.planId) {
@@ -236,7 +238,7 @@ export default function ContractsTab() {
 
 	const handleUpdateContract = async (updatedContract: Contract) => {
 		try {
-			const { id, created_at, updated_at, ...contractToUpdate } =
+			const { id, createdAt, updatedAt, ...contractToUpdate } =
 				updatedContract;
 
 			const payload = {
@@ -302,7 +304,6 @@ export default function ContractsTab() {
 	useEffect(() => {
 		fetchAllData();
 	}, []);
-
 
 	return (
 		<View style={styles.page.background}>

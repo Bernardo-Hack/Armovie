@@ -13,7 +13,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 import { text, colors } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
-import { Client } from "@/assets/types/Client";
+import { Client } from "@/assets/types/ms-client/Client";
 import { addressService, Address } from "@/services/addressService";
 import { StatBox } from "@/components/common/Statbox";
 
@@ -23,14 +23,13 @@ interface Props {
 	onClose: () => void;
 }
 
-
 export function ClientAddressModal({ client, visible, onClose }: Props) {
 	const [addresses, setAddresses] = useState<Address[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [newAddress, setNewAddress] = useState({
 		street: "",
 		number: "",
-		zip_code: "",
+		zipCode: "",
 		city: "",
 		state: "",
 		complement: "",
@@ -73,7 +72,7 @@ export function ClientAddressModal({ client, visible, onClose }: Props) {
 				!client ||
 				!newAddress.street ||
 				!newAddress.number ||
-				!newAddress.zip_code ||
+				!newAddress.zipCode ||
 				!newAddress.city ||
 				!newAddress.state
 			) {
@@ -89,7 +88,7 @@ export function ClientAddressModal({ client, visible, onClose }: Props) {
 				clientId: client.id,
 				street: newAddress.street,
 				number: Number(newAddress.number),
-				zip_code: newAddress.zip_code,
+				zipCode: newAddress.zipCode,
 				city: newAddress.city,
 				state: newAddress.state,
 				complement: newAddress.complement || undefined,
@@ -104,7 +103,7 @@ export function ClientAddressModal({ client, visible, onClose }: Props) {
 			setNewAddress({
 				street: "",
 				number: "",
-				zip_code: "",
+				zipCode: "",
 				city: "",
 				state: "",
 				complement: "",
@@ -151,7 +150,7 @@ export function ClientAddressModal({ client, visible, onClose }: Props) {
 						{item.complement ? `- ${item.complement}` : ""}
 					</Text>
 					<Text style={styles.meta}>
-						{item.city} - {item.state} | CEP: {item.zip_code}
+						{item.city} - {item.state} | CEP: {item.zipCode}
 					</Text>
 				</View>
 				<Button
@@ -232,11 +231,11 @@ export function ClientAddressModal({ client, visible, onClose }: Props) {
 							<StatBox
 								isEditing={true}
 								onChange={(text) =>
-									handleInputChange("zip_code", text)
+									handleInputChange("zipCode", text)
 								}
 								direction="vertical"
 								label="CEP"
-								value={newAddress.zip_code}
+								value={newAddress.zipCode}
 							/>
 							<StatBox
 								isEditing={true}

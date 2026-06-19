@@ -38,14 +38,10 @@ export const userService = {
 		});
 	},
 
-	getUsersByPosition: async (position: string): Promise<User[]> => {
-		// O valor é passado na URL, ex: /api/users/?position=Técnico
-		return apiFetch(
-			`${BASE_URL}?position=${encodeURIComponent(position)}`,
-			{
-				method: "GET",
-			},
-		);
+	getUsersByRole: async (role: string): Promise<User[]> => {
+		return apiFetch(`${BASE_URL}?role=${encodeURIComponent(role)}`, {
+			method: "GET",
+		});
 	},
 
 	updateUser: async (

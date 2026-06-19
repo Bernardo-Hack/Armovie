@@ -10,37 +10,21 @@ import { GenericCreateModal } from "@/components/common/GenericCreateModal";
 import { ClientListHeader } from "@/components/pages/clients/ClientListHeader";
 import { ClientListRow } from "@/components/pages/clients/ClientListRow";
 import { ClientDetailsContent } from "@/components/pages/clients/ClientModalContent";
+import { ClientDetailModal } from "@/components/pages/clients/ClientDetailModal";
 
-import { Client } from "@/assets/types/Client";
+import { Client, initialClientState } from "@/assets/types/ms-client/Client";
+import { Contract } from "@/assets/types/ms-client/Contract";
+import { Person } from "@/assets/types/ms-client/Person";
 import { clientService } from "@/services/clientService";
 import { userService } from "@/services/userService";
+import { contractService } from "@/services/contractService";
+import { PersonService } from "@/services/personService";
 import { ClientAddressModal } from "@/components/pages/clients/ClientAddressModal";
 
 type SortKey = keyof Client | null;
 type SortDirection = "asc" | "desc";
 
-const initialClientState: Client = {
-	id: "",
-	fullName: "",
-	fantasyName: "",
-	document: "",
-	municipalID: "",
-	stateID: "",
-	fieldOfActivity: "",
-	lead: "Other",
-	segment: "Other",
-	phone: "",
-	whatsapp: "",
-	hasIss: false,
-	financesEmail: "",
-	alertsEmail: "",
-	foundingDate: new Date().toISOString(),
-	observations: "",
-	sellerId: "",
-	status: "Em Análise",
-	created_at: new Date().toISOString(),
-	updated_at: new Date().toISOString(),
-};
+
 
 export default function ClientsTab() {
 	const [clients, setClients] = useState<Client[]>([]);
@@ -51,6 +35,11 @@ export default function ClientsTab() {
 	const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 	const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 	const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+	const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+	const [detailClient, setDetailClient] = useState<Client | null>(null);
+	const [detailContracts, setDetailContracts] = useState<Contract[]>([]);
+	const [detailPersons, setDetailPersons] = useState<Person[]>([]);
+	const [loadingDetail, setLoadingDetail] = useState(false);
 
 	const sortedClients = useMemo(() => {
 		if (!sortKey) return clients;
@@ -79,7 +68,7 @@ export default function ClientsTab() {
 
 		// Busca de Vendedores
 		try {
-			const sellersData = await userService.getUsersByPosition("Vendedor");
+			const sellersData = await userService.getUsersByRole("Seller");
 			setSellers(sellersData);
 		} catch (error: any) {
 			if (error.message == "Not Found") {
@@ -89,11 +78,13 @@ export default function ClientsTab() {
 				});
 				return [];
 			}
-			
+
 			Toast.show({
 				type: "error",
 				text1: "Erro ao carregar vendedores",
-				text2: error.message || "Não foi possível buscar os vendedores. Tente novamente.",
+				text2:
+					error.message ||
+					"Não foi possível buscar os vendedores. Tente novamente.",
 			});
 			setSellers([]);
 		}
@@ -103,7 +94,10 @@ export default function ClientsTab() {
 			const clientsData = await clientService.getAllClients();
 			setClients(clientsData);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				Toast.show({
 					type: "info",
 					text1: "Nenhum cliente encontrado!",
@@ -114,7 +108,9 @@ export default function ClientsTab() {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar clientes",
-					text2: error.message || "Não foi possível buscar os clientes. Tente novamente.",
+					text2:
+						error.message ||
+						"Não foi possível buscar os clientes. Tente novamente.",
 				});
 			}
 		} finally {
@@ -141,9 +137,32 @@ export default function ClientsTab() {
 		setIsAddressModalVisible(true);
 	};
 
+	const handleOpenDetailModal = async (client: Client) => {
+		setDetailClient(client);
+		setIsDetailModalVisible(true);
+		setLoadingDetail(true);
+		try {
+			const [allContracts, persons] = await Promise.all([
+				contractService.getAllContracts(),
+				PersonService.getAllPersonsByClient(client.id),
+			]);
+			// Filter contracts by clientId client-side
+			const contracts = allContracts.filter(
+				(c) => c.clientId === client.id,
+			);
+			setDetailContracts(contracts);
+			setDetailPersons(persons);
+		} catch {
+			setDetailContracts([]);
+			setDetailPersons([]);
+		} finally {
+			setLoadingDetail(false);
+		}
+	};
+
 	const handleCreateClient = async (newClientData: Client) => {
 		try {
-			const { id, status, created_at, updated_at, ...clientToCreate } =
+			const { id, createdAt, updatedAt, ...clientToCreate } =
 				newClientData as Client;
 
 			if (
@@ -191,7 +210,7 @@ export default function ClientsTab() {
 
 	const handleUpdateClient = async (updatedClient: Client) => {
 		try {
-			const { id, created_at, updated_at, ...clientToUpdate } =
+			const { id, createdAt, updatedAt, ...clientToUpdate } =
 				updatedClient as Client;
 
 			if (
@@ -279,6 +298,7 @@ export default function ClientsTab() {
 				RowComponent={(props: any) => (
 					<ClientListRow
 						{...props}
+						openItemDetail={() => handleOpenDetailModal(props.item)}
 						openExtraModal={() =>
 							handleOpenAddressModal(props.item)
 						}
@@ -321,6 +341,28 @@ export default function ClientsTab() {
 					setSelectedClient(null);
 				}}
 			/>
+
+			{detailClient && (
+				<ClientDetailModal
+					client={detailClient}
+					visible={isDetailModalVisible}
+					onClose={() => {
+						setIsDetailModalVisible(false);
+						setDetailClient(null);
+						setDetailContracts([]);
+						setDetailPersons([]);
+					}}
+					onSave={handleUpdateClient}
+					onDelete={() => {
+						handleDeleteClient(detailClient.id);
+						setIsDetailModalVisible(false);
+						setDetailClient(null);
+					}}
+					sellers={sellers}
+					contracts={detailContracts}
+					persons={detailPersons}
+				/>
+			)}
 		</View>
 	);
 }

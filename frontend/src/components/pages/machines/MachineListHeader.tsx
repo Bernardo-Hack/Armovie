@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { Machine } from "@/assets/types/Machine";
+import { Machine } from "@/assets/types/ms-item/Machine";
 
 import { colors, page, text } from "@/assets/styles/stylesheets";
 
@@ -65,8 +65,16 @@ export function MachineListHeader({
 				style={{ width: "25%" }}
 			/>
 			<SortableHeader
+				title="consumo"
+				sortKeyName="medianConsumption"
+				onSort={onSort}
+				sortKey={sortKey}
+				sortDirection={sortDirection}
+				style={{ width: "25%" }}
+			/>
+			<SortableHeader
 				title="está paga?"
-				sortKeyName="isPaid"
+				sortKeyName="amountPaid"
 				onSort={onSort}
 				sortKey={sortKey}
 				sortDirection={sortDirection}

@@ -1,4 +1,11 @@
-import { Platform, View, FlatList, ActivityIndicator, Text } from "react-native";
+import {
+	Platform,
+	View,
+	FlatList,
+	ActivityIndicator,
+	Text,
+	StyleSheet,
+} from "react-native";
 import React, { useState } from "react";
 import { colors, text } from "@/assets/styles/stylesheets";
 import { GenericEditModal } from "./GenericEditModal";
@@ -11,9 +18,9 @@ interface GenericListProps<T> {
 	items: T[];
 	itemTypeName?: string;
 
-	onSort: (key: SortKey<T>) => void;
-	sortKey: SortKey<T>;
-	sortDirection: SortDirection;
+	onSort?: (key: SortKey<T>) => void;
+	sortKey?: SortKey<T>;
+	sortDirection?: SortDirection;
 
 	onSaveItem: (item: T) => void;
 	onDeleteItem: (id: string) => void;
@@ -70,7 +77,7 @@ export function GenericList<T extends { id: any }>({
 		);
 	}
 
-	if (items.length === 0) {
+	if (items.length == 0) {
 		return (
 			<View
 				style={{
@@ -91,11 +98,11 @@ export function GenericList<T extends { id: any }>({
 			</View>
 		);
 	}
-	
+
 	return (
 		<>
 			<FlatList
-				style={{ width: "80%" }}
+				style={styles.list}
 				data={items}
 				renderItem={({ item }) => (
 					<RowComponent
@@ -128,3 +135,13 @@ export function GenericList<T extends { id: any }>({
 		</>
 	);
 }
+
+const styles = StyleSheet.create({
+	list: {
+		width: "90%",
+		borderRadius: 10,
+		borderWidth: 1,
+		borderColor: colors.textSecondary,
+		overflow: "hidden",
+	},
+});

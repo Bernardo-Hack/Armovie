@@ -1,13 +1,9 @@
 import { apiFetch } from "./api";
-import { Template } from "@/components/pages/contracts/TemplateModal";
+import { Template } from "@/assets/types/ms-client/Contract";
 
-export interface TemplateData {
-	name: string;
-	description?: string;
-	content: string;
-}
+export type TemplateData = Omit<Template, "id" | "createdAt" | "updatedAt">;
 
-const BASE_URL = "/api/clients/template/";
+const BASE_URL = "/api/clients/templates/";
 
 export const templateService = {
 	createTemplate: async (templateData: TemplateData): Promise<Template> => {

@@ -1,20 +1,7 @@
 import { apiFetch } from "./api";
-import { Person } from "@/assets/types/Person";
+import { Person } from "@/assets/types/ms-client/Person";
 
-export interface PersonData {
-	clientId: string;
-	fullName: string;
-	document: string;
-	birthday: Date | string;
-	civilState: string;
-	nationality: string;
-	doesSign: boolean;
-	isRepresentative: boolean;
-	role: string;
-	email: string;
-	phone: string;
-	observations?: string;
-}
+export type PersonData = Omit<Person, "id" | "createdAt" | "updatedAt">;
 
 const BASE_URL = "/api/clients/person/";
 

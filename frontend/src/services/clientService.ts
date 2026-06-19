@@ -1,28 +1,7 @@
 import { apiFetch } from "./api";
-import { Client } from "@/assets/types/Client";
+import { Client } from "@/assets/types/ms-client/Client";
 
-export interface ClientData {
-	fullName: string;
-	fantasyName?: string;
-	document: string;
-	municipalID?: string;
-	stateID?: string;
-
-	fieldOfActivity?: string;
-	lead: string;
-	segment: string;
-
-	phone: string;
-	whatsapp: string;
-
-	hasIss: boolean;
-	financesEmail: string;
-	alertsEmail?: string;
-	foundingDate: string | Date;
-	observations?: string;
-
-	sellerId: string;
-}
+export type ClientData = Omit<Client, "id" | "createdAt" | "updatedAt">;
 
 const BASE_URL = "/api/clients/";
 

@@ -11,20 +11,14 @@ import { UserListHeader } from "@/components/pages/users/UserListHeader";
 import { UserListRow } from "@/components/pages/users/UserListRow";
 import { UserModalContent } from "@/components/pages/users/UserModalContent";
 
-import { User } from "@/assets/types/User";
+import { User, initialUserState } from "@/assets/types/User";
 import { userService } from "@/services/userService";
 import { useAuth } from "@/services/AuthProvider";
 
 type SortKey = keyof User | null;
 type SortDirection = "asc" | "desc";
 
-const initialUserState: Omit<User, "id" | "created_at" | "updated_at"> & { password?: string } = {
-	name: "",
-	email: "",
-	password: "",
-	role: "User",
-	position: "",
-};
+
 
 export default function UsersTab() {
 	const [users, setUsers] = useState<User[]>([]);
@@ -116,7 +110,7 @@ export default function UsersTab() {
 
 	const handleUpdateUser = async (updatedUser: User) => {
 		try {
-			const { id, created_at, updated_at, ...userToUpdate } = updatedUser;
+			const { id, createdAt, updatedAt, ...userToUpdate } = updatedUser;
 			await userService.updateUser(id, userToUpdate);
 			Toast.show({ type: "success", text1: "Usuário atualizado com sucesso!" });
 			fetchAllData();

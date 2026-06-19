@@ -10,6 +10,7 @@ type Props = {
 	iconName: string;
 	iconSize: number;
 	onPress?: () => void;
+	isActive?: boolean;
 };
 
 export default function Button({
@@ -19,9 +20,11 @@ export default function Button({
 	iconSize,
 	labelColor,
 	onPress,
+	isActive = true,
 }: Props) {
-	const buttonColor = color || "transparent";
-	const iconColor = labelColor || styles.buttonLabel.color;
+	// isActive mode: highlight with primary color
+	const buttonColor = isActive ? color : "transparent";
+	const resolvedLabelColor = isActive ? color : labelColor;
 
 	return (
 		<Pressable
@@ -37,7 +40,7 @@ export default function Button({
 			<Ionicons
 				name={chooseIcon(iconName)}
 				size={iconSize}
-				color={iconColor}
+				color={labelColor}
 			/>
 
 			{label && (
@@ -60,9 +63,8 @@ function chooseIcon(
 export const styles = StyleSheet.create({
 	primary: {
 		borderRadius: 10,
-		borderWidth: 12,
-		borderColor: colors.primary,
-		backgroundColor: colors.primary,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",

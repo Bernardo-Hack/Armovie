@@ -65,7 +65,8 @@ export const text = StyleSheet.create({
 	},
 	rowText: {
 		color: colors.textPrimary,
-		fontSize: 16,
+		fontSize: 15,
+		fontWeight: "condensedBold",
 		fontFamily: "Futura",
 		textAlign: "center" as const,
 	},
@@ -122,7 +123,7 @@ export const page = StyleSheet.create({
 		justifyContent: "center",
 		alignSelf: "center",
 		alignItems: "center",
-		minWidth: "100%",
+		width: "100%",
 		paddingVertical: 20,
 		borderBottomWidth: 1,
 		borderBottomColor: "#444",

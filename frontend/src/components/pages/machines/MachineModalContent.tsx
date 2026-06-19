@@ -1,5 +1,5 @@
 import { Text, View, TextInput, ScrollView, StyleSheet } from "react-native";
-import { Machine } from "@/assets/types/Machine";
+import { Machine } from "@/assets/types/ms-item/Machine";
 import { colors, page, text } from "@/assets/styles/stylesheets";
 import { StatBox, StatusBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
@@ -20,7 +20,10 @@ export function MachineModalContent({
 	fragrances,
 }: Props) {
 	return (
-		<ScrollView style={{ width: "100%" }} contentContainerStyle={{ width: "100%" }}>
+		<ScrollView
+			style={{ width: "100%" }}
+			contentContainerStyle={{ width: "100%" }}
+		>
 			{/* Name */}
 			{isEditing ? (
 				<View style={{ marginBottom: 20 }}>
@@ -147,23 +150,23 @@ export function MachineModalContent({
 						flex: 1,
 					}}
 				>
-				<StatusBox
-					isEditing={isEditing}
-					value={machine.status}
-					onChange={(text) => handleInputChange("status", text)}
-					options={[
-						{ label: "Disponível", value: "Disponível" },
-						{ label: "Contratada", value: "Contratada" },
-						{ label: "Em Manutenção", value: "Em Manutenção" },
-						{ label: "Defeituosa", value: "Defeituosa" },
-					]}
-				/>
+					<StatusBox
+						isEditing={isEditing}
+						value={machine.status}
+						onChange={(text) => handleInputChange("status", text)}
+						options={[
+							{ label: "Disponível", value: "Disponível" },
+							{ label: "Contratada", value: "Contratada" },
+							{ label: "Em Manutenção", value: "Em Manutenção" },
+							{ label: "Defeituosa", value: "Defeituosa" },
+						]}
+					/>
 				</View>
 
 				{/* Date Information */}
 				<View style={{ alignSelf: "center" }}>
 					<Text style={styles.dateText}>
-						Cadastrada em: {formatDisplayDate(machine.created_at)}
+						Cadastrada em: {formatDisplayDate(machine.createdAt)}
 					</Text>
 				</View>
 			</View>
