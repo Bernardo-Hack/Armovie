@@ -7,53 +7,44 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid(7)) @db.Uuid
 
-  name          String @db.VarChar(125)
-  email         String @unique @db.VarChar(125)
-  password_hash String @db.VarChar(255)
-  position      String @db.VarChar(125)
-  permissionId  String @db.Uuid
+  name         String @db.VarChar(128)
+  email        String @unique @db.VarChar(128)
+  passwordHash String @db.VarChar(128)
+  position     String @db.VarChar(64)
+  role         String @db.VarChar(32)
+
+  resetPasswordToken          String?   @db.VarChar(64)
+  resetPasswordTokenExpiresAt DateTime?
+
+  status String @default("Em Análise") @db.VarChar(16)
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  updated_at DateTime @default(now()) @updatedAt
 
-  permission Permission @relation(fields: [permissionId], references: [id])
-	refresh_tokens RefreshToken[]
-
-  reset_password_token            String?   @db.VarChar(255)
-  reset_password_token_expires_at DateTime?
+  refreshTokens RefreshToken[]
 
   @@index([email])
-  @@index([permissionId])
+  @@index([role])
+  @@index([status])
   @@map("users")
 }
 
-model Permission {
-  id String @id @default(uuid()) @db.Uuid
-
-  name        String @db.VarChar(50)
-  description String @db.Text
-
-  users User[]
-
-  @@index([name])
-  @@map("permissions")
-}
-
 model RefreshToken {
-  id         String   @id @default(uuid()) @db.Uuid
-  user_id    String   @db.Uuid
-  token_hash String   @db.VarChar(255)
-  expires_at DateTime
-  revoked    Boolean  @default(false)
-  created_at DateTime @default(now())
+  id String @id @default(uuid(7)) @db.Uuid
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  userId    String  @db.Uuid
+  tokenHash String  @db.VarChar(128)
+  revoked   Boolean @default(false)
 
-  @@index([user_id])
-  @@index([token_hash])
-  @@index([expires_at])
-  @@index([revoked])
-  @@map("refresh_tokens")
+  created_at DateTime  @default(now())
+  expires_at DateTime?
+  expired_at DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expires_at, revoked])
+  @@index([revoked, expired_at])
+  @@map("refreshTokens")
 }
