@@ -23,8 +23,8 @@ services:
   # ── ms-user ─────────────────────────────────────────────────────────────────
   ms-user:
     build:
-      context: .
-      dockerfile: backend/ms-user/Dockerfile
+      context: ./backend/ms-user
+      dockerfile: Dockerfile
     container_name: armovie-ms-user
     restart: unless-stopped
     depends_on:
@@ -45,8 +45,8 @@ services:
   # ── ms-item ─────────────────────────────────────────────────────────────────
   ms-item:
     build:
-      context: .
-      dockerfile: backend/ms-item/Dockerfile
+      context: ./backend/ms-item
+      dockerfile: Dockerfile
     container_name: armovie-ms-item
     restart: unless-stopped
     depends_on:
@@ -63,8 +63,8 @@ services:
   # ── ms-client ───────────────────────────────────────────────────────────────
   ms-client:
     build:
-      context: .
-      dockerfile: backend/ms-client/Dockerfile
+      context: ./backend/ms-client
+      dockerfile: Dockerfile
     container_name: armovie-ms-client
     restart: unless-stopped
     depends_on:
@@ -81,8 +81,8 @@ services:
   # ── gateway ─────────────────────────────────────────────────────────────────
   gateway:
     build:
-      context: .
-      dockerfile: backend/gateway/Dockerfile
+      context: ./backend/gateway
+      dockerfile: Dockerfile
     container_name: armovie-gateway
     restart: unless-stopped
     depends_on:
