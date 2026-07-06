@@ -2,27 +2,25 @@
 FROM node:22-alpine AS builder
 
 WORKDIR /app
-COPY configs/ ./configs/
 
-WORKDIR /app/backend/gateway
-COPY backend/gateway/package.json backend/gateway/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY backend/gateway/tsconfig.json ./
-COPY backend/gateway/src/ ./src/
+COPY tsconfig.json ./
+COPY src/ ./src/
 
 RUN npm run build
 
 # ─── Runtime stage ────────────────────────────────────────────────────────────
 FROM node:22-alpine AS runner
 
-WORKDIR /app/backend/gateway
+WORKDIR /app
 ENV NODE_ENV=production
 
-COPY backend/gateway/package.json backend/gateway/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/backend/gateway/dist ./dist
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 
