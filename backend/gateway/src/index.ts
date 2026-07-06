@@ -217,7 +217,7 @@ app.get("/health", (_req, res) => {
 
 // - Start the server -
 
-app.listen(config.port, () => {
+app.listen(Number(config.port), "0.0.0.0", () => {
 	logger.info(`listening on port: ${config.port}`);
 	logger.info(`ms-user          → ${config.url_user}`);
 	logger.info(`ms-item          → ${config.url_item}`);
