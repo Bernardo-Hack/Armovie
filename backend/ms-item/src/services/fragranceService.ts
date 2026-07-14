@@ -66,14 +66,30 @@ export class fragranceService {
 			throw new apiErr.BadRequestError("Invalid table for this service");
 		}
 
-		return await prisma.consumptionLog.create({
-			data: {
-				...input.data,
-			},
-			include: {
-				fragrance: true,
-			},
+		const { fragranceId, mlConsumed, ...restData } = input.data;
+
+		const result = await prisma.$transaction(async (tx) => {
+			const newLog = await tx.consumptionLog.create({
+				data: {
+					fragranceId,
+					mlConsumed,
+					...restData,
+				},
+				include: {
+					fragrance: true,
+				},
+			});
+
+			if (mlConsumed && mlConsumed > 0) {
+				await tx.fragrance.update({
+					where: { id: fragranceId },
+					data: { stock: { decrement: mlConsumed } },
+				});
+			}
+			return newLog;
 		});
+
+		return result;
 	}
 
 	// Get consumption logs for a specific fragrance

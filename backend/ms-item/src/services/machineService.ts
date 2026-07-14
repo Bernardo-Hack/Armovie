@@ -90,7 +90,10 @@ export class machineService {
 	}
 
 	// Update an existing operating hours entry
-	async updateOperatingHours(operatingHoursId: string, input: schemas.UpdateInput) {
+	async updateOperatingHours(
+		operatingHoursId: string,
+		input: schemas.UpdateInput,
+	) {
 		if (input.table !== "operatingHours") {
 			throw new apiErr.BadRequestError("Invalid table for this service!");
 		}
@@ -233,11 +236,41 @@ export class machineService {
 			throw new apiErr.BadRequestError("Invalid table for this service");
 		}
 
-		return await prisma.serviceLog.create({
-			data: {
-				...input.data,
-			},
+		const { mlBefore, mlAfter, fragranceId, ...restData } = input.data;
+
+		const result = await prisma.$transaction(async (tx) => {
+			const newLog = await tx.serviceLog.create({
+				data: {
+					mlBefore,
+					mlAfter,
+					fragranceId,
+					...restData,
+				},
+			});
+
+			if (mlAfter != null && mlBefore != null && fragranceId) {
+				const mlDelta = mlAfter - mlBefore;
+
+				if (mlDelta > 0) {
+					await tx.consumptionLog.create({
+						data: {
+							fragranceId,
+							month: new Date(),
+							mlConsumed: mlDelta,
+						},
+					});
+
+					await tx.fragrance.update({
+						where: { id: fragranceId },
+						data: { stock: { decrement: mlDelta } },
+					});
+				}
+			}
+
+			return newLog;
 		});
+
+		return result;
 	}
 
 	// Get service logs by Machine ID
