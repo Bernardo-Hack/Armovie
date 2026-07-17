@@ -8,6 +8,7 @@ import {
 	Pressable,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Header from "@/components/common/Header";
 
 import { page, text as globalText, colors } from "@/assets/styles/stylesheets";
 import { Machine } from "@/assets/types/ms-item/Machine";
@@ -122,17 +123,19 @@ export default function DashboardScreen() {
 	}
 
 	return (
-		<ScrollView
-			style={{ flex: 1, backgroundColor: colors.background }}
-			contentContainerStyle={styles.container}
-		>
+		<View style={page.background}>
 			{/* Header */}
-			<View style={styles.header}>
-				<Text style={styles.title}>Dashboard</Text>
-				<Text style={styles.subtitle}>
-					Visão geral do marketing olfativo
-				</Text>
-			</View>
+			<Header
+				pageName="Dashboard"
+				subtitle="Visão geral do marketing olfativo"
+				fetchItems={fetchDashboardData}
+			/>
+
+			<ScrollView
+				style={{ flex: 1, width: "100%" }}
+				contentContainerStyle={styles.container}
+				showsVerticalScrollIndicator={false}
+			>
 
 			{/* Top Cards */}
 			<View style={styles.cardsRow}>
@@ -351,7 +354,8 @@ export default function DashboardScreen() {
 					))
 				)}
 			</View>
-		</ScrollView>
+			</ScrollView>
+		</View>
 	);
 }
 
@@ -388,11 +392,11 @@ function StatCard({
 // Styles
 const styles = StyleSheet.create({
 	container: {
-		padding: 30,
 		gap: 20,
 		maxWidth: 1200,
 		width: "100%",
 		alignSelf: "center",
+		paddingBottom: 20,
 	},
 	centered: {
 		justifyContent: "center",

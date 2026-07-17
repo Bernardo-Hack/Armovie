@@ -1,13 +1,20 @@
-function timestamp(): string {
+const RESET = "\x1b[0m";
+const CYAN = "\x1b[36m";
+const YELLOW = "\x1b[33m";
+const RED = "\x1b[31m";
+const GREEN = "\x1b[32m";
+
+function timestamp() {
 	return new Date().toISOString().replace("T", " ").slice(0, 19);
 }
 
-function line(level: string, msg: string): string {
-	return `${timestamp()}  ${level.padEnd(5)}  [${process.env.MS_NAME}]  ${msg}`;
-}
-
 export const logger = {
-	info: (msg: string) => console.log(line("INFO", msg)),
-	warn: (msg: string) => console.warn(line("WARN", msg)),
-	error: (msg: string) => console.error(line("ERROR", msg)),
+	info: (msg: string) =>
+		console.log(
+			`${GREEN}[INFO]${RESET} ${timestamp()} ${CYAN}${msg}${RESET}`,
+		),
+	warn: (msg: string) =>
+		console.warn(`${YELLOW}[WARN]${RESET} ${timestamp()} ${msg}`),
+	error: (msg: string) =>
+		console.error(`${RED}[ERROR]${RESET} ${timestamp()} ${msg}`),
 };

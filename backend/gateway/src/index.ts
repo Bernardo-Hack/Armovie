@@ -186,11 +186,33 @@ const clientProxy = createProxyMiddleware({
 	},
 });
 
+const scheduleProxy = createProxyMiddleware({
+	target: config.url_schedule,
+	changeOrigin: true,
+	pathRewrite: { "^/api/schedules": "" },
+	on: {
+		proxyReq: (proxyReq, req, res) => {
+			if (req.headers.authorization) {
+				proxyReq.setHeader("Authorization", req.headers.authorization);
+			}
+			fixRequestBody(proxyReq, req);
+		},
+		error: (_err, _req, res) => {
+			logger.error(`Error proxying to Schedule Service: ${_err.message}`);
+			(res as Response)
+				.status(500)
+				.json({ message: "ms-schedule is unavailable." });
+		},
+	},
+});
+
 app.use("/api/users", authenticate, injectHeaders, userProxy);
 
 app.use("/api/items", authenticate, injectHeaders, itemProxy); // Remeber to add requireAuth!!!
 
 app.use("/api/clients", authenticate, injectHeaders, clientProxy); // Remeber to add requireAuth!!!
+
+app.use("/api/schedules", authenticate, injectHeaders, scheduleProxy); // Remeber to add requireAuth!!!
 
 // - 404 Handler - catches unmatched routes
 
