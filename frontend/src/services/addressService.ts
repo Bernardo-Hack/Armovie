@@ -19,6 +19,9 @@ export const addressService = {
 			body: JSON.stringify(payload),
 		});
 	},
+	getAllAddresses: async (): Promise<Address[]> => {
+		return apiFetch(BASE_URL, { method: "GET" });
+	},
 	getAddressesByClientId: async (clientId: string): Promise<Address[]> => {
 		return apiFetch(`${BASE_URL}?clientId=${clientId}`, { method: "GET" });
 	},

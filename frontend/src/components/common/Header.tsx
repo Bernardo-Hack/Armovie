@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { colors, text} from "@/assets/styles/stylesheets";
+import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "./Button";
 
 interface Props {
@@ -9,8 +9,8 @@ interface Props {
 	secondButtonIcon?: string;
 	thirdButtonLabel?: string;
 	thirdButtonIcon?: string;
-	fetchItems: () => void;
-	setIsCreateModalVisible: (visible: boolean) => void;
+	fetchItems?: () => void;
+	setIsCreateModalVisible?: (visible: boolean) => void;
 	setIsFirstModalVisible?: (visible: boolean) => void;
 	setIsSecondModalVisible?: (visible: boolean) => void;
 }
@@ -28,9 +28,7 @@ export default function Header({
 	setIsSecondModalVisible,
 }: Props) {
 	return (
-		<View
-			style={styles.header}
-		>
+		<View style={styles.header}>
 			<View>
 				<Text style={text.title}>{pageName}</Text>
 				<Text style={text.subtitle}>{subtitle}</Text>
@@ -43,20 +41,24 @@ export default function Header({
 					justifyContent: "center",
 				}}
 			>
-				<Button
-					labelColor={colors.textSecondary}
-					iconName="refresh"
-					iconSize={20}
-					onPress={fetchItems}
-				/>
-				<Button
-					color={colors.primary}
-					label={`Adicionar ${pageName || "Item"}`}
-					iconName="bag-add-outline"
-					iconSize={20}
-					onPress={() => setIsCreateModalVisible(true)}
-				/>
-				{setIsFirstModalVisible && secondButtonLabel &&  (
+				{fetchItems && (
+					<Button
+						labelColor={colors.textSecondary}
+						iconName="refresh"
+						iconSize={20}
+						onPress={fetchItems}
+					/>
+				)}
+				{setIsCreateModalVisible && (
+					<Button
+						color={colors.primary}
+						label={`Adicionar ${pageName || "Item"}`}
+						iconName="bag-add-outline"
+						iconSize={20}
+						onPress={() => setIsCreateModalVisible(true)}
+					/>
+				)}
+				{setIsFirstModalVisible && secondButtonLabel && (
 					<Button
 						color={colors.primary}
 						label={secondButtonLabel}
@@ -87,10 +89,10 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		paddingHorizontal: "5%",
 		paddingVertical: "2%",
-		width: "90%",
+		width: "100%",
 		backgroundColor: colors.overlayBackground,
 		borderRadius: 10,
 		elevation: 1,
 		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
-	}
+	},
 });

@@ -53,6 +53,22 @@ export function MobileNavbar() {
 				</NativeTabs.Trigger>
 			)}
 
+			{["Admin", "Technician"].includes(user.role) && (
+				<NativeTabs.Trigger name="agenda">
+					<Label>Agenda</Label>
+					<Icon
+						sf={{
+							default: "calendar.circle",
+							selected: "calendar.circle.fill",
+						}}
+						androidSrc={{
+							default: require("@/assets/icons/home-outline.svg"),
+							selected: require("@/assets/icons/home-filled.svg"),
+						}}
+					/>
+				</NativeTabs.Trigger>
+			)}
+
 			{user.role === "Admin" && (
 				<NativeTabs.Trigger name="admin">
 					<Label>Users</Label>
@@ -68,8 +84,6 @@ export function MobileNavbar() {
 					/>
 				</NativeTabs.Trigger>
 			)}
-
-
 
 			<NativeTabs.Trigger name="about">
 				<Label>About</Label>
@@ -152,6 +166,16 @@ export function DesktopNavbar() {
 
 				{["Admin", "Technician"].includes(user.role) && (
 					<Button
+						label="Agenda"
+						iconName="calendar"
+						iconSize={18}
+						labelColor="#fff"
+						onPress={() => router.push("/private/schedule")}
+					/>
+				)}
+
+				{["Admin", "Technician"].includes(user.role) && (
+					<Button
 						label="Máquinas"
 						iconName="hammer"
 						iconSize={18}
@@ -209,9 +233,9 @@ export function DesktopNavbar() {
 				onPress={logout}
 			/>
 
-			<SettingsModal 
-				visible={isSettingsModalVisible} 
-				onClose={() => setIsSettingsModalVisible(false)} 
+			<SettingsModal
+				visible={isSettingsModalVisible}
+				onClose={() => setIsSettingsModalVisible(false)}
 			/>
 		</View>
 	);
