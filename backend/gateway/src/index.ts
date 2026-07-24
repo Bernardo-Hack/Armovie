@@ -34,6 +34,10 @@ if (!config.url_user || !config.url_client || !config.url_item) {
 	process.exit(1);
 }
 
+if (!config.url_automation) {
+	logger.warn("AUTOMATION_URL is not set — automation hooks will be disabled.");
+}
+
 declare global {
 	namespace Express {
 		interface Request {
@@ -213,6 +217,29 @@ app.use("/api/items", authenticate, injectHeaders, itemProxy); // Remeber to add
 app.use("/api/clients", authenticate, injectHeaders, clientProxy); // Remeber to add requireAuth!!!
 
 app.use("/api/schedules", authenticate, injectHeaders, scheduleProxy); // Remeber to add requireAuth!!!
+
+if (config.url_automation) {
+	const automationProxy = createProxyMiddleware({
+		target: config.url_automation,
+		changeOrigin: true,
+		pathRewrite: { "^/api/automation": "" },
+		on: {
+			proxyReq: (proxyReq, req) => {
+				if (req.headers.authorization) {
+					proxyReq.setHeader("Authorization", req.headers.authorization);
+				}
+				fixRequestBody(proxyReq, req);
+			},
+			error: (_err, _req, res) => {
+				logger.error(`Error proxying to Automation Service: ${_err.message}`);
+				(res as Response)
+					.status(500)
+					.json({ message: "ms-automation is unavailable." });
+			},
+		},
+	});
+	app.use("/api/automation", authenticate, injectHeaders, automationProxy);
+}
 
 // - 404 Handler - catches unmatched routes
 

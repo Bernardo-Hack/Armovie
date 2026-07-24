@@ -84,6 +84,8 @@ model ServiceLog {
   machineId    String @db.Uuid
   technicianId String @db.Uuid
 
+  appointmentId String? @db.Uuid // reference to the originating ms-schedule Appointment
+
   serviceId      String @db.Uuid
   description    String @db.Text
   machinePayment Int    @db.Integer
@@ -133,6 +135,7 @@ model Fragrance {
   description String @db.Text
 
   stock    Int    @db.Integer // milliliters in stock
+  minStock Int    @default(200) @db.Integer // alert threshold in milliliters
   unitCost Float  @db.DoublePrecision // price per 100ml
   supplier String @db.VarChar(128)
 
