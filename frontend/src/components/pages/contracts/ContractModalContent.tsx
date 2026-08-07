@@ -182,7 +182,11 @@ export function ContractModalContent({
 					onChange={(text) => handleInputChange("endDate", text)}
 					direction="vertical"
 					label="Data de Término"
-					value={contract.endDate}
+					value={
+						typeof contract.endDate === "string"
+							? contract.endDate
+							: contract.endDate?.toISOString() || ""
+					}
 				/>
 				<StatBox
 					isEditing={isEditing}

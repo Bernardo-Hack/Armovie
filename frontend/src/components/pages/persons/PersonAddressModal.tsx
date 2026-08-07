@@ -13,7 +13,8 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { text, colors } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { Person } from "@/assets/types/ms-client/Person";
-import { addressService, Address } from "@/services/addressService";
+import { addressService } from "@/services/addressService";
+import { Address } from "@/assets/types/ms-client/Address";
 import { StatBox } from "@/components/common/Statbox";
 
 interface Props {

@@ -13,7 +13,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
-import { Plan } from "@/assets/types/ms-clients/Plan";
+import { Plan } from "@/assets/types/ms-client/Contract";
 import { contractService } from "@/services/contractService";
 import { StatBox } from "@/components/common/Statbox";
 
@@ -152,9 +152,7 @@ export function PlanModal({ visible, onClose, onPlansUpdated }: Props) {
 				<View style={styles.modalView}>
 					{/* Header */}
 					<View style={styles.header}>
-						<Text style={styles.title}>
-							Gerenciar Planos
-						</Text>
+						<Text style={styles.title}>Gerenciar Planos</Text>
 						<View style={{ flex: 1 }} />
 						<Ionicons
 							name="close"
@@ -199,12 +197,7 @@ export function PlanModal({ visible, onClose, onPlansUpdated }: Props) {
 
 					{/* Formulário para Adicionar Novo Plano */}
 					<View style={{ width: "100%", marginTop: 10 }}>
-						<Text
-							style={[
-								styles.title,
-								{ textAlign: "center" },
-							]}
-						>
+						<Text style={[styles.title, { textAlign: "center" }]}>
 							Adicionar Novo Plano
 						</Text>
 
@@ -296,4 +289,3 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 });
-

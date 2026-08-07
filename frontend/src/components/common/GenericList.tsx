@@ -23,7 +23,7 @@ interface GenericListProps<T> {
 	sortDirection?: SortDirection;
 
 	onSaveItem: (item: T) => void;
-	onDeleteItem: (id: string) => void;
+	onDeleteItem?: (id: string) => void;
 
 	HeaderComponent: React.ElementType;
 	RowComponent: React.ElementType;
@@ -128,7 +128,7 @@ export function GenericList<T extends { id: any }>({
 					visible={isEditModalOpen}
 					onClose={closeItemDetail}
 					onSave={onSaveItem}
-					onDelete={() => onDeleteItem(selectedItem.id)}
+					onDelete={onDeleteItem ? () => onDeleteItem(selectedItem.id) : undefined}
 					renderContent={editModalRenderContent}
 				/>
 			)}

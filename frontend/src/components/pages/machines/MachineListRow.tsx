@@ -18,14 +18,18 @@ export function MachineListRow({
 	openItemDetail,
 	openExtraModal,
 }: Props) {
-	return webList(item, openItemDetail, openExtraModal);
+	return <WebList machine={item} openItemDetail={openItemDetail} openServiceModal={openExtraModal} />;
 }
 
-function webList(
-	machine: Machine,
-	openItemDetail: () => void,
-	openServiceModal: () => void,
-) {
+function WebList({
+	machine,
+	openItemDetail,
+	openServiceModal,
+}: {
+	machine: Machine;
+	openItemDetail: () => void;
+	openServiceModal: () => void;
+}) {
 	const { getFragranceById } = fragranceService;
 	const [fragrance, setFragrance] = useState("");
 

@@ -13,6 +13,8 @@ export function MobileNavbar() {
 		return null;
 	}
 
+	const perms = user.permissions ?? [];
+
 	return (
 		<NativeTabs>
 			<NativeTabs.Trigger name="index">
@@ -27,7 +29,7 @@ export function MobileNavbar() {
 				/>
 			</NativeTabs.Trigger>
 
-			{["Admin", "Seller", "Financeiro"].includes(user.role) && (
+			{perms.includes("clients") && (
 				<NativeTabs.Trigger name="clients">
 					<Label>Clients</Label>
 					<Icon
@@ -40,7 +42,7 @@ export function MobileNavbar() {
 				</NativeTabs.Trigger>
 			)}
 
-			{["Admin", "Technician", "Financeiro"].includes(user.role) && (
+			{(perms.includes("machines") || perms.includes("fragrances")) && (
 				<NativeTabs.Trigger name="items">
 					<Label>Items</Label>
 					<Icon
@@ -53,7 +55,7 @@ export function MobileNavbar() {
 				</NativeTabs.Trigger>
 			)}
 
-			{["Admin", "Technician"].includes(user.role) && (
+			{perms.includes("schedule") && (
 				<NativeTabs.Trigger name="agenda">
 					<Label>Agenda</Label>
 					<Icon
@@ -69,7 +71,7 @@ export function MobileNavbar() {
 				</NativeTabs.Trigger>
 			)}
 
-			{user.role === "Admin" && (
+			{perms.includes("users") && (
 				<NativeTabs.Trigger name="admin">
 					<Label>Users</Label>
 					<Icon
@@ -111,6 +113,8 @@ export function DesktopNavbar() {
 		return null;
 	}
 
+	const perms = user.permissions ?? [];
+
 	return (
 		<View style={styles.navBar}>
 			<View
@@ -144,7 +148,7 @@ export function DesktopNavbar() {
 					onPress={() => router.push("/private")}
 				/>
 
-				{["Admin", "Seller", "Financeiro"].includes(user.role) && (
+				{perms.includes("clients") && (
 					<Button
 						label="Clientes"
 						iconName="person"
@@ -154,7 +158,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{["Admin", "Seller", "Financeiro"].includes(user.role) && (
+				{perms.includes("contracts") && (
 					<Button
 						label="Contratos"
 						iconName="document"
@@ -164,7 +168,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{["Admin", "Technician"].includes(user.role) && (
+				{perms.includes("schedule") && (
 					<Button
 						label="Agenda"
 						iconName="calendar"
@@ -174,7 +178,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{["Admin", "Technician"].includes(user.role) && (
+				{perms.includes("machines") && (
 					<Button
 						label="Máquinas"
 						iconName="hammer"
@@ -184,7 +188,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{["Admin", "Technician"].includes(user.role) && (
+				{perms.includes("fragrances") && (
 					<Button
 						label="Fragrâncias"
 						iconName="flask"
@@ -194,7 +198,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{user.role === "Admin" && (
+				{perms.includes("users") && (
 					<Button
 						label="Users"
 						iconName="key"
@@ -204,7 +208,7 @@ export function DesktopNavbar() {
 					/>
 				)}
 
-				{user.role === "Admin" && (
+				{perms.includes("settings") && (
 					<Button
 						label="Configurações"
 						iconName="settings"
@@ -269,3 +273,4 @@ const styles = StyleSheet.create({
 		textDecorationLine: "none",
 	},
 });
+

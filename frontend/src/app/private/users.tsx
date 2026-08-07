@@ -11,17 +11,19 @@ import { UserListHeader } from "@/components/pages/users/UserListHeader";
 import { UserListRow } from "@/components/pages/users/UserListRow";
 import { UserModalContent } from "@/components/pages/users/UserModalContent";
 
-import { User, initialUserState } from "@/assets/types/User";
+import { User, initialUserState } from "@/assets/types/ms-user/User";
 import { userService } from "@/services/userService";
+import { roleService } from "@/services/roleService";
 import { useAuth } from "@/services/AuthProvider";
 
 type SortKey = keyof User | null;
 type SortDirection = "asc" | "desc";
 
-
-
 export default function UsersTab() {
 	const [users, setUsers] = useState<User[]>([]);
+	const [rolesList, setRolesList] = useState<
+		{ label: string; value: string }[]
+	>([]);
 	const [sortKey, setSortKey] = useState<SortKey>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const [loading, setLoading] = useState(true);
@@ -57,10 +59,19 @@ export default function UsersTab() {
 	const fetchAllData = async () => {
 		setLoading(true);
 		try {
-			const usersData = await userService.getAllUsers();
+			const [usersData, rolesData] = await Promise.all([
+				userService.getAllUsers(),
+				roleService.getAllRoles(),
+			]);
 			setUsers(usersData);
+			setRolesList(
+				rolesData.map((r: any) => ({ label: r.name, value: r.id })),
+			);
 		} catch (error: any) {
-			if (error.message === "Not Found" || error.message?.includes("404")) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				Toast.show({
 					type: "info",
 					text1: "Nenhum usuário encontrado!",
@@ -70,7 +81,8 @@ export default function UsersTab() {
 				Toast.show({
 					type: "error",
 					text1: "Erro ao carregar usuários",
-					text2: error.message || "Não foi possível buscar os usuários.",
+					text2:
+						error.message || "Não foi possível buscar os usuários.",
 				});
 			}
 		} finally {
@@ -95,37 +107,69 @@ export default function UsersTab() {
 	const handleCreateUser = async (newUserData: any) => {
 		try {
 			if (!newUserData.name || !newUserData.email) {
-				Toast.show({ type: "error", text1: "Dados incompletos", text2: "Nome, email e senha são obrigatórios." });
+				Toast.show({
+					type: "error",
+					text1: "Dados incompletos",
+					text2: "Nome, email e senha são obrigatórios.",
+				});
 				return;
 			}
-			newUserData.password = '123456'
+			newUserData.password = "123456";
 			await register(newUserData);
-			Toast.show({ type: "success", text1: "Usuário criado com sucesso!" });
+			Toast.show({
+				type: "success",
+				text1: "Usuário criado com sucesso!",
+			});
 			fetchAllData();
 			setIsCreateModalVisible(false);
 		} catch (error: any) {
-			Toast.show({ type: "error", text1: "Erro ao criar usuário", text2: error.message });
+			Toast.show({
+				type: "error",
+				text1: "Erro ao criar usuário",
+				text2: error.message,
+			});
 		}
 	};
 
 	const handleUpdateUser = async (updatedUser: User) => {
 		try {
-			const { id, createdAt, updatedAt, ...userToUpdate } = updatedUser;
+			const {
+				id,
+				createdAt,
+				updatedAt,
+				role,
+				permissions,
+				...userToUpdate
+			} = updatedUser;
 			await userService.updateUser(id, userToUpdate);
-			Toast.show({ type: "success", text1: "Usuário atualizado com sucesso!" });
+			Toast.show({
+				type: "success",
+				text1: "Usuário atualizado com sucesso!",
+			});
 			fetchAllData();
 		} catch (error: any) {
-			Toast.show({ type: "error", text1: "Erro ao atualizar usuário", text2: error.message });
+			Toast.show({
+				type: "error",
+				text1: "Erro ao atualizar usuário",
+				text2: error.message,
+			});
 		}
 	};
 
 	const handleDeleteUser = async (id: string) => {
 		try {
 			await userService.deleteUser(id);
-			Toast.show({ type: "success", text1: "Usuário excluído com sucesso!" });
+			Toast.show({
+				type: "success",
+				text1: "Usuário excluído com sucesso!",
+			});
 			fetchAllData();
 		} catch (error: any) {
-			Toast.show({ type: "error", text1: "Erro ao excluir usuário", text2: error.message });
+			Toast.show({
+				type: "error",
+				text1: "Erro ao excluir usuário",
+				text2: error.message,
+			});
 		}
 	};
 
@@ -135,7 +179,12 @@ export default function UsersTab() {
 
 	return (
 		<View style={styles.page.background}>
-			<Header pageName="Usuários" subtitle="Gerenciamento de Usuários" fetchItems={fetchAllData} setIsCreateModalVisible={setIsCreateModalVisible} />
+			<Header
+				pageName="Usuários"
+				subtitle="Gerenciamento de Usuários"
+				fetchItems={fetchAllData}
+				setIsCreateModalVisible={setIsCreateModalVisible}
+			/>
 
 			<GenericList
 				loading={loading}
@@ -148,8 +197,17 @@ export default function UsersTab() {
 				onDeleteItem={handleDeleteUser}
 				HeaderComponent={UserListHeader}
 				RowComponent={UserListRow}
-				editModalRenderContent={(user, isEditing, handleInputChange) => (
-					<UserModalContent user={user as User} isEditing={isEditing} handleInputChange={handleInputChange} />
+				editModalRenderContent={(
+					user,
+					isEditing,
+					handleInputChange,
+				) => (
+					<UserModalContent
+						user={user as User}
+						isEditing={isEditing}
+						handleInputChange={handleInputChange}
+						rolesList={rolesList}
+					/>
 				)}
 			/>
 
@@ -159,7 +217,13 @@ export default function UsersTab() {
 				onClose={() => setIsCreateModalVisible(false)}
 				onSave={handleCreateUser}
 				renderContent={(user, handleInputChange) => (
-					<UserModalContent user={user as User} isEditing={true} handleInputChange={handleInputChange} isCreating={true} />
+					<UserModalContent
+						user={user as User}
+						isEditing={true}
+						handleInputChange={handleInputChange}
+						isCreating={true}
+						rolesList={rolesList}
+					/>
 				)}
 			/>
 		</View>

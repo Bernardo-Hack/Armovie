@@ -13,14 +13,18 @@ interface Props {
 }
 
 export function PersonListRow({ item, openItemDetail, openExtraModal }: Props) {
-	return webList(item, openItemDetail, openExtraModal);
+	return <WebList person={item} openItemDetail={openItemDetail} openExtraModal={openExtraModal} />;
 }
 
-function webList(
-	person: Person,
-	openItemDetail: () => void,
-	openExtraModal: () => void,
-) {
+function WebList({
+	person,
+	openItemDetail,
+	openExtraModal,
+}: {
+	person: Person;
+	openItemDetail: () => void;
+	openExtraModal: () => void;
+}) {
 	const { getClientById } = clientService;
 	const [clientName, setClientName] = useState("");
 

@@ -51,6 +51,7 @@ const serviceLogSchema = z.object({
 	mlBefore: z.number().positive().nullish(),
 	mlAfter: z.number().positive().nullish(),
 	fragranceId: z.uuid().nullish(),
+	appointmentId: z.uuid().nullish(),
 });
 
 const fragranceSchema = z.object({
@@ -59,10 +60,16 @@ const fragranceSchema = z.object({
 	description: z.string(),
 
 	stock: z.number().int().nonnegative(),
+	minStock: z.number().int().nonnegative().optional(),
 	unitCost: z.number().nonnegative(),
-	supplier: z.string(),
+	supplierId: z.uuid(),
 
 	isActive: z.boolean(),
+});
+
+const supplierSchema = z.object({
+	name: z.string(),
+	description: z.string(),
 });
 
 const consumptionLogSchema = z.object({
@@ -115,6 +122,10 @@ export const createSchemas = z.discriminatedUnion("table", [
 		table: z.literal("mlSteps"),
 		data: mlStepsSchema,
 	}),
+	z.object({
+		table: z.literal("supplier"),
+		data: supplierSchema,
+	}),
 ]);
 
 export const updateSchemas = z.discriminatedUnion("table", [
@@ -149,6 +160,10 @@ export const updateSchemas = z.discriminatedUnion("table", [
 	z.object({
 		table: z.literal("mlSteps"),
 		data: mlStepsSchema.partial(),
+	}),
+	z.object({
+		table: z.literal("supplier"),
+		data: supplierSchema.partial(),
 	}),
 ]);
 

@@ -34,4 +34,8 @@ export const fragranceService = {
 	deleteFragrance: async (id: string): Promise<void> => {
 		await apiFetch(`${BASE_URL}${id}`, { method: "DELETE" });
 	},
+
+	getConsumptionLogsByFragranceId: async (id: string): Promise<any[]> => {
+		return apiFetch(`${BASE_URL}${id}/consumption-logs`, { method: "GET" });
+	},
 };

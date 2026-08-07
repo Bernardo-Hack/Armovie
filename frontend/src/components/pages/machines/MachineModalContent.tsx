@@ -116,22 +116,6 @@ export function MachineModalContent({
 				value={machine.observations || ""}
 			/>
 
-			{/* isPaid */}
-			<StatBox
-				type="select"
-				isEditing={isEditing}
-				onChange={(value) =>
-					handleInputChange("isPaid", value === "true")
-				}
-				direction="horizontal"
-				label="está paga?"
-				value={machine.isPaid ? "true" : "false"}
-				options={[
-					{ label: "Sim", value: "true" },
-					{ label: "Não", value: "false" },
-				]}
-			/>
-
 			{/* Status and Date Information */}
 			<View
 				style={{
@@ -152,7 +136,7 @@ export function MachineModalContent({
 				>
 					<StatusBox
 						isEditing={isEditing}
-						value={machine.status}
+						value={machine.status || ""}
 						onChange={(text) => handleInputChange("status", text)}
 						options={[
 							{ label: "Disponível", value: "Disponível" },

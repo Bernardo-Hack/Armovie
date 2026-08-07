@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 import { colors, page, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { SortableHeader } from "@/components/common/SortableHeader";
@@ -13,10 +13,20 @@ interface UserListHeaderProps {
 	sortDirection: SortDirection;
 }
 
-export function UserListHeader({ onSort, sortKey, sortDirection }: UserListHeaderProps) {
+export function UserListHeader({
+	onSort,
+	sortKey,
+	sortDirection,
+}: UserListHeaderProps) {
 	return (
 		<View style={page.row}>
-			<View style={{ width: "2%", justifyContent: "center", alignItems: "center" }}>
+			<View
+				style={{
+					width: "2%",
+					justifyContent: "center",
+					alignItems: "center",
+				}}
+			>
 				{sortKey && (
 					<Button
 						labelColor={colors.textSecondary}

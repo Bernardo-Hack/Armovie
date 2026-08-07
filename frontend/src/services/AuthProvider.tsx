@@ -6,12 +6,12 @@ import {
 	createContext,
 	useContext,
 } from "react";
-import { 
-	authService, 
-	LoginCredentials, 
-	RegisterCredentials 
+import {
+	authService,
+	LoginCredentials,
+	RegisterCredentials,
 } from "./authService";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 
 export interface AuthContextType {
 	user: User | null;

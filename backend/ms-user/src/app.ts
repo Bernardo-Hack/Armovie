@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import "dotenv/config";
 import { userRoutes } from "./routes/userRoutes.js";
+import { roleRoutes } from "./routes/roleRoutes.js";
 import { logger } from "./utils/logger.js";
 import { verifyEmailConfig } from "./utils/mailer.js";
 
@@ -21,6 +22,7 @@ app.addHook("onResponse", async (req, reply) => {
 });
 
 app.register(userRoutes);
+app.register(roleRoutes, { prefix: "/roles" });
 
 app.get("/verify-email-config", async () => { await verifyEmailConfig(); });
 

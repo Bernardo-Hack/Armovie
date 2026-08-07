@@ -12,10 +12,14 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { colors, text as globalText } from "@/assets/styles/stylesheets";
 import Header from "@/components/common/Header";
-import { Fragrance, initialFragranceState } from "@/assets/types/ms-item/Fragrance";
+import {
+	Fragrance,
+	initialFragranceState,
+} from "@/assets/types/ms-item/Fragrance";
 import { fragranceService, FragranceData } from "@/services/fragranceService";
 import { GenericCreateModal } from "@/components/common/GenericCreateModal";
 import { StatBox } from "@/components/common/Statbox";
+import { FragranceInfoModal } from "@/components/pages/fragrances/FragranceInfoModal";
 
 // ─── Family color/icon map ────────────────────────────────────────────────────
 
@@ -43,14 +47,14 @@ function getFamilyConfig(family: string) {
 	);
 }
 
-
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function FragrancesPage() {
 	const [fragrances, setFragrances] = useState<Fragrance[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+	const [selectedFragrance, setSelectedFragrance] =
+		useState<Fragrance | null>(null);
 
 	const fetchFragrances = async () => {
 		setLoading(true);
@@ -154,6 +158,7 @@ export default function FragrancesPage() {
 							key={fragrance.id}
 							fragrance={fragrance}
 							onDelete={() => handleDelete(fragrance.id)}
+							onInfo={() => setSelectedFragrance(fragrance)}
 						/>
 					))}
 				</ScrollView>
@@ -172,6 +177,33 @@ export default function FragrancesPage() {
 					/>
 				)}
 			/>
+
+			{/* Info / Edit Modal */}
+			<FragranceInfoModal
+				fragrance={selectedFragrance}
+				visible={!!selectedFragrance}
+				onClose={() => setSelectedFragrance(null)}
+				onSave={async (id, data) => {
+					try {
+						await fragranceService.updateFragrance(id, data);
+						Toast.show({
+							type: "success",
+							text1: "Fragrância atualizada com sucesso!",
+						});
+						fetchFragrances();
+						// Atualiza o estado da fragrância selecionada também, se ainda estiver aberta
+						setSelectedFragrance((prev) =>
+							prev ? ({ ...prev, ...data } as Fragrance) : null,
+						);
+					} catch (error: any) {
+						Toast.show({
+							type: "error",
+							text1: "Erro ao atualizar",
+							text2: error.message,
+						});
+					}
+				}}
+			/>
 		</View>
 	);
 }
@@ -181,9 +213,11 @@ export default function FragrancesPage() {
 function FragranceCard({
 	fragrance,
 	onDelete,
+	onInfo,
 }: {
 	fragrance: Fragrance;
 	onDelete: () => void;
+	onInfo: () => void;
 }) {
 	const cfg = getFamilyConfig(fragrance.family);
 	const bottles = Math.floor(fragrance.stock / 100);
@@ -194,6 +228,17 @@ function FragranceCard({
 			<View style={styles.cardTop}>
 				<Ionicons name={cfg.icon as any} size={22} color={cfg.color} />
 				<View style={{ flex: 1 }} />
+				<Pressable
+					onPress={onInfo}
+					style={[styles.deleteBtn, { marginRight: 4 }]}
+					hitSlop={8}
+				>
+					<Ionicons
+						name="eye-outline"
+						size={16}
+						color={colors.textPrimary}
+					/>
+				</Pressable>
 				<Pressable
 					onPress={onDelete}
 					style={styles.deleteBtn}
@@ -241,7 +286,7 @@ function FragranceCard({
 				/>
 				<StatRow
 					label="Fornecedor"
-					value={fragrance.supplier || "—"}
+					value={fragrance.supplierId || "—"}
 					highlight={false}
 					highlightColor={cfg.color}
 				/>
@@ -341,9 +386,9 @@ function FragranceFormContent({
 			<StatBox
 				isEditing
 				direction="horizontal"
-				label="Fornecedor"
-				value={fragrance.supplier}
-				onChange={(v) => handleInputChange("supplier", v)}
+				label="Fornecedor (ID)"
+				value={fragrance.supplierId}
+				onChange={(v) => handleInputChange("supplierId", v)}
 			/>
 		</View>
 	);

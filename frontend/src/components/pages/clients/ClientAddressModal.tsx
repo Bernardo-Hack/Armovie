@@ -14,7 +14,8 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { text, colors } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { Client } from "@/assets/types/ms-client/Client";
-import { addressService, Address } from "@/services/addressService";
+import { addressService } from "@/services/addressService";
+import { Address } from "@/assets/types/ms-client/Address";
 import { StatBox } from "@/components/common/Statbox";
 
 interface Props {

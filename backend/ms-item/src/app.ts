@@ -2,6 +2,7 @@ import fastify from "fastify";
 import "dotenv/config";
 import { fragranceRoutes } from "./routes/fragranceRoutes.js";
 import { machineRoutes } from "./routes/machineRoutes.js";
+import { supplierRoutes } from "./routes/supplierRoutes.js";
 import { logger } from "./utils/logger.js";
 
 const app = fastify({ logger: false });
@@ -22,6 +23,7 @@ app.addHook("onResponse", async (req, reply) => {
 
 app.register(machineRoutes, { prefix: "/machines" });
 app.register(fragranceRoutes, { prefix: "/fragrances" });
+app.register(supplierRoutes, { prefix: "/suppliers" });
 
 app.get("/health", async () => ({
 	status: "healthy",

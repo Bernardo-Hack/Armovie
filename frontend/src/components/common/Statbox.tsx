@@ -17,7 +17,12 @@ interface Props {
 	unit?: string;
 	prefix?: string;
 	isPassword?: boolean;
-	keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+	keyboardType?:
+		| "default"
+		| "email-address"
+		| "numeric"
+		| "phone-pad"
+		| "decimal-pad";
 	autoCapitalize?: "none" | "sentences" | "words" | "characters";
 	placeholder?: string;
 }
@@ -41,9 +46,7 @@ export function StatBox({
 }: Props) {
 	const [showPassword, setShowPassword] = useState(!isPassword);
 	const containerStyle =
-		direction === "horizontal"
-			? styles.statLine
-			: styles.statBox;
+		direction === "horizontal" ? styles.statLine : styles.statBox;
 
 	const selectAlign = direction === "horizontal" ? "flex-end" : "flex-start";
 
@@ -61,9 +64,7 @@ export function StatBox({
 
 	return (
 		<View style={containerStyle}>
-			{label && (
-				<Text style={text.statLabel}>{label.toUpperCase()}</Text>
-			)}
+			{label && <Text style={text.statLabel}>{label.toUpperCase()}</Text>}
 			{isEditing && onChange ? (
 				type === "select" && options ? (
 					<View style={{ flex: 1 }}>
@@ -73,9 +74,7 @@ export function StatBox({
 							style={[
 								text.statValue,
 								{
-									color:
-										valueColor ||
-										text.statValue.color,
+									color: valueColor || text.statValue.color,
 									fontWeight: "bold",
 									fontSize: 16,
 									width: "auto",
@@ -109,9 +108,7 @@ export function StatBox({
 								onPress={() => setShowPassword((prev) => !prev)}
 							/>
 						)}
-						{prefix && (
-							<Text style={text.statValue}>{prefix}</Text>
-						)}
+						{prefix && <Text style={text.statValue}>{prefix}</Text>}
 						<TextInput
 							style={[
 								text.statValue,
@@ -240,12 +237,7 @@ export function StatusBox({
 						},
 					]}
 				>
-					<Text
-						style={[
-							styles.tagText,
-							{ color: colors.text },
-						]}
-					>
+					<Text style={[styles.tagText, { color: colors.text }]}>
 						{value.toUpperCase()}
 					</Text>
 				</View>

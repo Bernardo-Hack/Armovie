@@ -18,10 +18,10 @@ export function ClientListRow({ item, openItemDetail, openExtraModal }: Props) {
 	// }
 	// return mobileList(client, openItemDetail);
 
-	return webList(item, openItemDetail);
+	return <WebList client={item} openItemDetail={openItemDetail} />;
 }
 
-function webList(client: Client, openItemDetail: () => void) {
+function WebList({ client, openItemDetail }: { client: Client; openItemDetail: () => void }) {
 	const { getUserById } = userService;
 	const [sellerName, setSellerName] = useState("");
 
