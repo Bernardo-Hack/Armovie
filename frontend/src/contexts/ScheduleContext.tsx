@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useState,
+	useMemo,
+} from "react";
 import { Client } from "@/assets/types/ms-client/Client";
 import { Address } from "@/assets/types/ms-client/Address";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 import { clientService } from "@/services/clientService";
 import { addressService } from "@/services/addressService";
 import { userService } from "@/services/userService";
@@ -17,9 +23,13 @@ interface ScheduleContextData {
 	refreshData: () => Promise<void>;
 }
 
-const ScheduleContext = createContext<ScheduleContextData>({} as ScheduleContextData);
+const ScheduleContext = createContext<ScheduleContextData>(
+	{} as ScheduleContextData,
+);
 
-export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
 	const [clients, setClients] = useState<Client[]>([]);
 	const [addresses, setAddresses] = useState<Address[]>([]);
 	const [technicians, setTechnicians] = useState<User[]>([]);
@@ -28,11 +38,12 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 	const fetchData = async () => {
 		try {
 			setLoading(true);
-			const [fetchedClients, fetchedAddresses, fetchedTechnicians] = await Promise.all([
-				clientService.getAllClients(),
-				addressService.getAllAddresses(),
-				userService.getUsersByRole("Technician"), // or fetch all users and filter
-			]);
+			const [fetchedClients, fetchedAddresses, fetchedTechnicians] =
+				await Promise.all([
+					clientService.getAllClients(),
+					addressService.getAllAddresses(),
+					userService.getUsersByRole("Technician"), // or fetch all users and filter
+				]);
 			setClients(fetchedClients);
 			setAddresses(fetchedAddresses);
 			setTechnicians(fetchedTechnicians);

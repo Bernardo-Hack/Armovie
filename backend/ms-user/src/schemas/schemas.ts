@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // - RegisterSchema -
 
 export const registerUserSchema = z.object({
 	name: z.string(),
 	email: z.email({ pattern: z.regexes.html5Email }),
-	role: z.string(),
+	roleId: z.string().uuid().optional(),
 	password: z.string(),
 	position: z.string(),
 });
@@ -27,9 +27,16 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
-export const registerRoleSchema = z.object({
-	name: z.string(),
-	description: z.string(),
+// - Role Schemas -
+
+export const createRoleSchema = z.object({
+	name: z.string().min(1),
+	description: z.string().optional(),
+	permissions: z.array(z.string()).default([]),
 });
 
-export type RegisterRoleInput = z.infer<typeof registerRoleSchema>;
+export type CreateRoleInput = z.infer<typeof createRoleSchema>;
+
+export const updateRoleSchema = createRoleSchema.partial();
+
+export type UpdateRoleInput = z.infer<typeof updateRoleSchema>;

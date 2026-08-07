@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_MULTIPLE_DATABASES: armovie_users,armovie_clients,armovie_items
+      POSTGRES_MULTIPLE_DATABASES: armovie_users,armovie_clients,armovie_items,armovie_schedule,armovie_automations
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./configs/pg-init:/docker-entrypoint-initdb.d
@@ -78,6 +78,45 @@ services:
     ports:
       - "5003:5003"
 
+  # ── ms-schedule ─────────────────────────────────────────────────────────────
+  ms-schedule:
+    build:
+      context: ./backend/ms-schedule
+      dockerfile: Dockerfile
+    container_name: armovie-ms-schedule
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MS_NAME: ms_schedule
+      DB_NAME: armovie_schedule
+      PORT: 5004
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/armovie_schedule
+      AUTOMATION_URL: http://ms-automation:5005
+    ports:
+      - "5004:5004"
+
+  # ── ms-automation ───────────────────────────────────────────────────────────
+  ms-automation:
+    build:
+      context: ./backend/ms-automation
+      dockerfile: Dockerfile
+    container_name: armovie-ms-automation
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MS_NAME: ms_automation
+      DB_NAME: armovie_automations
+      PORT: 5005
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/armovie_automations
+      MS_ITEM_URL: http://ms-item:5002
+      MS_SCHEDULE_URL: http://ms-schedule:5004
+    ports:
+      - "5005:5005"
+
   # ── gateway ─────────────────────────────────────────────────────────────────
   gateway:
     build:
@@ -89,6 +128,8 @@ services:
       - ms-user
       - ms-item
       - ms-client
+      - ms-schedule
+      - ms-automation
     environment:
       MS_NAME: gateway
       PORT: 3000
@@ -96,7 +137,9 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8081}
       USER_URL: http://ms-user:5001
       ITEM_URL: http://ms-item:5002
-      PRODUCT_URL: http://ms-client:5003
+      CLIENT_URL: http://ms-client:5003
+      SCHEDULE_URL: http://ms-schedule:5004
+      AUTOMATION_URL: http://ms-automation:5005
     ports:
       - "3000:3000"
 

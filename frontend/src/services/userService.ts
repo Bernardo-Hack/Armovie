@@ -1,12 +1,12 @@
 import { apiFetch } from "./api";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 
 export interface UserData {
 	name: string;
 	email: string;
 	password: string;
 	position: string;
-	role: string;
+	roleId?: string;
 	resetPasswordToken?: string;
 	resetPasswordTokenExpiresAt?: string;
 	status?: string;
@@ -62,6 +62,12 @@ export const userService = {
 	deleteUser: async (userId: string): Promise<void> => {
 		await apiFetch(`${BASE_URL}${userId}`, {
 			method: "DELETE",
+		});
+	},
+
+	getRoles: async (): Promise<{ id: string; name: string }[]> => {
+		return apiFetch("/api/users/roles", {
+			method: "GET",
 		});
 	},
 };

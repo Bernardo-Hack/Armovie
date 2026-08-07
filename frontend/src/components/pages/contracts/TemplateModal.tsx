@@ -20,7 +20,7 @@ import { contractService } from "@/services/contractService";
 export interface Template {
 	id: string;
 	name: string;
-	description?: string;
+	description?: string | null;
 	content: string;
 	createdAt: string;
 	updatedAt: string;
@@ -53,7 +53,10 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 				),
 			);
 		} catch (error: any) {
-			if ( error.message === "Not Found" || error.message?.includes("404") ) {
+			if (
+				error.message === "Not Found" ||
+				error.message?.includes("404")
+			) {
 				setTemplates([]);
 			} else {
 				Toast.show({
@@ -91,7 +94,10 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 			};
 
 			await contractService.createTemplate(templateToCreate);
-			Toast.show({ type: "success", text1: "Template salvo com sucesso!" });
+			Toast.show({
+				type: "success",
+				text1: "Template salvo com sucesso!",
+			});
 
 			setNewTemplate({ name: "", description: "", content: "" });
 			fetchTemplates();
@@ -161,19 +167,43 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 					<View style={styles.header}>
 						<Text style={styles.title}>Gerenciar Templates</Text>
 						<View style={{ flex: 1 }} />
-						<Ionicons name="close" size={24} color="#555" onPress={onClose} />
+						<Ionicons
+							name="close"
+							size={24}
+							color="#555"
+							onPress={onClose}
+						/>
 					</View>
 
 					{/* Lista de Templates */}
-					<View style={{ flex: 1, width: "100%", paddingHorizontal: 5, paddingVertical: 10 }}>
+					<View
+						style={{
+							flex: 1,
+							width: "100%",
+							paddingHorizontal: 5,
+							paddingVertical: 10,
+						}}
+					>
 						{loading ? (
-							<ActivityIndicator size="large" color={colors.primary} />
+							<ActivityIndicator
+								size="large"
+								color={colors.primary}
+							/>
 						) : (
 							<FlatList
 								data={templates}
 								renderItem={renderTemplateItem}
 								keyExtractor={(item) => item.id}
-								ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 20 }}>Nenhum template cadastrado.</Text>}
+								ListEmptyComponent={
+									<Text
+										style={{
+											textAlign: "center",
+											marginTop: 20,
+										}}
+									>
+										Nenhum template cadastrado.
+									</Text>
+								}
 							/>
 						)}
 					</View>
@@ -187,21 +217,27 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 						<View style={[styles.statsGrid]}>
 							<StatBox
 								isEditing={true}
-								onChange={(text) => handleInputChange("name", text)}
+								onChange={(text) =>
+									handleInputChange("name", text)
+								}
 								direction="vertical"
 								label="Nome do Template"
 								value={newTemplate.name}
 							/>
 							<StatBox
 								isEditing={true}
-								onChange={(text) => handleInputChange("description", text)}
+								onChange={(text) =>
+									handleInputChange("description", text)
+								}
 								direction="vertical"
 								label="Descrição"
 								value={newTemplate.description}
 							/>
 							<StatBox
 								isEditing={true}
-								onChange={(text) => handleInputChange("content", text)}
+								onChange={(text) =>
+									handleInputChange("content", text)
+								}
 								direction="vertical"
 								isMultiline={true}
 								label="Conteúdo"
@@ -209,7 +245,13 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 							/>
 						</View>
 
-						<Button color="#4caf50" label="Salvar Template" iconName="add-circle" iconSize={20} onPress={handleSaveTemplate} />
+						<Button
+							color="#4caf50"
+							label="Salvar Template"
+							iconName="add-circle"
+							iconSize={20}
+							onPress={handleSaveTemplate}
+						/>
 					</View>
 				</View>
 			</View>
@@ -218,12 +260,43 @@ export function TemplateModal({ visible, onClose, onTemplatesUpdated }: Props) {
 }
 
 const styles = StyleSheet.create({
-	centeredView: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.4)" },
-	modalView: { maxWidth: "75%", backgroundColor: colors.background, borderRadius: 15, padding: 20, boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)", elevation: 5 },
-	container: { padding: 15, backgroundColor: colors.overlayBackground, borderRadius: 8, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: colors.textSecondary, flexDirection: "column", gap: 10 },
+	centeredView: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "rgba(0, 0, 0, 0.4)",
+	},
+	modalView: {
+		maxWidth: "75%",
+		backgroundColor: colors.background,
+		borderRadius: 15,
+		padding: 20,
+		boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+		elevation: 5,
+	},
+	container: {
+		padding: 15,
+		backgroundColor: colors.overlayBackground,
+		borderRadius: 8,
+		marginBottom: 10,
+		borderBottomWidth: 1,
+		borderBottomColor: colors.textSecondary,
+		flexDirection: "column",
+		gap: 10,
+	},
 	description: { ...text.rowText, textAlign: "left", fontWeight: "normal" },
 	meta: { ...text.subtitle, fontSize: 12 },
-	header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
 	title: { ...text.title, fontSize: 28 },
-	statsGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginTop: 20, marginBottom: 20 },
+	statsGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "space-between",
+		marginTop: 20,
+		marginBottom: 20,
+	},
 });

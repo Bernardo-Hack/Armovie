@@ -6,8 +6,9 @@ export interface Fragrance {
 	description: string;
 	
 	stock: number;
+	minStock: number;
 	unitCost: number;
-	supplier: string;
+	supplierId: string;
 
 	isActive: boolean;
 
@@ -21,8 +22,9 @@ export const initialFragranceState: Fragrance = {
 	family: "Frutal",
 	description: "",
 	stock: 0,
+	minStock: 200,
 	unitCost: 0,
-	supplier: "",
+	supplierId: "",
 	isActive: true,
 	createdAt: new Date().toISOString(),
 	updatedAt: new Date().toISOString(),

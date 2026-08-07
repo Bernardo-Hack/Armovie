@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 
 import { DesktopNavbar, MobileNavbar } from "@/components/common/Navbars";
 
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 import { authService } from "@/services/authService";
 
 export default function TabLayout() {
 	const [userData, setUserData] = useState<User | null>(null);
 
 	useEffect(() => {
-		authService.getLoggedUser()
+		authService
+			.getLoggedUser()
 			.then((data) => setUserData(data))
 			.catch((error) => {
 				console.error("Error fetching user data:", error);
@@ -21,12 +22,12 @@ export default function TabLayout() {
 
 	if (Platform.OS === "web") {
 		return (
-			<View style={{ flex: 1, flexDirection: "row"}}>
-				<DesktopNavbar/>
+			<View style={{ flex: 1, flexDirection: "row" }}>
+				<DesktopNavbar />
 				<Slot />
 			</View>
 		);
 	} else {
-		return <MobileNavbar/>;
+		return <MobileNavbar />;
 	}
 }

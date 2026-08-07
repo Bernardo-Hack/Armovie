@@ -1,5 +1,5 @@
 import { View, ScrollView, StyleSheet, Text, TextInput } from "react-native";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 import { text } from "@/assets/styles/stylesheets";
 import { StatBox } from "@/components/common/Statbox";
 import { formatDisplayDate } from "@/utils/utils";
@@ -8,19 +8,20 @@ interface Props {
 	user: User & { password?: string };
 	isEditing: boolean;
 	isCreating?: boolean;
-	handleInputChange: (field: keyof (User & { password?: string }), value: any) => void;
+	handleInputChange: (
+		field: keyof (User & { password?: string }),
+		value: any,
+	) => void;
+	rolesList?: { label: string; value: string }[];
 }
 
-export function UserModalContent({ user, isEditing, isCreating = false, handleInputChange }: Props) {
-	const roles = [
-		{ label: "Usuário", value: "User" },
-		{ label: "Administrador", value: "Admin" },
-		{ label: "Vendedor", value: "Seller" },
-		{ label: "Técnico", value: "Technician"},
-		{ label: "Financeiro", value: "Financeiro" },
-		{ label: "Outro", value: "Outro" },
-	];
-
+export function UserModalContent({
+	user,
+	isEditing,
+	isCreating = false,
+	handleInputChange,
+	rolesList = [],
+}: Props) {
 	return (
 		<ScrollView contentContainerStyle={{ width: "100%" }}>
 			{/* Name */}
@@ -62,21 +63,28 @@ export function UserModalContent({ user, isEditing, isCreating = false, handleIn
 					onChange={(value) => handleInputChange("position", value)}
 					direction="vertical"
 					label="Cargo"
-					value={user.position}
+					value={user.position || ""}
 				/>
 				<StatBox
 					type="select"
 					isEditing={isEditing}
-					onChange={(value) => handleInputChange("role", value)}
+					onChange={(value) => handleInputChange("roleId", value)}
 					direction="vertical"
 					label="Nível de Acesso"
-					value={user.role}
-					options={roles}
+					value={user.roleId || ""}
+					options={rolesList}
 				/>
 			</View>
 
 			{!isCreating && (
-				<View style={{ flexDirection: "column", gap: 5, marginTop: 20, alignItems: "center" }}>
+				<View
+					style={{
+						flexDirection: "column",
+						gap: 5,
+						marginTop: 20,
+						alignItems: "center",
+					}}
+				>
 					<Text style={styles.dateText}>
 						Criado em: {formatDisplayDate(user.createdAt)}
 					</Text>

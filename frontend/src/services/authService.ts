@@ -1,5 +1,5 @@
 import { apiFetch } from "./api";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 import storageUtil from "@/utils/storage";
 
 export interface LoginCredentials {

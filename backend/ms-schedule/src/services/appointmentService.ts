@@ -1,6 +1,9 @@
 import * as schemas from "../schemas/schemas.js";
 import { prisma } from "../lib/prisma.js";
 import { apiErr } from "../errors/index.js";
+import { logger } from "../utils/logger.js";
+
+const AUTOMATION_URL = process.env.AUTOMATION_URL;
 
 export class appointmentService {
 	// Include checklist items in all queries by default
@@ -71,11 +74,36 @@ export class appointmentService {
 			throw new apiErr.BadRequestError("Invalid table for this service.");
 		}
 
-		return await prisma.appointment.update({
+		const updated = await prisma.appointment.update({
 			where: { id },
 			data: { ...validated.data },
 			include: this.include,
 		});
+
+		// ── Fire appointment-completed hook (fire-and-forget) ───────────────
+		if (validated.data.status === "Concluído" && AUTOMATION_URL) {
+			fetch(`${AUTOMATION_URL}/hooks/appointment-completed`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					appointmentId: updated.id,
+					clientId:      updated.clientId,
+					machineId:     updated.machineId,
+					technicianId:  updated.technicianId,
+					type:          updated.type,
+					notes:         updated.notes,
+					nextVisitDate: updated.nextVisitDate,
+					// ServiceLog fields (mlBefore, mlAfter, fragranceId, serviceId)
+					// must be provided by the frontend modal at completion time.
+					// They are not stored in the Appointment — pass them via notes or
+					// directly in the status PATCH body as extra fields (ignored by Zod partial).
+				}),
+			}).catch((err) =>
+				logger.warn(`appointment-completed hook failed: ${err.message}`),
+			);
+		}
+
+		return updated;
 	}
 
 	async deleteAppointment(id: string) {

@@ -7,7 +7,7 @@ import {
 	Pressable,
 } from "react-native";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import {
@@ -16,6 +16,7 @@ import {
 	page as defaultPageStyles,
 } from "@/assets/styles/stylesheets";
 import { GenericList } from "@/components/common/GenericList";
+import { SortableHeader } from "@/components/common/SortableHeader";
 import { GenericCreateModal } from "@/components/common/GenericCreateModal";
 import { StatBox } from "@/components/common/Statbox";
 import Button from "@/components/common/Button";
@@ -23,6 +24,62 @@ import Button from "@/components/common/Button";
 import { machineService } from "@/services/machineService";
 import { planService } from "@/services/planService";
 import { templateService } from "@/services/templateService";
+import { roleService, AVAILABLE_PERMISSIONS, Role } from "@/services/roleService";
+import { supplierService } from "@/services/supplierService";
+import { Supplier } from "@/assets/types/ms-item/Supplier";
+
+function useListSort<T>(
+	data: T[],
+	initialSortKey: keyof T | null = null,
+	initialSortDirection: "asc" | "desc" = "asc",
+) {
+	const [sortKey, setSortKey] = useState<keyof T | null>(initialSortKey);
+	const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+		initialSortDirection,
+	);
+
+	const sortedData = useMemo(() => {
+		if (!sortKey) return data;
+
+		const sorted = [...data].sort((a, b) => {
+			const aValue = a[sortKey];
+			const bValue = b[sortKey];
+
+			if (aValue == null) return -1;
+			if (bValue == null) return 1;
+
+			if (typeof aValue === "string" && typeof bValue === "string") {
+				return aValue.localeCompare(bValue);
+			}
+
+			if (aValue < bValue) return -1;
+			if (aValue > bValue) return 1;
+			return 0;
+		});
+
+		if (sortDirection === "desc") {
+			sorted.reverse();
+		}
+
+		return sorted;
+	}, [data, sortKey, sortDirection]);
+
+	const handleSort = (key: keyof T | null) => {
+		if (key === null) {
+			setSortKey(initialSortKey);
+			setSortDirection(initialSortDirection);
+			return;
+		}
+		if (sortKey === key) {
+			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+		} else {
+			setSortKey(key);
+			setSortDirection("asc");
+		}
+	};
+
+	return { sortedData, sortKey, sortDirection, handleSort };
+}
 
 // --- TimingGrade Components ---
 const TimingGradeManager = () => {
@@ -57,6 +114,9 @@ const TimingGradeManager = () => {
 		fetchAllData();
 	}, []);
 
+	const { sortedData, sortKey, sortDirection, handleSort } =
+		useListSort(data);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={innerStyles.headerRow}>
@@ -72,8 +132,11 @@ const TimingGradeManager = () => {
 			</View>
 			<GenericList
 				loading={loading}
-				items={data}
+				items={sortedData}
 				itemTypeName="grade de tempo"
+				onSort={handleSort as any}
+				sortKey={sortKey as any}
+				sortDirection={sortDirection}
 				onSaveItem={async (item) => {
 					await machineService.updateTimingGrade(item.id, {
 						name: item.name,
@@ -87,14 +150,62 @@ const TimingGradeManager = () => {
 				}}
 				HeaderComponent={() => (
 					<View style={defaultPageStyles.row}>
-						<Text style={[text.headerText, { flex: 2, textAlign: "left", paddingLeft: 15 }]}>NOME</Text>
-						<Text style={[text.headerText, { flex: 1, textAlign: "left" }]}>INTERVALO (MIN)</Text>
+						<View
+							style={{
+								width: "2%",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							{sortKey && (
+								<Button
+									labelColor={colors.textSecondary}
+									iconName="refresh"
+									iconSize={14}
+									onPress={() => handleSort(null)}
+								/>
+							)}
+						</View>
+						<SortableHeader
+							title="NOME"
+							sortKeyName="name"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 2, paddingLeft: 15 }]}
+						/>
+						<SortableHeader
+							title="INTERVALO (MIN)"
+							sortKeyName="interval"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 1 }]}
+						/>
 					</View>
 				)}
 				RowComponent={({ item, openItemDetail }: any) => (
-					<Pressable onPress={openItemDetail} style={defaultPageStyles.row}>
-						<Text style={[text.rowText, { flex: 2, textAlign: "left", paddingLeft: 15 }]}>{item.name}</Text>
-						<Text style={[text.rowText, { flex: 1, textAlign: "left" }]}>{item.interval}</Text>
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<View style={{ width: "2%" }} />
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 1, textAlign: "left" },
+							]}
+						>
+							{item.interval}
+						</Text>
 					</Pressable>
 				)}
 				editModalRenderContent={(
@@ -186,6 +297,9 @@ const ServiceTypeManager = () => {
 		fetchAllData();
 	}, []);
 
+	const { sortedData, sortKey, sortDirection, handleSort } =
+		useListSort(data);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={innerStyles.headerRow}>
@@ -201,8 +315,11 @@ const ServiceTypeManager = () => {
 			</View>
 			<GenericList
 				loading={loading}
-				items={data}
+				items={sortedData}
 				itemTypeName="tipo de serviço"
+				onSort={handleSort as any}
+				sortKey={sortKey as any}
+				sortDirection={sortDirection}
 				onSaveItem={async (item) => {
 					await machineService.updateServiceType(item.id, {
 						name: item.name,
@@ -216,14 +333,62 @@ const ServiceTypeManager = () => {
 				}}
 				HeaderComponent={() => (
 					<View style={defaultPageStyles.row}>
-						<Text style={[text.headerText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>NOME</Text>
-						<Text style={[text.headerText, { flex: 2, textAlign: "left" }]}>DESCRIÇÃO</Text>
+						<View
+							style={{
+								width: "2%",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							{sortKey && (
+								<Button
+									labelColor={colors.textSecondary}
+									iconName="refresh"
+									iconSize={14}
+									onPress={() => handleSort(null)}
+								/>
+							)}
+						</View>
+						<SortableHeader
+							title="NOME"
+							sortKeyName="name"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 1, paddingLeft: 15 }]}
+						/>
+						<SortableHeader
+							title="DESCRIÇÃO"
+							sortKeyName="description"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 2 }]}
+						/>
 					</View>
 				)}
 				RowComponent={({ item, openItemDetail }: any) => (
-					<Pressable onPress={openItemDetail} style={defaultPageStyles.row}>
-						<Text style={[text.rowText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>{item.name}</Text>
-						<Text style={[text.rowText, { flex: 2, textAlign: "left" }]}>{item.description}</Text>
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<View style={{ width: "2%" }} />
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 1, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left" },
+							]}
+						>
+							{item.description}
+						</Text>
 					</Pressable>
 				)}
 				editModalRenderContent={(
@@ -319,6 +484,12 @@ const MlStepsManager = () => {
 		fetchAllData();
 	}, []);
 
+	const { sortedData, sortKey, sortDirection, handleSort } = useListSort(
+		data,
+		"quantity",
+		"asc",
+	);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={innerStyles.headerRow}>
@@ -334,8 +505,11 @@ const MlStepsManager = () => {
 			</View>
 			<GenericList
 				loading={loading}
-				items={data}
+				items={sortedData}
 				itemTypeName="passo de ML"
+				onSort={handleSort as any}
+				sortKey={sortKey as any}
+				sortDirection={sortDirection}
 				onSaveItem={async (item) => {
 					await machineService.updateMlSteps(item.id, {
 						quantity: Number(item.quantity),
@@ -348,12 +522,46 @@ const MlStepsManager = () => {
 				}}
 				HeaderComponent={() => (
 					<View style={defaultPageStyles.row}>
-						<Text style={[text.headerText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>QUANTIDADE (ML)</Text>
+						<View
+							style={{
+								width: "2%",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							{sortKey && (
+								<Button
+									labelColor={colors.textSecondary}
+									iconName="refresh"
+									iconSize={14}
+									onPress={() => handleSort(null)}
+								/>
+							)}
+						</View>
+						<SortableHeader
+							title="QUANTIDADE (ML)"
+							sortKeyName="quantity"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 1, paddingLeft: 15 }]}
+						/>
 					</View>
 				)}
 				RowComponent={({ item, openItemDetail }: any) => (
-					<Pressable onPress={openItemDetail} style={defaultPageStyles.row}>
-						<Text style={[text.rowText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>{item.quantity}</Text>
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<View style={{ width: "2%" }} />
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 1, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.quantity}
+						</Text>
 					</Pressable>
 				)}
 				editModalRenderContent={(
@@ -432,6 +640,9 @@ const PlansManager = () => {
 		fetchAllData();
 	}, []);
 
+	const { sortedData, sortKey, sortDirection, handleSort } =
+		useListSort(data);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={innerStyles.headerRow}>
@@ -447,8 +658,11 @@ const PlansManager = () => {
 			</View>
 			<GenericList
 				loading={loading}
-				items={data}
+				items={sortedData}
 				itemTypeName="plano"
+				onSort={handleSort as any}
+				sortKey={sortKey as any}
+				sortDirection={sortDirection}
 				onSaveItem={async (item) => {
 					await planService.updatePlan(item.id, {
 						name: item.name,
@@ -462,14 +676,62 @@ const PlansManager = () => {
 				}}
 				HeaderComponent={() => (
 					<View style={defaultPageStyles.row}>
-						<Text style={[text.headerText, { flex: 2, textAlign: "left", paddingLeft: 15 }]}>NOME</Text>
-						<Text style={[text.headerText, { flex: 1, textAlign: "left" }]}>PREÇO (R$)</Text>
+						<View
+							style={{
+								width: "2%",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							{sortKey && (
+								<Button
+									labelColor={colors.textSecondary}
+									iconName="refresh"
+									iconSize={14}
+									onPress={() => handleSort(null)}
+								/>
+							)}
+						</View>
+						<SortableHeader
+							title="NOME"
+							sortKeyName="name"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 2, paddingLeft: 15 }]}
+						/>
+						<SortableHeader
+							title="PREÇO (R$)"
+							sortKeyName="price"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 1 }]}
+						/>
 					</View>
 				)}
 				RowComponent={({ item, openItemDetail }: any) => (
-					<Pressable onPress={openItemDetail} style={defaultPageStyles.row}>
-						<Text style={[text.rowText, { flex: 2, textAlign: "left", paddingLeft: 15 }]}>{item.name}</Text>
-						<Text style={[text.rowText, { flex: 1, textAlign: "left" }]}>R$ {Number(item.price).toFixed(2)}</Text>
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<View style={{ width: "2%" }} />
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 1, textAlign: "left" },
+							]}
+						>
+							R$ {Number(item.price).toFixed(2)}
+						</Text>
 					</Pressable>
 				)}
 				editModalRenderContent={(
@@ -561,6 +823,9 @@ const TemplatesManager = () => {
 		fetchAllData();
 	}, []);
 
+	const { sortedData, sortKey, sortDirection, handleSort } =
+		useListSort(data);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={innerStyles.headerRow}>
@@ -576,8 +841,11 @@ const TemplatesManager = () => {
 			</View>
 			<GenericList
 				loading={loading}
-				items={data}
+				items={sortedData}
 				itemTypeName="template"
+				onSort={handleSort as any}
+				sortKey={sortKey as any}
+				sortDirection={sortDirection}
 				onSaveItem={async (item) => {
 					await templateService.updateTemplate(item.id, {
 						name: item.name,
@@ -592,14 +860,62 @@ const TemplatesManager = () => {
 				}}
 				HeaderComponent={() => (
 					<View style={defaultPageStyles.row}>
-						<Text style={[text.headerText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>NOME</Text>
-						<Text style={[text.headerText, { flex: 2, textAlign: "left" }]}>DESCRIÇÃO</Text>
+						<View
+							style={{
+								width: "2%",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							{sortKey && (
+								<Button
+									labelColor={colors.textSecondary}
+									iconName="refresh"
+									iconSize={14}
+									onPress={() => handleSort(null)}
+								/>
+							)}
+						</View>
+						<SortableHeader
+							title="NOME"
+							sortKeyName="name"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 1, paddingLeft: 15 }]}
+						/>
+						<SortableHeader
+							title="DESCRIÇÃO"
+							sortKeyName="description"
+							onSort={handleSort}
+							sortKey={sortKey as any}
+							sortDirection={sortDirection}
+							style={[{ flex: 2 }]}
+						/>
 					</View>
 				)}
 				RowComponent={({ item, openItemDetail }: any) => (
-					<Pressable onPress={openItemDetail} style={defaultPageStyles.row}>
-						<Text style={[text.rowText, { flex: 1, textAlign: "left", paddingLeft: 15 }]}>{item.name}</Text>
-						<Text style={[text.rowText, { flex: 2, textAlign: "left" }]}>{item.description}</Text>
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<View style={{ width: "2%" }} />
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 1, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left" },
+							]}
+						>
+							{item.description}
+						</Text>
 					</Pressable>
 				)}
 				editModalRenderContent={(
@@ -677,8 +993,513 @@ const TemplatesManager = () => {
 	);
 };
 
+// --- Supplier Component ---
+const SupplierManager = () => {
+	const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+	const fetchAllData = async () => {
+		setLoading(true);
+		try {
+			const res = await supplierService.getAllSuppliers();
+			setSuppliers(res);
+		} catch (error: any) {
+			if (
+				error.message?.includes("404") ||
+				error.message?.includes("Not Found")
+			) {
+				setSuppliers([]);
+			} else {
+				Toast.show({
+					type: "error",
+					text1: "Erro ao carregar",
+					text2: error.message,
+				});
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchAllData();
+	}, []);
+
+	return (
+		<View style={{ flex: 1 }}>
+			<View style={innerStyles.headerRow}>
+				<Text style={[text.title, { flex: 1, fontSize: 20 }]}>
+					Fornecedores
+				</Text>
+				<Button
+					label="Novo Fornecedor"
+					iconName="add"
+					iconSize={16}
+					onPress={() => setIsCreateModalVisible(true)}
+				/>
+			</View>
+
+			<GenericList
+				loading={loading}
+				items={suppliers}
+				itemTypeName="fornecedor"
+				onSaveItem={async (item) => {
+					await supplierService.updateSupplier(item.id, {
+						name: item.name,
+						description: item.description,
+					});
+					fetchAllData();
+				}}
+				onDeleteItem={async (id) => {
+					await supplierService.deleteSupplier(id);
+					fetchAllData();
+				}}
+				HeaderComponent={() => (
+					<View style={defaultPageStyles.row}>
+						<Text
+							style={[
+								text.headerText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							FORNECEDOR
+						</Text>
+						<Text
+							style={[
+								text.headerText,
+								{ flex: 3, textAlign: "left" },
+							]}
+						>
+							DESCRIÇÃO
+						</Text>
+					</View>
+				)}
+				RowComponent={({ item, openItemDetail }: any) => (
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 3, textAlign: "left", color: colors.textSecondary },
+							]}
+							numberOfLines={1}
+						>
+							{item.description}
+						</Text>
+					</Pressable>
+				)}
+				editModalRenderContent={(
+					item: any,
+					isEditing,
+					handleInputChange,
+				) => (
+					<View style={{ gap: 12 }}>
+						<StatBox
+							label="Nome do Fornecedor"
+							value={item.name}
+							isEditing={isEditing}
+							onChange={(v) => handleInputChange("name", v)}
+						/>
+						<StatBox
+							label="Descrição"
+							value={item.description || ""}
+							isEditing={isEditing}
+							isMultiline
+							onChange={(v) => handleInputChange("description", v)}
+						/>
+					</View>
+				)}
+			/>
+			<GenericCreateModal
+				initialState={{ name: "", description: "" }}
+				visible={isCreateModalVisible}
+				onClose={() => setIsCreateModalVisible(false)}
+				onSave={async (item) => {
+					await supplierService.createSupplier({
+						name: item.name,
+						description: item.description,
+					});
+					fetchAllData();
+					setIsCreateModalVisible(false);
+				}}
+				renderContent={(item, handleInputChange) => (
+					<View style={{ gap: 10 }}>
+						<StatBox
+							label="Nome"
+							value={item.name}
+							isEditing={true}
+							onChange={(v) => handleInputChange("name", v)}
+						/>
+						<StatBox
+							label="Descrição"
+							value={item.description}
+							isEditing={true}
+							isMultiline
+							onChange={(v) =>
+								handleInputChange("description", v)
+							}
+						/>
+					</View>
+				)}
+			/>
+		</View>
+	);
+};
+
+// --- Roles / Permissions Components ---
+const RolesManager = () => {
+	const [roles, setRoles] = useState<Role[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
+	const fetchAllData = async () => {
+		setLoading(true);
+		try {
+			const res = await roleService.getAllRoles();
+			setRoles(res);
+		} catch (error: any) {
+			if (
+				error.message?.includes("404") ||
+				error.message?.includes("Not Found")
+			) {
+				setRoles([]);
+			} else {
+				Toast.show({
+					type: "error",
+					text1: "Erro ao carregar",
+					text2: error.message,
+				});
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchAllData();
+	}, []);
+
+	return (
+		<View style={{ flex: 1 }}>
+			<View style={innerStyles.headerRow}>
+				<Text style={[text.title, { flex: 1, fontSize: 20 }]}>
+					Perfis de Acesso
+				</Text>
+				<Button
+					label="Novo Perfil"
+					iconName="add"
+					iconSize={16}
+					onPress={() => setIsCreateModalVisible(true)}
+				/>
+			</View>
+
+			<GenericList
+				loading={loading}
+				items={roles}
+				itemTypeName="perfil"
+				onSaveItem={async (item) => {
+					await roleService.updateRole(item.id, {
+						name: item.name,
+						description: item.description,
+						permissions: item.permissions ?? [],
+					});
+					fetchAllData();
+				}}
+				onDeleteItem={async (id) => {
+					await roleService.deleteRole(id);
+					fetchAllData();
+				}}
+				HeaderComponent={() => (
+					<View style={defaultPageStyles.row}>
+						<Text
+							style={[
+								text.headerText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							NOME DO PERFIL
+						</Text>
+						<Text
+							style={[
+								text.headerText,
+								{ flex: 3, textAlign: "left" },
+							]}
+						>
+							PERMISSÕES ATIVAS
+						</Text>
+					</View>
+				)}
+				RowComponent={({ item, openItemDetail }: any) => (
+					<Pressable
+						onPress={openItemDetail}
+						style={defaultPageStyles.row}
+					>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 2, textAlign: "left", paddingLeft: 15 },
+							]}
+						>
+							{item.name}
+						</Text>
+						<Text
+							style={[
+								text.rowText,
+								{ flex: 3, textAlign: "left", color: colors.textSecondary },
+							]}
+						>
+							{(item.permissions ?? []).length === 0
+								? "Nenhuma permissão"
+								: AVAILABLE_PERMISSIONS
+										.filter((p) =>
+											(item.permissions ?? []).includes(p.key),
+										)
+										.map((p) => p.label)
+										.join(", ")}
+						</Text>
+					</Pressable>
+				)}
+				editModalRenderContent={(
+					item: any,
+					isEditing,
+					handleInputChange,
+				) => (
+					<View style={{ gap: 12 }}>
+						<StatBox
+							label="Nome do Perfil"
+							value={item.name}
+							isEditing={isEditing}
+							onChange={(v) => handleInputChange("name", v)}
+						/>
+						<StatBox
+							label="Descrição"
+							value={item.description || ""}
+							isEditing={isEditing}
+							onChange={(v) => handleInputChange("description", v)}
+						/>
+						<View>
+							<Text
+								style={[
+									text.headerText,
+									{ marginBottom: 10 },
+								]}
+							>
+								PERMISSÕES
+							</Text>
+							<View
+								style={{
+									flexDirection: "row",
+									flexWrap: "wrap",
+									gap: 10,
+								}}
+							>
+								{AVAILABLE_PERMISSIONS.map((perm) => {
+									const currentPerms: string[] =
+										item.permissions ?? [];
+									const isActive = currentPerms.includes(
+										perm.key,
+									);
+									return (
+										<Pressable
+											key={perm.key}
+											disabled={!isEditing}
+											onPress={() => {
+												const updated = isActive
+													? currentPerms.filter(
+															(p) => p !== perm.key,
+														)
+													: [...currentPerms, perm.key];
+												handleInputChange(
+													"permissions",
+													updated,
+												);
+											}}
+											style={[
+												permStyles.chip,
+												isActive
+													? permStyles.chipActive
+													: permStyles.chipInactive,
+												!isEditing &&
+													permStyles.chipDisabled,
+											]}
+										>
+											<Ionicons
+												name={
+													isActive
+														? "checkmark-circle"
+														: "ellipse-outline"
+												}
+												size={16}
+												color={
+													isActive
+														? "#fff"
+														: colors.textSecondary
+												}
+											/>
+											<Text
+												style={[
+													text.rowText,
+													{
+														color: isActive
+															? "#fff"
+															: colors.textSecondary,
+													},
+												]}
+											>
+												{perm.label}
+											</Text>
+										</Pressable>
+									);
+								})}
+							</View>
+						</View>
+					</View>
+				)}
+			/>
+
+			<GenericCreateModal
+				initialState={{ name: "", description: "", permissions: [] }}
+				visible={isCreateModalVisible}
+				onClose={() => setIsCreateModalVisible(false)}
+				onSave={async (item) => {
+					await roleService.createRole({
+						name: item.name,
+						description: item.description,
+						permissions: item.permissions ?? [],
+					});
+					fetchAllData();
+					setIsCreateModalVisible(false);
+				}}
+				renderContent={(item, handleInputChange) => (
+					<View style={{ gap: 12 }}>
+						<StatBox
+							label="Nome do Perfil"
+							value={item.name}
+							isEditing={true}
+							onChange={(v) => handleInputChange("name", v)}
+						/>
+						<StatBox
+							label="Descrição"
+							value={item.description || ""}
+							isEditing={true}
+							onChange={(v) => handleInputChange("description", v)}
+						/>
+						<View>
+							<Text
+								style={[
+									text.headerText,
+									{ marginBottom: 10 },
+								]}
+							>
+								PERMISSÕES
+							</Text>
+							<View
+								style={{
+									flexDirection: "row",
+									flexWrap: "wrap",
+									gap: 10,
+								}}
+							>
+								{AVAILABLE_PERMISSIONS.map((perm) => {
+									const currentPerms: string[] =
+										item.permissions ?? [];
+									const isActive = currentPerms.includes(
+										perm.key,
+									);
+									return (
+										<Pressable
+											key={perm.key}
+											onPress={() => {
+												const updated = isActive
+													? currentPerms.filter(
+															(p) => p !== perm.key,
+														)
+													: [...currentPerms, perm.key];
+												handleInputChange(
+													"permissions",
+													updated,
+												);
+											}}
+											style={[
+												permStyles.chip,
+												isActive
+													? permStyles.chipActive
+													: permStyles.chipInactive,
+											]}
+										>
+											<Ionicons
+												name={
+													isActive
+														? "checkmark-circle"
+														: "ellipse-outline"
+												}
+												size={16}
+												color={
+													isActive
+														? "#fff"
+														: colors.textSecondary
+												}
+											/>
+											<Text
+												style={[
+													text.rowText,
+													{
+														color: isActive
+															? "#fff"
+															: colors.textSecondary,
+													},
+												]}
+											>
+												{perm.label}
+											</Text>
+										</Pressable>
+									);
+								})}
+							</View>
+						</View>
+					</View>
+				)}
+			/>
+		</View>
+	);
+};
+
+const permStyles = StyleSheet.create({
+	chip: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 20,
+		borderWidth: 1,
+	},
+	chipActive: {
+		backgroundColor: "#ef790c",
+		borderColor: "#ef790c",
+	},
+	chipInactive: {
+		backgroundColor: "transparent",
+		borderColor: colors.textSecondary,
+	},
+	chipDisabled: {
+		opacity: 0.7,
+	},
+});
+
 // --- Modal Definition ---
-type Tab = "timegrades" | "servicetypes" | "mlsteps" | "plans" | "templates";
+type Tab = "timegrades" | "servicetypes" | "mlsteps" | "plans" | "templates" | "permissions" | "suppliers";
 
 const TABS: { key: Tab; label: string; icon: string }[] = [
 	{ key: "timegrades", label: "Grades de Tempo", icon: "time-outline" },
@@ -690,6 +1511,8 @@ const TABS: { key: Tab; label: string; icon: string }[] = [
 	{ key: "mlsteps", label: "Passos de ML", icon: "color-fill-outline" },
 	{ key: "plans", label: "Planos", icon: "card-outline" },
 	{ key: "templates", label: "Templates", icon: "document-text-outline" },
+	{ key: "permissions", label: "Permissões", icon: "shield-checkmark-outline" },
+	{ key: "suppliers", label: "Fornecedores", icon: "cube-outline" },
 ];
 
 export function SettingsModal({
@@ -773,6 +1596,8 @@ export function SettingsModal({
 							{activeTab === "mlsteps" && <MlStepsManager />}
 							{activeTab === "plans" && <PlansManager />}
 							{activeTab === "templates" && <TemplatesManager />}
+							{activeTab === "permissions" && <RolesManager />}
+							{activeTab === "suppliers" && <SupplierManager />}
 						</ScrollView>
 					</View>
 				</View>

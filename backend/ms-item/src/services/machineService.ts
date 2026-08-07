@@ -1,6 +1,9 @@
 import * as schemas from "../schemas/schemas.js";
 import { prisma } from "../lib/prisma.js";
 import { apiErr } from "../errors/index.js";
+import { logger } from "../utils/logger.js";
+
+const AUTOMATION_URL = process.env.AUTOMATION_URL;
 
 // Service class to handle the business logic of the machine module
 
@@ -236,7 +239,7 @@ export class machineService {
 			throw new apiErr.BadRequestError("Invalid table for this service");
 		}
 
-		const { mlBefore, mlAfter, fragranceId, ...restData } = input.data;
+		const { mlBefore, mlAfter, fragranceId, appointmentId, ...restData } = input.data;
 
 		const result = await prisma.$transaction(async (tx) => {
 			const newLog = await tx.serviceLog.create({
@@ -244,9 +247,13 @@ export class machineService {
 					mlBefore,
 					mlAfter,
 					fragranceId,
+					appointmentId,
 					...restData,
 				},
 			});
+
+			let updatedStock: number | null = null;
+			let fragrance: { name: string; minStock: number } | null = null;
 
 			if (mlAfter != null && mlBefore != null && fragranceId) {
 				const mlDelta = mlAfter - mlBefore;
@@ -260,17 +267,41 @@ export class machineService {
 						},
 					});
 
-					await tx.fragrance.update({
+					const updated = await tx.fragrance.update({
 						where: { id: fragranceId },
 						data: { stock: { decrement: mlDelta } },
 					});
+					updatedStock = updated.stock;
+					fragrance = { name: updated.name, minStock: updated.minStock };
 				}
 			}
 
-			return newLog;
+			return { newLog, updatedStock, fragrance, fragranceId };
 		});
 
-		return result;
+		// ── Fire stock-low hook (outside transaction, fire-and-forget) ──────────
+		if (
+			result.updatedStock !== null &&
+			result.fragrance !== null &&
+			result.fragranceId &&
+			result.updatedStock < result.fragrance.minStock &&
+			AUTOMATION_URL
+		) {
+			fetch(`${AUTOMATION_URL}/hooks/stock-low`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					fragranceId:   result.fragranceId,
+					fragranceName: result.fragrance.name,
+					currentStock:  result.updatedStock,
+					minStock:      result.fragrance.minStock,
+				}),
+			}).catch((err) =>
+				logger.warn(`stock-low hook failed: ${err.message}`),
+			);
+		}
+
+		return result.newLog;
 	}
 
 	// Get service logs by Machine ID

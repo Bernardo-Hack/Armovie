@@ -43,11 +43,13 @@ export class UserService {
 				...userData,
 				passwordHash: hashedPassword,
 			},
+			include: { role: true },
 		});
 
 		const payload: Record<string, unknown> = {
 			sub: user.id,
-			roleId: user.role,
+			roleId: user.roleId,
+			permissions: user.role?.permissions ?? [],
 		};
 
 		const token = jwt.sign(payload, JWT_SECRET, {
@@ -65,7 +67,10 @@ export class UserService {
 		const { passwordHash, ...userWithoutPassword } = user;
 
 		return {
-			user: userWithoutPassword,
+			user: {
+				...userWithoutPassword,
+				permissions: user.role?.permissions ?? [],
+			},
 			accessToken: token,
 			refreshToken: token,
 			expiresIn: JWT_EXPIRES_IN,
@@ -75,6 +80,7 @@ export class UserService {
 	async loginUser(input: schemas.LoginInput) {
 		const user = await prisma.user.findUnique({
 			where: { email: input.email },
+			include: { role: true },
 		});
 
 		if (!user)
@@ -89,9 +95,12 @@ export class UserService {
 				"Invalid email or password.",
 			);
 
+		const permissions = user.role?.permissions ?? [];
+
 		const payload: Record<string, unknown> = {
 			sub: user.id,
-			roleId: user.role,
+			roleId: user.roleId,
+			permissions,
 		};
 
 		const accessToken = jwt.sign(payload, JWT_SECRET, {
@@ -113,7 +122,10 @@ export class UserService {
 		const { passwordHash, ...userWithoutPassword } = user;
 
 		return {
-			user: userWithoutPassword,
+			user: {
+				...userWithoutPassword,
+				permissions,
+			},
 			accessToken: accessToken,
 			refreshToken: refreshToken,
 			expiresIn: JWT_EXPIRES_IN,
@@ -128,7 +140,7 @@ export class UserService {
 				tokenHash: oldTokenHash,
 				revoked: false,
 			},
-			include: { user: true },
+			include: { user: { include: { role: true } } },
 		});
 
 		if (!storedToken)
@@ -140,7 +152,8 @@ export class UserService {
 
 		const payload: Record<string, unknown> = {
 			sub: user.id,
-			roleId: user.role,
+			roleId: user.roleId,
+			permissions: user.role?.permissions ?? [],
 		};
 
 		const newAccessToken = jwt.sign(payload, JWT_SECRET, {
@@ -200,15 +213,17 @@ export class UserService {
 				name: true,
 				email: true,
 				position: true,
+				roleId: true,
+				role: { select: { name: true, permissions: true } },
 				created_at: true,
 				passwordHash: false,
 			},
 		});
 	}
 
-	async getUsersByRole(role: string) {
+	async getUsersByRole(roleId: string) {
 		return await prisma.user.findMany({
-			where: { role },
+			where: { roleId },
 			select: {
 				id: true,
 				name: true,
@@ -223,7 +238,8 @@ export class UserService {
 				name: true,
 				email: true,
 				position: true,
-				role: true,
+				roleId: true,
+				role: { select: { name: true, permissions: true } },
 				created_at: true,
 				passwordHash: false,
 			},

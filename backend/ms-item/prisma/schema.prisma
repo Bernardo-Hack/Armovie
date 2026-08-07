@@ -84,6 +84,8 @@ model ServiceLog {
   machineId    String @db.Uuid
   technicianId String @db.Uuid
 
+  appointmentId String? @db.Uuid // reference to the originating ms-schedule Appointment
+
   serviceId      String @db.Uuid
   description    String @db.Text
   machinePayment Int    @db.Integer
@@ -132,23 +134,40 @@ model Fragrance {
   family      String @db.VarChar(64)
   description String @db.Text
 
-  stock    Int    @db.Integer // milliliters in stock
-  unitCost Float  @db.DoublePrecision // price per 100ml
-  supplier String @db.VarChar(128)
+  stock      Int    @db.Integer // milliliters in stock
+  minStock   Int    @default(200) @db.Integer // alert threshold in milliliters
+  unitCost   Float  @db.DoublePrecision // price per 100ml
+  supplierId String @db.Uuid
 
   isActive Boolean @db.Boolean
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  supplier        Supplier         @relation(fields: [supplierId], references: [id])
   machines        Machine[]
   serviceLogs     ServiceLog[]
   consumptionLogs ConsumptionLog[]
 
   @@index([family])
-  @@index([supplier])
+  @@index([supplierId])
   @@index([isActive])
   @@map("fragrances")
+}
+
+// Table for fragrance suppliers
+model Supplier {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  name        String @db.VarChar(128)
+  description String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fragrances Fragrance[]
+
+  @@map("suppliers")
 }
 
 // Logs the consumption of fragrances in stock

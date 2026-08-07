@@ -13,10 +13,16 @@ export function ContractListRow({
 	item: Contract;
 	openItemDetail: () => void;
 }) {
-	return webList(item, openItemDetail);
+	return <WebList contract={item} openItemDetail={openItemDetail} />;
 }
 
-function webList(contract: Contract, openItemDetail: () => void) {
+function WebList({
+	contract,
+	openItemDetail,
+}: {
+	contract: Contract;
+	openItemDetail: () => void;
+}) {
 	const [clientName, setClientName] = useState("Carregando...");
 	const [planName, setPlanName] = useState("Carregando...");
 

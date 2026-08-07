@@ -13,7 +13,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { colors, text } from "@/assets/styles/stylesheets";
 import Button from "@/components/common/Button";
 import { Machine } from "@/assets/types/ms-item/Machine";
-import { ServiceLog } from "@/assets/types/ServiceLog";
+import { ServiceLog } from "@/assets/types/ms-item/Machine";
 import { machineService } from "@/services/machineService";
 import { userService } from "@/services/userService";
 import { StatBox } from "@/components/common/Statbox";
@@ -150,14 +150,11 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 
 		try {
 			const payload = {
-				observation: newLog.observation,
+				description: newLog.observation,
 				technicianId: newLog.technicianId,
-				serviceType: newLog.serviceType,
-				daysSinceLastService: Number(newLog.daysSinceLastService) || 0,
-				mlConsumed: newLog.mlConsumed
-					? Number(newLog.mlConsumed)
-					: undefined,
-			};
+				serviceId: newLog.serviceType,
+				machinePayment: 0,
+			} as any;
 
 			await machineService.createServiceLog(machine.id, payload);
 
@@ -181,26 +178,26 @@ export function MachineServicesModal({ machine, visible, onClose }: Props) {
 		}
 	};
 
-	const handleInputChange = (field: keyof ServiceLog, value: any) => {
+	const handleInputChange = (field: keyof typeof newLog, value: any) => {
 		setNewLog((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const renderLogItem = ({ item }: { item: ServiceLog }) => (
 		<View style={styles.container}>
 			<View style={{ flex: 1 }}>
-				<Text style={styles.description}>{item.observation}</Text>
+				<Text style={styles.description}>{item.description}</Text>
 				<View style={{ flexDirection: "row", gap: 15, marginTop: 8 }}>
 					<Text style={styles.meta}>
 						Tipo:{" "}
 						<Text style={{ fontWeight: "bold" }}>
-							{item.serviceType}
+							{item.serviceId}
 						</Text>
 					</Text>
-					{item.mlConsumed && (
+					{item.mlAfter && (
 						<Text style={styles.meta}>
-							Consumo:{" "}
+							ML Após:{" "}
 							<Text style={{ fontWeight: "bold" }}>
-								{item.mlConsumed}ml
+								{item.mlAfter}ml
 							</Text>
 						</Text>
 					)}

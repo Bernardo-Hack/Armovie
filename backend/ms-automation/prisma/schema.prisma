@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AutomationLog {
+  id      String @id @default(uuid()) @db.Uuid
+  trigger String @db.VarChar(64) // "appointment-completed" | "stock-low"
+  status  String @db.VarChar(16) // "success" | "failed" | "partial"
+
+  payload Json  // raw payload received from the hook
+  result  Json? // result of orchestrated actions
+  error   String? @db.Text // error message if any action failed
+
+  createdAt DateTime @default(now())
+
+  @@index([trigger])
+  @@index([status])
+  @@index([createdAt])
+  @@map("automation_logs")
+}

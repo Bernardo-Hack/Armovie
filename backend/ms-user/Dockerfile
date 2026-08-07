@@ -31,4 +31,4 @@ COPY --from=builder /app/prisma.config.ts ./
 
 EXPOSE 5001
 
-CMD npx prisma db push && node dist/src/app.js
+CMD npx prisma db push && node dist/prisma/seed.js && node dist/src/app.js

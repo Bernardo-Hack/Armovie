@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { colors, page, text } from "@/assets/styles/stylesheets";
-import { User } from "@/assets/types/User";
+import { User } from "@/assets/types/ms-user/User";
 
 interface Props {
 	item: User;
@@ -34,12 +34,12 @@ export function UserListRow({ item, openItemDetail }: Props) {
 					style={[
 						text.rowText,
 						{
-							color: getRoleColor(item.role),
+							color: getRoleColor(item.role?.name),
 							fontWeight: "bold",
 						},
 					]}
 				>
-					{item.role}
+					{item.role?.name || "Sem perfil"}
 				</Text>
 			</View>
 
@@ -60,7 +60,7 @@ export function UserListRow({ item, openItemDetail }: Props) {
 	);
 }
 
-function getRoleColor(role: string) {
+function getRoleColor(role?: string) {
 	switch (role) {
 		case "Admin":
 			return colors.primary;
