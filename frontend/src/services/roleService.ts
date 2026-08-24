@@ -15,7 +15,7 @@ export interface RoleData {
 	permissions: string[];
 }
 
-const BASE_URL = "/api/roles/";
+const BASE_URL = "/api/users/roles/";
 
 export const roleService = {
 	getAllRoles: async (): Promise<Role[]> => {
